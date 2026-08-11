@@ -169,6 +169,16 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--teal)}
 .rolechip.r-tech{color:#a06bff;border-color:#3a2a5a}
 .rolechip.r-super{color:#ff6b78;border-color:#5a2a2e}
 .rolechip.r-cafe{color:#ff8a3d;border-color:#5a3a1e}
+.catbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.catbtn{background:var(--card2);border:1px solid var(--line2);border-radius:999px;padding:6px 16px;cursor:pointer;color:var(--dim);font:700 13px 'Tajawal'}
+.catbtn.on{background:var(--teal-d);border-color:#0e6c7d;color:#fff}
+.menugrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.mbtn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;background:var(--card);border:1px solid var(--line2);
+  border-radius:12px;padding:10px 12px;cursor:pointer;color:var(--ink);text-align:start;transition:.15s;font-family:'Tajawal'}
+.mbtn:hover{border-color:var(--teal);transform:translateY(-2px);background:#152430}
+.mbtn .mn{font-size:12.5px;font-weight:700;line-height:1.3}
+.mbtn .mp{font-size:15px;color:var(--teal);font-variant-numeric:tabular-nums;direction:ltr}
+.lin .qty{min-width:26px;text-align:center;font-weight:800}
 /* ═══ لوحة التشغيل ═══ */
 .opsgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:11px;margin-bottom:6px}
 .opsnow,.opscard{background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:14px 16px;box-shadow:0 4px 14px rgba(0,0,0,.28)}
@@ -325,7 +335,7 @@ tr.cancelled td{opacity:.5}
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v5.0 · بناء 10-08 23:10</small></span>
+    <span class="brand">EM · نظام مراسي <small>v5.1 · بناء 11-08 11:30</small></span>
     <div class="datenav">
       <button id="langBtn" onclick="toggleLang()" style="font-weight:800">EN</button>
       <button onclick="shiftDay(-1)" title="اليوم السابق">▶</button>
@@ -344,6 +354,7 @@ tr.cancelled td{opacity:.5}
   <section id="tab-rcp"   class="tab"></section>
   <section id="tab-ana"   class="tab"></section>
   <section id="tab-sales" class="tab"></section>
+  <section id="tab-cafe"  class="tab"></section>
   <section id="tab-rec"   class="tab"></section>
   <section id="tab-gm"    class="tab"></section>
   <section id="tab-rep"   class="tab"></section>
@@ -386,6 +397,23 @@ const FREE_PAY=['Super Nova'];
 /* «How you Know about EVA» — سؤال الاستقبال (كعمود الإكسل) */
 const ROLES={gm:'قيم ماستر',reception:'استقبال',cashier:'كاشير',tech:'فنّي',super:'مشرف',cafe:'كافيه'};
 const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const CAFE_CATS={hot:'☕ ساخنة',cold:'🧊 باردة',snack:'🍪 سناكس',extra:'➕ إضافات'};
+const CAFE_MENU=[
+  {c:'hot',n:'ESPRESSO (4oz)',p:1.20},{c:'hot',n:'MACCHIATO (4oz)',p:1.60},{c:'hot',n:'CORTADO (4oz)',p:1.70},
+  {c:'hot',n:'Cappuccino (8oz)',p:1.80},{c:'hot',n:'Flat White (8oz)',p:2.00},{c:'hot',n:'Americano (8oz)',p:1.50},
+  {c:'hot',n:'LATTE (12oz)',p:2.00},{c:'hot',n:'Vanilla Latte (12oz)',p:2.00},{c:'hot',n:'Spanish Latte (12oz)',p:2.20},
+  {c:'hot',n:'WHITE MOCHA (12oz)',p:2.20},{c:'hot',n:'FILTER COFFEE',p:2.40},{c:'hot',n:'PREMIUM FILTER COFFEE',p:3.20},
+  {c:'hot',n:'Green Tea',p:0.50},{c:'hot',n:'Plain Black Tea',p:0.35},{c:'hot',n:'Black Tea With Milk',p:0.75},
+  {c:'cold',n:'Iced Americano (12oz)',p:1.40},{c:'cold',n:'COLD LATTE',p:2.00},{c:'cold',n:'COLD SPANISH LATTE',p:2.20},
+  {c:'cold',n:'Cyber Latte',p:2.30},{c:'cold',n:'COLD FILTER COFFEE',p:2.40},{c:'cold',n:'PREMIUM ICED FILTER COFFEE',p:3.20},
+  {c:'cold',n:'Iced Tea',p:1.65},{c:'cold',n:'Mojito (ORIGINAL)',p:2.00},{c:'cold',n:'Mojito (Redbull)',p:2.50},
+  {c:'cold',n:'Cyber Fizzy Chiller',p:1.65},{c:'cold',n:'Redbull',p:1.65},{c:'cold',n:'Gatorade',p:0.75},
+  {c:'cold',n:'Kinza (SOFT DRINK)',p:0.75},{c:'cold',n:'Water',p:0.30},
+  {c:'snack',n:'Milk Chocolate Chip Cookies',p:1.00},{c:'snack',n:'White Chocolate Raspberry Cookie',p:1.30},
+  {c:'snack',n:'Triple Chocolate Brownie Cookies',p:1.60},
+  {c:'extra',n:'ADD FLAVOR',p:0.25},{c:'extra',n:'Cup With Ice',p:0.30},
+];
+const cafeCatOf=label=>{const m=CAFE_MENU.find(x=>x.n===label);return m?m.c:'extra'};
 const HEARD=['Instagram','TikTok','Snapchat','Google','صديق أو معرفة','مررنا بالمكان','إعلان','مؤثّر','زيارة سابقة','أخرى'];
 const isFreePay=p=>FREE_PAY.includes(p);
 
@@ -1174,25 +1202,7 @@ function renderSales(){
       +'<span class="grow"></span><span class="dim sm">الإجمالي '+c.amt.toFixed(2)+(c.disc?' · خصم −'+c.disc.toFixed(2):'')+'</span>'
       +'</div></div></div>';
   }
-  let cafeT=0,cafeD=0,cafeRows='';
-  for(const x of (S.extras||[])){
-    const a=+x.amount||0,d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
-    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0, v=Math.max(0,a-dv);
-    cafeT+=a;cafeD+=dv;
-    if(x.pay_method&&payT.has(x.pay_method)){payT.set(x.pay_method,payT.get(x.pay_method)+v);payN.set(x.pay_method,payN.get(x.pay_method)+1)}
-    else unpaid+=v;
-    cafeRows+='<div class="lin"><span class="dim sm">'+(x.at_time||'')+'</span><b>café</b>'
-      +(d&&d.code?'<span class="chip warn sm">'+d.label+'</span>':'')
-      +'<span class="grow"></span>'
-      +'<input class="disc" type="number" min="0" step="0.05" value="'+a+'" onchange="extraSet(\''+x.id+'\',\'amount\',this.value)">'
-      +'<span class="lnet">'+v.toFixed(2)+'</span>'
-      +'<select class="disc-sel" onchange="extraSet(\''+x.id+'\',\'pay_method\',this.value)">'
-      +'<option value="">— الدفع —</option>'
-      +PAYMENTS.map(p=>'<option '+(x.pay_method===p?'selected':'')+'>'+p+'</option>').join('')
-      +'</select>'
-      +'<button class="btn ghost" style="color:var(--red)" onclick="extraDel(\''+x.id+'\')">✕</button></div>';
-  }
-  gross+=cafeT; discT+=cafeD;
+  const CT=cafeTotals(), cafeNet=CT.net;   // الكافيه له صفحته وتقريره — يُعرض هنا مرجعياً فقط
   const net=gross-discT;
   const payRows=PAYMENTS.filter(p=>payN.get(p)>0).map(p=>
     '<div class="payline"><span>'+p+'</span><span class="dim sm">'+payN.get(p)+'</span>'
@@ -1203,20 +1213,12 @@ function renderSales(){
     +'<button class="btn" onclick="printSales()">🖨 تقرير المبيعات</button>'
     +'<button class="btn" onclick="exportCSV()">⬇ Excel</button></div>'
     +cards
-    +'<div class="inv cafe"><div class="invh"><b>☕ الكافيه</b><span class="grow"></span>'
-    +'<span class="amt">'+(cafeT-cafeD).toFixed(2)+'</span></div>'
-    +'<div class="invb"><div class="lines">'+(cafeRows||'<div class="dim sm">لا مبيعات كافيه اليوم</div>')+'</div>'
-    +'<div class="invtools">'
-    +'<input class="disc" id="cafeAmt" type="number" min="0" step="0.05" placeholder="المبلغ" style="width:92px">'
-    +'<select class="disc-sel" id="cafePay"><option value="">— الدفع —</option>'+PAYMENTS.map(p=>'<option>'+p+'</option>').join('')+'</select>'
-    +'<select class="disc-sel" id="cafeDisc">'+DISCOUNTS.map(d=>'<option value="'+d.code+'">'+d.label+'</option>').join('')+'</select>'
-    +'<button class="btn primary" onclick="cafeAdd()">+ إضافة</button></div></div></div>'
     +'</div><aside class="accside">'
     +'<div class="sumcard"><div class="sumtop"><div class="sumnet">'+net.toFixed(2)+'<span>BD</span></div>'
     +'<div class="dim sm">صافي مبيعات اليوم</div></div>'
     +'<div class="sumrow"><span>الإجمالي</span><b>'+gross.toFixed(2)+'</b></div>'
     +'<div class="sumrow"><span>الخصومات</span><b style="color:var(--amber)">−'+discT.toFixed(2)+'</b></div>'
-    +'<div class="sumrow"><span>الكافيه</span><b>'+(cafeT-cafeD).toFixed(2)+'</b></div>'
+    +'<div class="sumrow"><span>الكافيه (صفحة مستقلة)</span><b>'+cafeNet.toFixed(2)+'</b></div>'
     +'<div class="sumrow '+(unpaid?'danger':'')+'"><span>بلا طريقة دفع</span><b>'+unpaid.toFixed(2)+'</b></div></div>'
     +'<div class="sumcard"><div class="sumhdr">توزيع التحصيل</div>'+payRows
     +'<div class="payline tot"><span>المجموع</span><span class="grow"></span><b>'+net.toFixed(2)+'</b></div></div>'
@@ -1383,6 +1385,168 @@ function exportCSV(){
   status('⬇ صُدّر ملف Excel (CSV)');
 }
 
+
+
+/* إجماليات الجلسات (بلا كافيه) — يستعملها التقرير المجمّع */
+function sessionTotals(){
+  const byPay=new Map(PAYMENTS.map(p=>[p,0])); let gross=0,disc=0,unset=0,n=0;
+  for(const s of S.slots){
+    if(s._cancelled)continue;
+    if(s._swallowed&&Date.now()>s._endT&&!s.pay_method)continue;
+    const c=saleCalc(s); gross+=c.amt; disc+=c.disc; n++;
+    for(const p of c.parts){ if(!p.n)continue;
+      if(p.pay&&byPay.has(p.pay))byPay.set(p.pay,byPay.get(p.pay)+p.net); else if(!p.pay)unset+=p.net; }
+  }
+  return {byPay,gross,disc,net:gross-disc,unset,n};
+}
+/* التقرير المالي المجمّع: جلسات + كافيه */
+function printFinance(){
+  const A=sessionTotals(), B=cafeTotals();
+  const all=new Map(PAYMENTS.map(p=>[p,(A.byPay.get(p)||0)+(B.byPay.get(p)||0)]));
+  const payRows=PAYMENTS.filter(p=>all.get(p)>0).map(p=>
+    '<tr><td class="r">'+p+'</td><td>'+(A.byPay.get(p)||0).toFixed(2)+'</td><td>'+(B.byPay.get(p)||0).toFixed(2)+'</td><td><b>'+all.get(p).toFixed(2)+'</b></td></tr>').join('')
+    ||'<tr><td colspan="4">—</td></tr>';
+  const unset=A.unset+B.unset;
+  const body=repHead('التقرير المالي المجمّع',DAY+(isSunday(DAY)?' · الأحد':'')+' · الجلسات + الكافيه')
+   +'<div class="tiles">'
+   +'<div class="tile"><div class="v">'+A.net.toFixed(2)+'</div><div class="l">صافي الجلسات ('+A.n+')</div></div>'
+   +'<div class="tile"><div class="v">'+B.net.toFixed(2)+'</div><div class="l">صافي الكافيه</div></div>'
+   +'<div class="tile"><div class="v" style="color:#127a48">'+(A.net+B.net).toFixed(2)+'</div><div class="l">الإجمالي النهائي (BD)</div></div>'
+   +'<div class="tile"><div class="v" style="color:#a97b0a">−'+(A.disc+B.disc).toFixed(2)+'</div><div class="l">مجموع الخصومات</div></div>'
+   +'<div class="tile"><div class="v" style="color:'+(unset?'#c22e3c':'#127a48')+'">'+unset.toFixed(2)+'</div><div class="l">بلا طريقة دفع</div></div>'
+   +'</div>'
+   +'<h2>التحصيل حسب الطريقة</h2>'
+   +'<table><tr><th>الطريقة</th><th>الجلسات</th><th>الكافيه</th><th>المجموع</th></tr>'+payRows
+   +'<tr class="tot"><th class="r">المجموع</th><th>'+A.net.toFixed(2)+'</th><th>'+B.net.toFixed(2)+'</th><th>'+(A.net+B.net).toFixed(2)+'</th></tr></table>'
+   +'<h2>الملخّص</h2><table>'
+   +'<tr><th>البند</th><th>الإجمالي</th><th>الخصم</th><th>الصافي</th></tr>'
+   +'<tr><td class="r">جلسات اللعب</td><td>'+A.gross.toFixed(2)+'</td><td>−'+A.disc.toFixed(2)+'</td><td><b>'+A.net.toFixed(2)+'</b></td></tr>'
+   +'<tr><td class="r">الكافيه</td><td>'+B.gross.toFixed(2)+'</td><td>−'+B.disc.toFixed(2)+'</td><td><b>'+B.net.toFixed(2)+'</b></td></tr>'
+   +'<tr class="tot"><th class="r">الإجمالي النهائي</th><th>'+(A.gross+B.gross).toFixed(2)+'</th><th>−'+(A.disc+B.disc).toFixed(2)+'</th><th>'+(A.net+B.net).toFixed(2)+'</th></tr>'
+   +'</table>';
+  return printDoc('التقرير المالي المجمّع',body);
+}
+
+/* ═════════ الكافيه ═════════ */
+let CART=[], CAFE_CAT='hot';
+function cafeTotals(){
+  const byPay=new Map(PAYMENTS.map(p=>[p,0])), byItem=new Map(); let gross=0,disc=0,unset=0;
+  for(const x of (S.extras||[])){
+    const a=+x.amount||0, d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
+    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0, v=Math.max(0,a-dv);
+    gross+=a;disc+=dv;
+    if(x.pay_method&&byPay.has(x.pay_method))byPay.set(x.pay_method,byPay.get(x.pay_method)+v);else unset+=v;
+    const k=x.label||'—', e=byItem.get(k)||{q:0,v:0}; e.q+=(+x.qty||1); e.v+=v; byItem.set(k,e);
+  }
+  return {byPay,byItem,gross,disc,net:gross-disc,unset};
+}
+function cafeAddItem(n,p){
+  const f=CART.find(x=>x.n===n);
+  if(f)f.q++;else CART.push({n,p,q:1});
+  renderCafe();
+}
+function cartQty(i,d){const it=CART[i];if(!it)return;it.q+=d;if(it.q<=0)CART.splice(i,1);renderCafe()}
+function cartClear(){CART=[];renderCafe()}
+async function cartSave(){
+  if(!CART.length){status('السلّة فارغة');return}
+  const pay=(document.getElementById('cartPay')||{}).value||null;
+  const code=(document.getElementById('cartDisc')||{}).value||null;
+  const at=fmtT(Date.now());
+  const rows=CART.map(x=>({day:DAY,label:x.n,qty:x.q,amount:+(x.p*x.q).toFixed(2),
+    pay_method:pay,discount_code:code,at_time:at,note:CAFE_CATS[cafeCatOf(x.n)]||''}));
+  try{
+    await sbInsert('extra_sales',rows);
+    S.extras=await sbGet('extra_sales?day=eq.'+DAY+'&order=created_at&select=*');
+    CART=[];renderCafe();renderSales();renderRep();status('✓ سُجّل طلب الكافيه');
+  }catch(e){status(/extra_sales|discount_code|at_time/.test(e.message)?'⚠ شغّل ملف eva_v4.sql في Supabase أولاً':'⚠ '+e.message)}
+}
+function cafeCat(c){CAFE_CAT=c;renderCafe()}
+function renderCafe(){
+  const el=document.getElementById('tab-cafe'); if(!el)return;
+  const T=cafeTotals();
+  const cartTotal=CART.reduce((a,x)=>a+x.p*x.q,0);
+  const menu=CAFE_MENU.filter(m=>m.c===CAFE_CAT).map(m=>
+    '<button class="mbtn" onclick="cafeAddItem(\''+m.n.replace(/'/g,"\\'")+'\','+m.p+')">'
+    +'<span class="mn">'+m.n+'</span><b class="mp">'+m.p.toFixed(2)+'</b></button>').join('');
+  const cart=CART.length?CART.map((x,i)=>
+    '<div class="lin"><b>'+x.n+'</b><span class="grow"></span>'
+    +'<button class="btn ghost" onclick="cartQty('+i+',-1)">−</button>'
+    +'<span class="qty">'+x.q+'</span>'
+    +'<button class="btn ghost" onclick="cartQty('+i+',1)">+</button>'
+    +'<span class="lnet">'+(x.p*x.q).toFixed(2)+'</span></div>').join('')
+    :'<div class="dim sm">اضغط أي صنف لإضافته</div>';
+  const orders=(S.extras||[]).slice().reverse();
+  const ordersHtml=orders.length?orders.map(x=>{
+    const a=+x.amount||0,d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
+    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0;
+    return '<div class="lin"><span class="dim sm">'+(x.at_time||'')+'</span>'
+      +'<b>'+(x.label||'—')+'</b><span class="dim sm">×'+(x.qty||1)+'</span>'
+      +(d&&d.code?'<span class="chip warn sm">'+d.label+'</span>':'')
+      +'<span class="grow"></span>'
+      +'<span class="lnet">'+(a-dv).toFixed(2)+'</span>'
+      +'<select class="disc-sel" onchange="extraSet(\''+x.id+'\',\'pay_method\',this.value)">'
+      +'<option value="">— الدفع —</option>'+PAYMENTS.map(p=>'<option '+(x.pay_method===p?'selected':'')+'>'+p+'</option>').join('')+'</select>'
+      +'<button class="btn ghost" style="color:var(--red)" onclick="extraDel(\''+x.id+'\')">✕</button></div>';
+  }).join(''):'<div class="dim sm">لا مبيعات كافيه اليوم</div>';
+  const top=[...T.byItem].sort((a,b)=>b[1].v-a[1].v).slice(0,6).map(([k,v])=>
+    '<div class="payline"><span>'+k+'</span><span class="dim sm">×'+v.q+'</span><span class="grow"></span><b>'+v.v.toFixed(2)+'</b></div>').join('')
+    ||'<div class="dim sm">—</div>';
+  const payRows=PAYMENTS.filter(p=>T.byPay.get(p)>0).map(p=>
+    '<div class="payline"><span>'+p+'</span><span class="grow"></span><b>'+T.byPay.get(p).toFixed(2)+'</b></div>').join('')
+    ||'<div class="dim sm">لم تُحدَّد طرق الدفع</div>';
+  el.innerHTML='<div class="acc"><div class="accmain">'
+    +'<div class="row" style="margin-bottom:10px"><h2 style="margin:0">☕ نقطة بيع الكافيه</h2><span class="grow"></span>'
+    +'<button class="btn" onclick="printCafe()">🖨 تقرير الكافيه</button></div>'
+    +'<div class="catbar">'+Object.keys(CAFE_CATS).map(c=>
+        '<button class="catbtn '+(CAFE_CAT===c?'on':'')+'" onclick="cafeCat(\''+c+'\')">'+CAFE_CATS[c]+'</button>').join('')+'</div>'
+    +'<div class="menugrid">'+menu+'</div>'
+    +'<div class="inv cafe" style="margin-top:14px"><div class="invh"><b>🧾 الطلب الحالي</b>'
+      +'<span class="grow"></span><span class="amt">'+cartTotal.toFixed(2)+'</span></div>'
+      +'<div class="invb"><div class="lines">'+cart+'</div>'
+      +'<div class="invtools">'
+        +'<select class="disc-sel" id="cartPay"><option value="">— طريقة الدفع —</option>'+PAYMENTS.map(p=>'<option>'+p+'</option>').join('')+'</select>'
+        +'<select class="disc-sel" id="cartDisc">'+DISCOUNTS.map(d=>'<option value="'+d.code+'">'+d.label+'</option>').join('')+'</select>'
+        +'<button class="btn primary" onclick="cartSave()">💾 احفظ الطلب</button>'
+        +'<button class="btn" onclick="cartClear()">مسح</button>'
+      +'</div></div></div>'
+    +'<h2>طلبات اليوم ('+orders.length+')</h2><div class="inv cafe"><div class="invb"><div class="lines">'+ordersHtml+'</div></div></div>'
+  +'</div><aside class="accside">'
+    +'<div class="sumcard"><div class="sumtop"><div class="sumnet">'+T.net.toFixed(2)+'<span>BD</span></div>'
+      +'<div class="dim sm">صافي الكافيه اليوم</div></div>'
+      +'<div class="sumrow"><span>الإجمالي</span><b>'+T.gross.toFixed(2)+'</b></div>'
+      +'<div class="sumrow"><span>الخصومات</span><b style="color:var(--amber)">−'+T.disc.toFixed(2)+'</b></div>'
+      +'<div class="sumrow '+(T.unset?'danger':'')+'"><span>بلا طريقة دفع</span><b>'+T.unset.toFixed(2)+'</b></div></div>'
+    +'<div class="sumcard"><div class="sumhdr">التحصيل</div>'+payRows+'</div>'
+    +'<div class="sumcard"><div class="sumhdr">أكثر الأصناف</div>'+top+'</div>'
+  +'</aside></div>';
+}
+function printCafe(){
+  const T=cafeTotals();
+  const rows=(S.extras||[]).map(x=>{
+    const a=+x.amount||0,d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
+    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0;
+    return '<tr><td>'+(x.at_time||'')+'</td><td class="r">'+(x.label||'')+'</td><td>'+(CAFE_CATS[cafeCatOf(x.label)]||'')+'</td>'
+      +'<td>'+(x.qty||1)+'</td><td>'+a.toFixed(2)+'</td><td>'+(dv?'−'+dv.toFixed(2):'')+'</td>'
+      +'<td><b>'+(a-dv).toFixed(2)+'</b></td><td>'+(x.pay_method||'<b class="bad">بلا دفع</b>')+'</td></tr>';
+  }).join('')||'<tr><td colspan="8">لا مبيعات كافيه</td></tr>';
+  const items=[...T.byItem].sort((a,b)=>b[1].v-a[1].v).map(([k,v])=>
+    '<tr><td class="r">'+k+'</td><td>'+v.q+'</td><td><b>'+v.v.toFixed(2)+'</b></td></tr>').join('');
+  const pays=PAYMENTS.filter(p=>T.byPay.get(p)>0).map(p=>
+    '<tr><td class="r">'+p+'</td><td><b>'+T.byPay.get(p).toFixed(2)+'</b></td></tr>').join('')||'<tr><td colspan="2">—</td></tr>';
+  const body=repHead('تقرير الكافيه اليومي',DAY+(isSunday(DAY)?' · الأحد':''))
+  +'<div class="tiles">'
+   +'<div class="tile"><div class="v">'+T.gross.toFixed(2)+'</div><div class="l">الإجمالي (BD)</div></div>'
+   +'<div class="tile"><div class="v" style="color:#a97b0a">−'+T.disc.toFixed(2)+'</div><div class="l">الخصومات</div></div>'
+   +'<div class="tile"><div class="v" style="color:#127a48">'+T.net.toFixed(2)+'</div><div class="l">الصافي (BD)</div></div>'
+   +'<div class="tile"><div class="v" style="color:'+(T.unset?'#c22e3c':'#127a48')+'">'+T.unset.toFixed(2)+'</div><div class="l">بلا طريقة دفع</div></div>'
+   +'<div class="tile"><div class="v">'+(S.extras||[]).length+'</div><div class="l">أصناف مباعة</div></div>'
+  +'</div>'
+  +'<h2>تفصيل المبيعات</h2><table><tr><th>الوقت</th><th>الصنف</th><th>الفئة</th><th>الكمية</th><th>المبلغ</th><th>الخصم</th><th>الصافي</th><th>الدفع</th></tr>'+rows+'</table>'
+  +'<div class="two"><div><h2>حسب الصنف</h2><table><tr><th>الصنف</th><th>عدد</th><th>الصافي</th></tr>'+(items||'<tr><td colspan="3">—</td></tr>')+'</table></div>'
+  +'<div><h2>التحصيل</h2><table><tr><th>الطريقة</th><th>المبلغ</th></tr>'+pays+'</table></div></div>';
+  return printDoc('تقرير الكافيه',body);
+}
+
 /* ═════════ التسجيلات ═════════ */
 function slotEmails(s){
   const set=new Set();
@@ -1507,8 +1671,10 @@ function renderRep(){
     <div class="row" style="justify-content:space-between">
       <div class="big">📋 تقرير يوم ${DAY}${isSunday(DAY)?' <span class="chip">الأحد</span>':''}</div>
       <div class="row" style="gap:6px">
-        <button class="btn primary" onclick="printOps()">🖨 طباعة تقرير التشغيل</button>
-        <button class="btn" onclick="printSales()">🖨 تقرير المبيعات</button>
+        <button class="btn primary" onclick="printOps()">🖨 تقرير التشغيل</button>
+        <button class="btn" onclick="printSales()">🖨 المبيعات</button>
+        <button class="btn" onclick="printCafe()">🖨 الكافيه</button>
+        <button class="btn primary" onclick="printFinance()">🖨 التقرير المالي المجمّع</button>
       </div>
     </div>
     <div class="metrics" style="margin-top:12px">
@@ -1584,6 +1750,13 @@ function renderRep(){
       <span class="dim sm">لعب ${s._net}د من ${s._entitled}</span>
     </div>`).join('')}</div>`:'<div class="dim sm">لا نقص اليوم ✓</div>'}</div>
 
+  <h2>الحصيلة المالية المجمّعة</h2>
+  ${(()=>{const A=sessionTotals(),B=cafeTotals();return `<div class="metrics">
+    <div class="metric"><div class="v">${A.net.toFixed(2)}</div><div class="l">جلسات اللعب</div><div class="s">${A.n} فاتورة</div></div>
+    <div class="metric"><div class="v">${B.net.toFixed(2)}</div><div class="l">الكافيه</div><div class="s">${(S.extras||[]).length} صنف</div></div>
+    <div class="metric hl"><div class="v" style="color:var(--green)">${(A.net+B.net).toFixed(2)}</div><div class="l">الإجمالي النهائي (BD)</div></div>
+    <div class="metric"><div class="v" style="color:${(A.unset+B.unset)?'var(--red)':'var(--green)'}">${(A.unset+B.unset).toFixed(2)}</div><div class="l">بلا طريقة دفع</div></div>
+  </div>`})()}
   <h2>How you Know about EVA — كيف عرفوا إيفا</h2>
   <div class="card">${(()=>{
     const cnt=new Map();let asked=0;
@@ -2112,7 +2285,7 @@ function sweep(root){
 }
 
 /* ═════════ التبويبات ═════════ */
-const TABS=[['ops','التشغيل'],['rcp','الاستقبال'],['ana','التفاصيل'],['sales','المبيعات'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون']];
+const TABS=[['ops','التشغيل'],['rcp','الاستقبال'],['ana','التفاصيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون']];
 function buildTabs(){
   document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>
     `<button id="tb-${k}" class="${k===TAB?'on':''}" onclick="switchTab('${k}')">${n}${k==='rec'?' <span class="badge" id="recBadge" style="display:none"></span>':''}</button>`).join('');
@@ -2121,7 +2294,7 @@ function switchTab(k){TAB=k;
   for(const [t] of TABS){document.getElementById('tb-'+t).classList.toggle('on',t===k);document.getElementById('tab-'+t).classList.toggle('on',t===k)}
   document.body.classList.toggle('wide',k==='sales'||k==='rep');   // الجداول تأخذ عرض الشاشة
 }
-function renderAll(){renderOps();renderRcp();renderAna();renderSales();renderRec();renderRep();renderGm();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
+function renderAll(){renderOps();renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
 function setDay(d){if(!d)return;DAY=d;ANA_INIT=false;RCP_INIT=false;document.getElementById('datePick').value=d;load(true)}
 function shiftDay(n){const d=new Date(DAY+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);setDay(d.toISOString().slice(0,10))}
 function status(t){document.getElementById('fStatus').textContent=trText(t)}
