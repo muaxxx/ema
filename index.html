@@ -358,7 +358,7 @@ tr.cancelled td{opacity:.5}
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v5.4 · بناء 11-08 14:15</small></span>
+    <span class="brand">EM · نظام مراسي <small>v5.5 · بناء 11-08 14:40</small></span>
     <div class="datenav">
       <button id="langBtn" onclick="toggleLang()" style="font-weight:800">EN</button>
       <button onclick="shiftDay(-1)" title="اليوم السابق">▶</button>
@@ -1869,32 +1869,34 @@ async function extraDel(id){
 /* ═════════ الطباعة: تقريران مستقلان (تشغيل · مبيعات) ═════════ */
 const REP_CSS=`
 *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-body{font:11px/1.55 'Tajawal',system-ui,Tahoma,sans-serif;color:#1a2b38;padding:11mm 10mm;background:#fff}
-.hd{display:flex;align-items:center;justify-content:space-between;gap:14px;
-  background:linear-gradient(90deg,#0e6c7d,#12889d);color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:13px}
-.hd h1{font-size:17px;letter-spacing:.4px;font-weight:800}
-.hd .sub{font-size:11px;opacity:.88;margin-top:3px}
-.hd .iss{text-align:left;font-size:10px;opacity:.9;line-height:1.7;border-inline-start:1px solid rgba(255,255,255,.35);padding-inline-start:12px}
-.hd .iss b{font-size:13px}
-.tiles{display:flex;gap:7px;margin-bottom:13px}
-.tile{flex:1;border:1px solid #dbe7ee;border-top:3px solid #0e6c7d;border-radius:8px;padding:8px 6px;background:#fbfdfe;text-align:center}
-.tile .v{font-size:17px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
-.tile .l{font-size:9.5px;color:#607a8b;margin-top:2px}
-h2{font-size:12px;color:#0e6c7d;font-weight:800;margin:13px 0 6px;padding-bottom:3px;border-bottom:2px solid #cfe3ea}
-table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:2px}
-th{background:#0e6c7d;color:#fff;padding:6px 5px;text-align:center;font-weight:700;white-space:nowrap;font-size:9.5px;letter-spacing:.2px}
-td{padding:5px;border-bottom:1px solid #eaf1f5;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+body{font:10px/1.45 'Tajawal',system-ui,Tahoma,sans-serif;color:#1a2b38;padding:9mm 8mm;background:#fff}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:linear-gradient(90deg,#0e6c7d,#12889d);color:#fff;border-radius:8px;padding:9px 14px;margin-bottom:9px}
+.hd h1{font-size:15px;letter-spacing:.3px;font-weight:800}
+.hd .sub{font-size:10px;opacity:.9;margin-top:2px}
+.hd .iss{text-align:left;font-size:9px;opacity:.92;line-height:1.6}
+.hd .iss b{font-size:12px}
+.tiles{display:flex;gap:5px;margin-bottom:9px}
+.tile{flex:1;border:1px solid #dbe7ee;border-top:3px solid #0e6c7d;border-radius:6px;padding:6px 4px;background:#fbfdfe;text-align:center}
+.tile .v{font-size:15px;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums}
+.tile .l{font-size:8.5px;color:#607a8b;margin-top:1px}
+h2{font-size:10.5px;color:#0e6c7d;font-weight:800;margin:9px 0 4px;padding-bottom:2px;border-bottom:1.5px solid #cfe3ea}
+table{width:100%;border-collapse:collapse;font-size:9px}
+th{background:#0e6c7d;color:#fff;padding:4px 4px;text-align:center;font-weight:700;white-space:nowrap;font-size:8.5px}
+td{padding:3px 4px;border-bottom:1px solid #eef4f7;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
 td.r{text-align:right;white-space:normal}
-tbody tr:nth-child(even) td,tr:nth-child(even) td{background:#f6fafc}
+td.mini{font-size:8px;color:#5f7889;white-space:normal;line-height:1.35}
+tr:nth-child(even) td{background:#f7fbfc}
 tr.walk td{background:#fdf6e3}
-tr.cx td{color:#9aa7b1;background:#f4f6f7!important}
-tr.sub td{background:#edf6f9;font-size:9.5px;color:#2f5568}
+tr.cx td{color:#9aa7b1;background:#f5f7f8!important}
+tr.sub td{background:#eef7fa;font-size:8.5px;color:#31596b}
 tr.tot th{background:#123f4a}
-.gp{display:inline-block;color:#fff;border-radius:4px;padding:1px 7px;font-weight:700;font-size:9px;white-space:nowrap}
+.gp{display:inline-block;color:#fff;border-radius:3px;padding:0 6px;font-weight:700;font-size:8px;white-space:nowrap}
 .bad{color:#c22e3c;font-weight:800}.ok{color:#127a48;font-weight:700}.warn{color:#a4780c;font-weight:700}
-.mut{color:#6b8394;font-size:9px}
-.two{display:flex;gap:11px;align-items:flex-start}.two>div{flex:1}
-.ft{margin-top:14px;border-top:1px solid #dbe7ee;padding-top:6px;font-size:9px;color:#7089999;display:flex;justify-content:space-between;color:#708999}
+.mut{color:#6b8394;font-size:8px}
+.two{display:flex;gap:8px;align-items:flex-start}.two>div{flex:1;min-width:0}
+.three{display:flex;gap:8px;align-items:flex-start}.three>div{flex:1;min-width:0}
+.ft{margin-top:9px;border-top:1px solid #dbe7ee;padding-top:4px;font-size:8px;color:#708999;display:flex;justify-content:space-between}
 table,tr,.tile{page-break-inside:avoid}
 @page{size:A4;margin:0}
 `;
@@ -1910,11 +1912,15 @@ function printDoc(title,body,preview){
 <div class="ft"><span>EM · نظام مراسي v4.0 — الأرقام من إيفا مباشرة</span><span>${DAY}</span></div>
 </body></html>`;
   if(preview)return html;
+  /* كروم يسمّي ملف PDF بعنوان الصفحة الأمّ — فنغيّره مؤقتاً ليصير الاسم واضحاً */
+  const oldTitle=document.title;
+  document.title=title+' · '+DAY+(USER?' · '+USER:'');
   const f=document.createElement('iframe');
   f.style.cssText='position:fixed;inset:0;width:0;height:0;border:0;opacity:0';
   document.body.appendChild(f);
   f.contentDocument.open();f.contentDocument.write(html);f.contentDocument.close();
-  setTimeout(()=>{f.contentWindow.focus();f.contentWindow.print();setTimeout(()=>f.remove(),1500)},350);
+  setTimeout(()=>{f.contentWindow.focus();f.contentWindow.print();
+    setTimeout(()=>{f.remove();document.title=oldTitle},1500)},350);
 }
 
 /* ── تقرير التشغيل: حجوزات · أوقات · تأخير · خرائط (بلا أرقام مالية) ── */
@@ -1933,26 +1939,23 @@ function printOps(preview){
   const gmLine=S.gms.length?S.gms.map(g=>g.name+(g.break_start?` (بريك ${g.break_start}${g.break_end?'–'+g.break_end:''})`:'')).join(' · '):'—';
   const rows=timeline().map(it=>{
     if(it.walkin){const w=it.walkin;
-      return `<tr class="walk"><td>${fmtT(w.start)}–${fmtT(w.end)}</td><td class="r">لعب بدون حجز</td>
-        <td>—</td><td>${w.players}</td><td>${fmtT(w.start)}</td><td>${w.net}د</td><td>—</td><td>—</td><td>${w.games.length}</td>
-        <td class="r mut">${[...new Set(w.games.map(g=>g.map).filter(Boolean))].join('، ')||'—'}</td>
-        <td class="r mut">${w.overCancelled?'بعد حجز ملغى — تحقّق':'—'}</td></tr>`}
+      return `<tr class="walk"><td>${fmtT(w.start)}</td><td class="r">لعب بدون حجز${w.overCancelled?' <span class="mut">(بعد حجز ملغى)</span>':''}</td>
+        <td>—</td><td>${w.players}</td><td>${fmtT(w.start)}</td><td>${w.net}د</td><td>—</td><td>—</td>
+        <td class="mini">${[...new Set(w.games.map(g=>g.map).filter(Boolean))].join('، ')||'—'}</td></tr>`}
     const s=it.slot;
     if(s._cancelled)return `<tr class="cx"><td>${fmtT(s._t)}</td><td class="r">${s.account_name||'—'}</td>
-      <td>${shortGame(s.game)}</td><td>${s.booked_players||0}</td><td colspan="7">أُلغي من إيفا</td></tr>`;
+      <td>${shortGame(s.game)}</td><td>${s.booked_players||0}</td><td colspan="5">أُلغي من إيفا</td></tr>`;
     const maps=[...new Set(s._games.map(g=>g.map).filter(Boolean))].join('، ');
     return `<tr>
       <td>${fmtT(s._t)}</td>
-      <td class="r">${s.account_name||'—'}${staffBooked(s)?' <span class="mut">(حجز موظف)</span>':''}</td>
+      <td class="r">${s.account_name||'—'}${staffBooked(s)?' <span class="mut">(موظف)</span>':''}${s.heard_from?'<div class="mini">'+s.heard_from+'</div>':''}</td>
       <td><span class="gp" style="background:${gameColor(s.game)}">${shortGame(s.game)}</span></td>
       <td>${s._rounds?`${s._actual}/${s.booked_players}`:(s.booked_players||0)}</td>
       <td>${s._rounds?fmtT(s._firstStart):(s._swallowed?'<b class="bad">لم يحضر</b>':'—')}</td>
       <td>${s._rounds?`${s._net}د`:'—'}</td>
       <td class="${s._setup?'warn':''}">${s._rounds?(s._setup?'+'+s._setup+'د':'✓'):'—'}</td>
       <td class="${s._deficit?'bad':'ok'}">${s._rounds?(s._deficit?'−'+s._deficit+'د':'سليم'):'—'}</td>
-      <td>${s._rounds||'—'}</td>
-      <td class="r mut">${maps||'—'}</td>
-      <td class="r mut">${[s.heard_from?'عرفونا: '+s.heard_from:'',s.sale_note||'',staffBooked(s)?'حجز موظف':'',s._mismatch?'لاعبون غير مطابقين':''].filter(Boolean).join(' · ')||'—'}</td></tr>`;
+      <td class="mini">${(maps||'—')}${s.sale_note?' · <b>'+s.sale_note+'</b>':''}${s._mismatch?' · لاعبون غير مطابقين':''}</td></tr>`;
   }).join('');
   const body=repHead('تقرير التشغيل اليومي',`${DAY}${isSunday(DAY)?' · الأحد':''} · الطاقم: ${gmLine}`)
   +`<div class="tiles">
@@ -1966,8 +1969,8 @@ function printOps(preview){
     <div class="tile"><div class="v">${players}</div><div class="l">لاعبون</div></div>
   </div>
   <h2>حجوزات اليوم</h2>
-  <table><tr><th>الوقت</th><th>الحساب</th><th>اللعبة</th><th>لعبوا/محجوز</th><th>بدء اللعب</th><th>صافي اللعب</th><th>التجهيز</th><th>النقص</th><th>جولات</th><th>الخرائط</th><th>ملاحظات</th></tr>${rows}</table>
-  <div class="two">
+  <table><tr><th>الوقت</th><th>الحساب</th><th>اللعبة</th><th>لعبوا</th><th>بدء</th><th>صافي اللعب</th><th>التجهيز</th><th>النقص</th><th>الخرائط</th></tr>${rows}</table>
+  <div class="three">
     <div><h2>مسؤولية التأخير</h2>
       <table><tr><th>الوقت</th><th>الحساب</th><th>التأخير</th><th>السبب</th></tr>
       ${late.length?late.map(s=>`<tr><td>${fmtT(s._t)}</td><td class="r">${s.account_name||'—'}</td>
