@@ -936,11 +936,10 @@ function rcpFold(s){
     +'<span style="color:'+col+';font-weight:800">'+shortGame(s.game)+'</span>'
     +'<span class="dim sm">🧑 '+partiesLabel(s)+' · '+(cnt??s._actual??s.booked_players)+'/'+s.booked_players+'👤</span>'
     +'<span class="grow"></span>'
-    +(arr?'<span class="chip ok sm">وصل '+fmtT(arr)+'</span>':(past?'<span class="chip warn sm">بلا ختم وصول</span>':''))
+    +(arr?'<span class="chip ok sm">وصل '+fmtT(arr)+'</span>':'')
     +(brf?'<span class="chip '+(briefLate?'warn':'ok')+' sm">بريفنق '+fmtT(brf)+'</span>'
-        :(ent?'<span class="chip ok sm">دخل '+fmtT(ent)+'</span>'
-             :(s._second?'<span class="chip sm">بلا بريفنق (دبل)</span>':(past?'<span class="chip warn sm">بلا بريفنق</span>':''))))
-    +(s.heard_from?'<span class="chip sm">'+s.heard_from+'</span>':(past?'<span class="chip warn sm">لم يُسأل</span>':''))
+        :(ent?'<span class="chip ok sm">دخل '+fmtT(ent)+'</span>':''))
+    +(s.heard_from?'<span class="chip sm">'+s.heard_from+'</span>':'')
     +(cur?'<span class="chip info">جارٍ</span>':past?'<span class="chip">انتهى</span>':'<span class="chip">بعد '+mins(s._t-now)+'د</span>')
     +'</div></div>';
 }
@@ -2279,6 +2278,7 @@ const EN={
  '👤 حجز موظف — اسأل العميل':'👤 Staff booking — ask the client',
  '👤 حجز موظف — اسأل العميل في البريفنق':'👤 Staff booking — ask client at briefing',
  '👤 حجز موظف — اسأل العميل عن اسمه وبياناته':'👤 Staff booking — ask client for name & details',
+ '👤 حجز موظف':'👤 Staff booking','📌 ملاحظات':'📌 Notes',
  'مبيعات إضافية (كافيه وغيرها)':'Extra sales (cafe & other)','البند (مثل: قهوة، ماء، سناك)':'Item (coffee, water, snack…)',
  '— الدفع —':'— payment —','+ إضافة سطر':'+ Add row','البند':'Item','الكمية':'Qty','المبلغ':'Amount',
  'لا مبيعات إضافية اليوم — أضف أعلاه وستدخل مجاميع الدفع والمبيعات تلقائياً':'No extra sales today — add above and they join the payment totals automatically',
@@ -2385,6 +2385,7 @@ const EN_RX=[
  [/^⏰ القادم: (.+) — أدخلهم البريفنق قبل (.+)$/,'⏰ Next: $1 — briefing before $2'],
  [/^☕ أثناء بريك: (.+)$/,'☕ During break: $1'],[/^☕ في بريك الآن: (.+)$/,'☕ On break now: $1'],
  [/^تجهيز زائد (\d+)د$/,'Setup +$1m over'],[/^تجاوز \+(\d+)د$/,'Overrun +$1m'],
+ [/^تجاوز وقت الحجز (\d+)د — أخّر الحجز التالي!$/,'Overran booking time by $1m — delayed the next booking!'],
  [/^تجاوز وقت الحجز (\d+)د(.*)$/,'Overran booking time by $1m$2'],
  [/^⏳ تأخير في بدء الحجز (\d+)د(.*)$/,'⏳ Booking start delayed $1m$2'],
  [/^من جهوزيّته إلى بدء اللعب: $/,'From ready to play start: '],
@@ -2410,6 +2411,18 @@ const EN_RX=[
  [/^مكتمل · (.+)$/,'Complete · $1'],
  [/^تقسيم الدفع — حجز (.+)$/,'Split payment — booking $1'],
  [/^ناقص · (.+)$/,'Incomplete · $1'],
+ [/^الحجز (\d+:\d+)$/,'Booking $1'],
+ [/^بدء اللعب (\d+:\d+)$/,'Play start $1'],
+ [/^النهاية (\d+:\d+)$/,'End $1'],
+ [/^داخل الخرائط (.+) · توقف (.+)$/,'Between maps $1 · pauses $2'],
+ [/^المسموح (\d+)د · زائد (\d+)د$/,'Allowed $1m · $2m over'],
+ [/^المسموح (\d+)د$/,'Allowed $1m'],
+ [/^المستحق (\d+)د$/,'Entitled $1m'],
+ [/^🗺 الخرائط — (\d+) جولة$/,'🗺 Maps — $1 rounds'],
+ [/^🏅 النقاط — (\d+) لاعب$/,'🏅 Points — $1 players'],
+ [/^النتيجة (.+)$/,'Score $1'],
+ [/^⏸ توقف (.+)$/,'⏸ Pause $1'],
+ [/^(.+) — تجاوز (\d+)د وأخّر الحجز التالي$/,'$1 — overran $2m and delayed the next booking'],
 ];
 let LANG=localStorage.getItem('em_lang')||'ar';
 function toggleLang(){LANG=LANG==='ar'?'en':'ar';localStorage.setItem('em_lang',LANG);applyLang()}
