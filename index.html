@@ -157,6 +157,21 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--teal)}
 .dstrip:hover{filter:brightness(1.09)}
 .chev{transition:transform .18s;font-size:15px;opacity:.85}
 .dwrap.open .chev{transform:rotate(180deg)}
+.anagrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+@media(max-width:1100px){.anagrid{grid-template-columns:1fr}}
+.anagrid .dwrap{margin-bottom:0}
+.anagrid>h2,.anagrid>.hero{grid-column:1/-1;margin-bottom:0}
+.anagrid>.card{margin-bottom:0}
+.anagrid .dcols{grid-template-columns:1fr;gap:12px}
+.anagrid .metrics{grid-template-columns:repeat(4,1fr)}
+.anagrid .mapc{flex:1 1 128px}
+.anagrid .pgrid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr))}
+/* جدول التسجيلات: يملأ العرض بلا تمرير أفقي */
+#tab-rec .tblwrap{overflow:visible}
+#tab-rec table{table-layout:auto;width:100%}
+#tab-rec td,#tab-rec th{white-space:normal}
+#tab-rec .xmail{width:100%;min-width:120px}
+#tab-rec .chip{white-space:nowrap}
 .dcols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
 @media(max-width:940px){.dcols{grid-template-columns:1fr}}
 .dcol{min-width:0}
@@ -257,6 +272,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--teal)}
 .payline b{font-variant-numeric:tabular-nums;direction:ltr}
 .payline b.free{color:var(--amber)}
 .payline.tot{border:none;border-top:2px solid var(--line2);margin-top:5px;padding-top:7px;font-weight:800}
+.card.rcpnext{border-inline-start-width:6px;box-shadow:0 8px 24px rgba(0,0,0,.4);margin-bottom:6px}
 .card.rcpfold{padding:8px 14px;opacity:.85}
 .card.rcpfold:hover{opacity:1;border-color:var(--teal)}
 .chip.sm{font-size:11px;padding:1px 9px}
@@ -342,7 +358,7 @@ tr.cancelled td{opacity:.5}
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v5.2 · بناء 11-08 13:35</small></span>
+    <span class="brand">EM · نظام مراسي <small>v5.4 · بناء 11-08 14:15</small></span>
     <div class="datenav">
       <button id="langBtn" onclick="toggleLang()" style="font-weight:800">EN</button>
       <button onclick="shiftDay(-1)" title="اليوم السابق">▶</button>
@@ -847,103 +863,106 @@ function renderOps(){
 }
 
 /* ═════════ الاستقبال ═════════ */
-/* الاستقبال: الحجوزات المنتهية مطويّة — القادم والجاري مفتوحان */
-let RCP_OPEN=new Set(), RCP_INIT=false;
+/* الاستقبال: كل الحجوزات مطويّة — والقادم وحده مفتوح في الأعلى */
+let RCP_OPEN=new Set();
 function toggleRcp(id){RCP_OPEN.has(id)?RCP_OPEN.delete(id):RCP_OPEN.add(id);renderRcp();sweep(document.getElementById('tab-rcp'))}
 function rcpAll(on){
-  const act=S.slots.filter(s=>!s._cancelled), now=Date.now();
-  RCP_OPEN=new Set((on?act:act.filter(s=>s._endT>now)).map(s=>s.id));
+  const act=S.slots.filter(s=>!s._cancelled);
+  RCP_OPEN=on?new Set(act.map(s=>s.id)):new Set();
   renderRcp();sweep(document.getElementById('tab-rcp'));
+}
+/* بطاقة الاستقبال الكاملة (أختام + عدد + سؤال المصدر) */
+function rcpCard(s,featured){
+  const now=Date.now(), col=gameColor(s.game);
+  const cur=s._t<=now&&now<s._endT, past=now>=s._endT;
+  const briefLate=s.briefed_at&&(+new Date(s.briefed_at)>s._briefTarget);
+  const arr=s.arrived_at, brf=s.briefed_at, ent=s.entered_at, cnt=s.actual_players;
+  const cntBox=(()=>{
+    const started=now>=s._t;
+    const src=cnt!=null?'مؤكَّد':(s._actual?'من إيفا':(started?'مفترض':''));
+    const eff=cnt??s._actual??(started?s.booked_players:null);
+    const short=eff!=null&&eff<s.booked_players;
+    return '<span class="chip">العدد <input class="cnt" type="number" min="0" max="30" value="'+(eff??'')+'" placeholder="'+s.booked_players+'" onchange="rcpCount(\''+s.id+'\',this.value)"> / '+s.booked_players+'</span>'
+      +(short?'<span class="chip warn">ناقص '+(s.booked_players-eff)+'</span>'
+             :(eff!=null?'<span class="chip ok">مكتمل'+(src?' · '+src:'')+'</span>':''));
+  })();
+  return '<div class="card '+(featured?'rcpnext':'')+'" style="border-inline-start-color:'+col+';background:'+(featured?'color-mix(in srgb, '+col+' 18%, #10161d)':(cur?'color-mix(in srgb, '+col+' 14%, #10161d)':'var(--card)'))+'">'
+    +'<div class="row" style="cursor:pointer" onclick="toggleRcp(\''+s.id+'\')">'
+      +(featured?'<span class="chip info">القادم</span>':'<span class="chev" style="opacity:.6;transform:rotate(180deg)">⌄</span>')
+      +'<span class="t" style="font-size:18px">'+fmtT(s._t)+'</span>'
+      +'<span style="color:'+col+';font-weight:800">'+shortGame(s.game)+'</span>'
+      +'<span class="dim">🧑 '+partiesLabel(s)+' · '+s.booked_players+'👤</span>'
+      +'<span class="grow"></span>'
+      +(cur?'<span class="chip info">جارٍ</span>':past?'<span class="chip">انتهى</span>':'<span class="chip">بعد '+mins(s._t-now)+'د</span>')
+    +'</div>'
+    +'<div class="row sm" style="margin-top:6px">'
+      +(s._second?'<span class="chip ok">✋ لا يحتاج بريفنق — حجز ثانٍ متّصل (ولا تجهيز)</span>'
+        :(s._briefKnown&&s._newPlayers===0?'<span class="chip ok">✋ لا يحتاج بريفنق — كلّهم سبق لعبوا</span>'
+          :'<span class="chip info">🎙 يحتاج بريفنق'+(s._newPlayers?' · '+s._newPlayers+' جديد':'')+' — أدخلهم قبل <b class="t">'+fmtT(s._briefTarget)+'</b></span>'))
+      +(staffBooked(s)?'<span class="chip bad">👤 حجز موظف — اسأل العميل عن اسمه وبياناته</span>':'')
+    +'</div>'
+    +'<div class="row" style="margin-top:8px">'
+      +(arr?'<span class="chip ok">وصل '+fmtT(arr)+' <span class="x" onclick="rcpClear(\''+s.id+'\',\'arrived_at\')">✕</span></span>'
+           :'<button class="btn primary" onclick="rcpStamp(\''+s.id+'\',\'arrived_at\')">وصل ✓</button>')
+      +(s._second?'':(brf
+        ?'<span class="chip '+(briefLate?'warn':'ok')+'">دخل البريفنق '+fmtT(brf)+(briefLate?' — متأخر '+mins(new Date(brf)-s._briefTarget)+'د':'')+' <span class="x" onclick="rcpClear(\''+s.id+'\',\'briefed_at\')">✕</span></span>'
+        :'<button class="btn" onclick="rcpStamp(\''+s.id+'\',\'briefed_at\')">→ دخل البريفنق</button>'))
+      +(ent?'<span class="chip ok">دخل الملعب '+fmtT(ent)+' <span class="x" onclick="rcpClear(\''+s.id+'\',\'entered_at\')">✕</span></span>'
+           :(brf?'':'<button class="btn" onclick="rcpStamp(\''+s.id+'\',\'entered_at\')">⇥ دخل الملعب</button>'))
+      +cntBox
+    +'</div>'
+    +'<div class="row" style="margin-top:8px">'
+      +'<span class="chip '+(s.heard_from?'ok':'warn')+'">❓ How you Know about EVA</span>'
+      +'<select class="disc-sel" style="min-width:150px" onchange="rcpHeard(\''+s.id+'\',this.value)">'
+        +'<option value="">— اسأل العميل —</option>'
+        +HEARD.map(x=>'<option '+(s.heard_from===x?'selected':'')+'>'+x+'</option>').join('')
+      +'</select>'
+      +((s.heard_from==='أخرى'||(s.heard_from&&HEARD.indexOf(s.heard_from)<0))
+        ?'<input class="xmail" style="direction:rtl;width:150px" value="'+(HEARD.indexOf(s.heard_from)>-1?'':(s.heard_from||''))+'" placeholder="اكتب المصدر…" onchange="rcpHeard(\''+s.id+'\',this.value)">':'')
+    +'</div></div>';
+}
+/* سطر مطويّ */
+function rcpFold(s){
+  const now=Date.now(), col=gameColor(s.game);
+  const cur=s._t<=now&&now<s._endT, past=now>=s._endT;
+  const arr=s.arrived_at, brf=s.briefed_at, ent=s.entered_at, cnt=s.actual_players;
+  const briefLate=brf&&(+new Date(brf)>s._briefTarget);
+  return '<div class="card rcpfold" style="border-inline-start-color:'+col+';cursor:pointer" onclick="toggleRcp(\''+s.id+'\')">'
+    +'<div class="row"><span class="chev" style="opacity:.6">⌄</span>'
+    +'<span class="t" style="font-size:16px">'+fmtT(s._t)+'</span>'
+    +'<span style="color:'+col+';font-weight:800">'+shortGame(s.game)+'</span>'
+    +'<span class="dim sm">🧑 '+partiesLabel(s)+' · '+(cnt??s._actual??s.booked_players)+'/'+s.booked_players+'👤</span>'
+    +'<span class="grow"></span>'
+    +(arr?'<span class="chip ok sm">وصل '+fmtT(arr)+'</span>':(past?'<span class="chip warn sm">بلا ختم وصول</span>':''))
+    +(brf?'<span class="chip '+(briefLate?'warn':'ok')+' sm">بريفنق '+fmtT(brf)+'</span>'
+        :(ent?'<span class="chip ok sm">دخل '+fmtT(ent)+'</span>'
+             :(s._second?'<span class="chip sm">بلا بريفنق (دبل)</span>':(past?'<span class="chip warn sm">بلا بريفنق</span>':''))))
+    +(s.heard_from?'<span class="chip sm">'+s.heard_from+'</span>':(past?'<span class="chip warn sm">لم يُسأل</span>':''))
+    +(cur?'<span class="chip info">جارٍ</span>':past?'<span class="chip">انتهى</span>':'<span class="chip">بعد '+mins(s._t-now)+'د</span>')
+    +'</div></div>';
 }
 function renderRcp(){
   const el=document.getElementById('tab-rcp');
   const act=S.slots.filter(s=>!s._cancelled);
   if(!act.length){el.innerHTML='<div class="empty">لا حجوزات في هذا اليوم</div>';return}
   const now=Date.now();
-  if(!RCP_INIT){RCP_INIT=true;RCP_OPEN=new Set(act.filter(s=>s._endT>now).map(s=>s.id))}   // المنتهية مطويّة
-  const next=act.find(s=>!s._rounds&&s._endT>now);
-  const fs=fieldStatus();
-  let h=`<div class="hero">
-    <div class="big" style="color:${fs.cls==='ok'?'var(--green)':fs.cls==='warn'?'var(--amber)':'var(--ink)'}">${fs.txt}</div>
-    ${DAY===opDay()?gmNowLine():''}
-    <div class="big" style="font-size:17px;margin-top:8px">${next?`⏰ القادم: ${fmtT(next._t)} ${shortGame(next.game)}${next._second?' — <span style="color:var(--green)">حجز ثانٍ متّصل: لا يحتاج بريفنق</span>':` — أدخلهم البريفنق قبل <span class="t">${fmtT(next._briefTarget)}</span>`}`:'لا حجوزات قادمة'}</div>
-    <div class="row" style="margin-top:9px">
-      <button class="btn" onclick="rcpAll(false)">اطوِ المنتهية</button>
-      <button class="btn" onclick="rcpAll(true)">افتح الكل</button>
-      <span class="dim sm">المنتهية مطويّة — اضغط أي سطر لفتحه</span>
-    </div>
-    <div class="dim sm" style="margin-top:6px">اضغط ما ينطبق: <b>وصل</b> عند حضوره · <b>البريفنق</b> عند إدخاله (قبل الحجز بـ${BRIEF_LEAD} دقائق) · <b>دخول الملعب</b> عند دخوله فعلياً — وإن لم يحتج بريفنق (حجز ثانٍ متّصل) يكفي «وصل» و«دخول الملعب». بهذه الأختام يُعرف سبب تأخير التجهيز: العميل أم الطاقم.</div></div>`;
-  h+=act.map(s=>{
-    const col=gameColor(s.game);
-    const cur=s._t<=now&&now<s._endT, past=now>=s._endT;
-    const briefLate=s.briefed_at&&(+new Date(s.briefed_at)>s._briefTarget);
-    const arr=s.arrived_at, brf=s.briefed_at, ent=s.entered_at;
-    const cnt=s.actual_players;
-    const open=RCP_OPEN.has(s.id);
-    if(!open)return `<div class="card rcpfold" style="border-inline-start-color:${col};cursor:pointer" onclick="toggleRcp('${s.id}')">
-      <div class="row">
-        <span class="chev" style="opacity:.6">⌄</span>
-        <span class="t" style="font-size:16px">${fmtT(s._t)}</span>
-        <span style="color:${col};font-weight:800">${shortGame(s.game)}</span>
-        <span class="dim sm">🧑 ${partiesLabel(s)} · ${cnt??s.booked_players}/${s.booked_players}👤</span>
-        <span class="grow"></span>
-        ${arr?`<span class="chip ok sm">وصل ${fmtT(arr)}</span>`:'<span class="chip warn sm">بلا ختم وصول</span>'}
-        ${brf?`<span class="chip ${briefLate?'warn':'ok'} sm">بريفنق ${fmtT(brf)}</span>`
-             :(ent?`<span class="chip ok sm">دخل ${fmtT(ent)}</span>`
-                  :(s._second?'<span class="chip sm">بلا بريفنق (دبل)</span>':'<span class="chip warn sm">بلا بريفنق</span>'))}
-        ${s.heard_from?`<span class="chip sm">${s.heard_from}</span>`:'<span class="chip warn sm">لم يُسأل</span>'}
-        ${cur?'<span class="chip info">جارٍ</span>':'<span class="chip">انتهى</span>'}
-      </div></div>`;
-    return `<div class="card" style="border-inline-start-color:${col};background:${cur?`color-mix(in srgb, ${col} 20%, #10161d)`:'var(--card)'}">
-      <div class="row" style="cursor:pointer" onclick="toggleRcp('${s.id}')">
-        <span class="chev" style="opacity:.6;transform:rotate(180deg)">⌄</span>
-        <span class="t" style="font-size:17px">${fmtT(s._t)}</span>
-        <span style="color:${col};font-weight:800">${shortGame(s.game)}</span>
-        <span class="dim">🧑 ${partiesLabel(s)} · ${s.booked_players}👤</span>
-        <span class="grow"></span>
-        ${payChip(s.payment)}
-        ${cur?'<span class="chip info">جارٍ</span>':past?'<span class="chip">انتهى</span>':`<span class="chip">بعد ${mins(s._t-now)}د</span>`}
-      </div>
-      <div class="row sm" style="margin-top:6px">
-        ${s._second
-          ?'<span class="chip ok">✋ لا يحتاج بريفنق — حجز ثانٍ متّصل (ولا تجهيز)</span>'
-          :(s._briefKnown&&s._newPlayers===0
-            ?'<span class="chip ok">✋ لا يحتاج بريفنق — كلّهم سبق لعبوا</span>'
-            :`<span class="chip info">🎙 يحتاج بريفنق${s._newPlayers?` · ${s._newPlayers} جديد`:''} — أدخلهم قبل <b class="t">${fmtT(s._briefTarget)}</b></span>`)}
-        ${staffBooked(s)?'<span class="chip bad">👤 حجز موظف — اسأل العميل عن اسمه وبياناته</span>':''}
-      </div>
-      <div class="row" style="margin-top:8px">
-        ${arr?`<span class="chip ok">وصل ${fmtT(arr)} <span class="x" onclick="rcpClear('${s.id}','arrived_at')">✕</span></span>`
-             :`<button class="btn primary" onclick="rcpStamp('${s.id}','arrived_at')">وصل ✓</button>`}
-        ${s._second?'' : (brf
-          ?`<span class="chip ${briefLate?'warn':'ok'}">دخل البريفنق ${fmtT(brf)}${briefLate?` — متأخر ${mins(new Date(brf)-s._briefTarget)}د`:''} <span class="x" onclick="rcpClear('${s.id}','briefed_at')">✕</span></span>`
-          :`<button class="btn" onclick="rcpStamp('${s.id}','briefed_at')">→ دخل البريفنق</button>`)}
-        ${ent?`<span class="chip ok">دخل الملعب ${fmtT(ent)} <span class="x" onclick="rcpClear('${s.id}','entered_at')">✕</span></span>`
-             :(brf?'':`<button class="btn" onclick="rcpStamp('${s.id}','entered_at')">⇥ دخل الملعب</button>`)}
-        ${(()=>{
-          /* الأولوية: عدّ الموظف ← رصد إيفا ← المحجوز مفترضاً (لا داعي لضغطة تأكيد) */
-          const started=now>=s._t;
-          const src=cnt!=null?'مؤكَّد':(s._actual?'من إيفا':(started?'مفترض':''));
-          const eff=cnt??s._actual??(started?s.booked_players:null);
-          const short=eff!=null&&eff<s.booked_players;
-          return `<span class="chip">العدد
-            <input class="cnt" type="number" min="0" max="30" value="${eff??''}" placeholder="${s.booked_players}"
-              onchange="rcpCount('${s.id}',this.value)" title="عدّله إن اختلف">
-            / ${s.booked_players}</span>
-          ${short?`<span class="chip warn">ناقص ${s.booked_players-eff}</span>`
-                 :(eff!=null?`<span class="chip ok">مكتمل${src?' · '+src:''}</span>`:'')}`;
-        })()}
-      </div>
-      <div class="row" style="margin-top:8px">
-        <span class="chip ${s.heard_from?'ok':'warn'}">❓ How you Know about EVA</span>
-        <select class="disc-sel" style="min-width:150px" onchange="rcpHeard('${s.id}',this.value)">
-          <option value="">— اسأل العميل —</option>
-          ${HEARD.map(h=>`<option ${s.heard_from===h?'selected':''}>${h}</option>`).join('')}
-        </select>
-        ${s.heard_from==='أخرى'||(s.heard_from&&!HEARD.includes(s.heard_from))
-          ?`<input class="xmail" style="direction:rtl;width:150px" value="${HEARD.includes(s.heard_from)?'':(s.heard_from||'')}" placeholder="اكتب المصدر…" onchange="rcpHeard('${s.id}',this.value)">`:''}
-      </div></div>`;
-  }).join('');
+  const fs2=fieldStatus();
+  /* الحجز المعروض في الأعلى: الجاري إن كان بلا أختام، وإلا القادم */
+  const cur=act.find(s=>s._t<=now&&now<s._endT);
+  const upcoming=act.find(s=>s._t>now);
+  const featured=(cur&&!(cur.arrived_at&&(cur.briefed_at||cur.entered_at)))?cur:(upcoming||cur);
+  let h='<div class="hero">'
+    +'<div class="big" style="color:'+(fs2.cls==='ok'?'var(--green)':fs2.cls==='warn'?'var(--amber)':'var(--ink)')+'">'+fs2.txt+'</div>'
+    +(DAY===opDay()?gmNowLine():'')
+    +'</div>';
+  if(featured)h+=rcpCard(featured,true);
+  h+='<div class="row" style="margin:12px 0 8px">'
+     +'<h2 style="margin:0">بقيّة حجوزات اليوم</h2><span class="grow"></span>'
+     +'<button class="btn" onclick="rcpAll(false)">اطوِ الكل</button>'
+     +'<button class="btn" onclick="rcpAll(true)">افتح الكل</button>'
+     +'<span class="dim sm">اضغط أي سطر لفتحه</span></div>';
+  h+=act.filter(s=>!featured||s.id!==featured.id)
+       .map(s=>RCP_OPEN.has(s.id)?rcpCard(s,false):rcpFold(s)).join('');
   el.innerHTML=h;
 }
 async function rcpStamp(id,field){
@@ -1097,7 +1116,7 @@ function renderAna(){
       <button class="btn" onclick="anaAll(true)">افتح الكل</button>
       <button class="btn" onclick="anaProblems()">المشاكل فقط</button>
       <span class="dim sm">اضغط على رأس أي حجز لطيّه أو فتحه</span>
-    </div>`+h;
+    </div><div class="anagrid">`+h+`</div>`;
 }
 /* بطاقات التفاصيل: مفتوحة افتراضياً، والرأس يلخّص — والضغط عليه يطويها عند الحاجة */
 let ANA_OPEN=new Set(), ANA_INIT=false;
@@ -2309,7 +2328,7 @@ function buildTabs(){
 }
 function switchTab(k){TAB=k;
   for(const [t] of TABS){document.getElementById('tb-'+t).classList.toggle('on',t===k);document.getElementById('tab-'+t).classList.toggle('on',t===k)}
-  document.body.classList.toggle('wide',k==='sales'||k==='rep');   // الجداول تأخذ عرض الشاشة
+  document.body.classList.toggle('wide',k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe');   // الجداول تأخذ عرض الشاشة
 }
 function renderAll(){renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
 function setDay(d){if(!d)return;DAY=d;ANA_INIT=false;RCP_INIT=false;document.getElementById('datePick').value=d;load(true)}
