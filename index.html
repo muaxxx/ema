@@ -157,6 +157,13 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--teal)}
 .dstrip:hover{filter:brightness(1.09)}
 .chev{transition:transform .18s;font-size:15px;opacity:.85}
 .dwrap.open .chev{transform:rotate(180deg)}
+.dcols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media(max-width:940px){.dcols{grid-template-columns:1fr}}
+.dcol{min-width:0}
+.secttl{font-size:11.5px;color:var(--teal);font-weight:800;letter-spacing:.3px;margin:0 0 7px;padding-bottom:4px;border-bottom:1px solid var(--line2)}
+.dcol .maps{margin-top:0}
+.dcol .mapc{flex:1 1 140px}
+.dcol .metrics{grid-template-columns:repeat(2,1fr)}
 .anabar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 .stafflist{display:flex;flex-direction:column;gap:7px;margin-bottom:6px}
 .staffrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line2);
@@ -335,7 +342,7 @@ tr.cancelled td{opacity:.5}
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v5.1 · بناء 11-08 11:30</small></span>
+    <span class="brand">EM · نظام مراسي <small>v5.2 · بناء 11-08 13:35</small></span>
     <div class="datenav">
       <button id="langBtn" onclick="toggleLang()" style="font-weight:800">EN</button>
       <button onclick="shiftDay(-1)" title="اليوم السابق">▶</button>
@@ -350,8 +357,7 @@ tr.cancelled td{opacity:.5}
   <nav id="tabs"></nav>
 </header>
 <main>
-  <section id="tab-ops"   class="tab on"></section>
-  <section id="tab-rcp"   class="tab"></section>
+  <section id="tab-rcp"   class="tab on"></section>
   <section id="tab-ana"   class="tab"></section>
   <section id="tab-sales" class="tab"></section>
   <section id="tab-cafe"  class="tab"></section>
@@ -478,7 +484,7 @@ function openApp(){
 function logout(){localStorage.removeItem('em_user');location.reload()}
 
 /* ═════════ الحالة ═════════ */
-let DAY=opDay(), TAB='ops';
+let DAY=opDay(), TAB='rcp';
 let S={slots:[],rounds:[],dayRounds:[],walkins:[],firstSeen:new Map(),dir:new Map(),gms:[],staff:[],extras:[],gmMissing:false};
 let loadedOnce=false;
 
@@ -1012,45 +1018,56 @@ function renderAna(){
     if(s._rounds){
       const players=slotPlayers(s);
       const maps=[...new Set(s._games.map(g=>g.map).filter(Boolean))];
-      body=`${playBar(s)}
-      <div class="metrics">
-        <div class="metric hl"><div class="v">${mmss(s._netSec)}</div><div class="l">صافي اللعب</div>
-          <div class="s">داخل الخرائط ${mmss(s._playSec)} · توقف بينها ${mmss(s._gapSec)}</div></div>
-        <div class="metric"><div class="v" style="color:${s._setup?'var(--amber)':'var(--ink)'}">${mmss(s._setupSec)}</div><div class="l">التجهيز أخذ</div>
-          <div class="s">المسموح ${s._second?0:SETUP}د${s._setup?` · زائد ${s._setup}د`:''}</div></div>
-        <div class="metric"><div class="v" style="color:${s._deficit?'var(--red)':'var(--green)'}">${s._deficit?'−'+s._deficit+'د':'✓'}</div><div class="l">${s._deficit?'نقص عن المستحق':'سليم'}</div>
-          <div class="s">المستحق ${s._entitled}د</div></div>
-        <div class="metric"><div class="v">${s._actual} / ${s.booked_players}</div><div class="l">لعب/محجوز</div>
-          ${s.actual_players!=null?`<div class="s">الاستقبال: وصل ${s.actual_players}</div>`:''}</div>
-      </div>
-      ${journeyLine(s)}
-      <div class="row sm" style="margin-top:7px">
-        ${s._setup>0?faultChip(s):''}
-        ${s._breaks&&s._breaks.length?`<span class="chip warn">☕ أثناء بريك: ${s._breaks.join('، ')}</span>`:''}
-        ${s._delayedBy?`<span class="chip bad">⏳ تأخير في بدء الحجز ${s._delayedBy}د — الحجز السابق تجاوز وقته (التجهيز محسوب من ${fmtT(s._effStart)})</span>`:''}
-        ${s._mismatch?'<span class="chip warn">⚠ أُسند بالوقت — اللاعبون لا يطابقون قائمة الحجز</span>':''}
-        ${s._surplus?`<span class="chip ok">لعب زيادة +${s._surplus}د</span>`:''}
-        ${s._over?`<span class="chip ${s._delaysNext?'bad':'warn'}">تجاوز وقت الحجز ${s._over}د${s._delaysNext?' — أخّر الحجز التالي!':''}</span>`:''}
-        ${!s.sent_at?'<span class="chip warn" style="cursor:pointer" onclick="switchTab(\'rec\')">📼 التسجيل لم يُرسَل</span>':'<span class="chip ok">📼 أُرسل</span>'}
-      </div>
-      <div class="dim sm" style="margin-top:11px">الخرائط والأزمنة — ${s._games.length} جولة · داخل الخرائط ${mmss(s._playSec)} · توقف بينها ${mmss(s._gapSec)}</div>
-      <div class="maps">
-        ${s._games.map((g,i)=>{
-          const prev=i?s._games[i-1]:null;
-          const gap=prev?Math.round((g.start-prev.end)/1000):0;
-          const score=(g.team_one_score!=null&&g.team_two_score!=null)?`${g.team_one_score} - ${g.team_two_score}`:'';
-          return `${gap>20?`<div class="gapc" title="توقف بين الخريطتين"><span>⏸ توقف</span><b>${mmss(gap)}</b></div>`:''}
-          <div class="mapc" style="--gc:${col}">
-            <div class="row" style="gap:6px"><span class="mp">${g.map||'—'}</span><span class="grow"></span><span class="dim sm">${i+1}</span></div>
-            <div class="dur">${mmss(g.duration_sec||0)}</div>
-            <div class="tm">${fmtT(g.start)} → ${fmtT(g.end)}</div>
-            <div class="sc">${score?`النتيجة ${score} · `:''}${g.players.length}👤</div>
-          </div>`;
-        }).join('')}
-      </div>
-      ${players.length?`<div class="plist"><div class="dim sm">النقاط — اللاعبون (${players.length})</div>
-        <div class="pgrid">${players.map(p=>`<div class="prow"><span class="grow">${p.name}${p.mvp?' <span class="mvp">MVP</span>':''}</span>
-          <span class="kda">${p.k}/${p.d}/${p.a}</span><span class="score">${p.score.toLocaleString('en')}</span></div>`).join('')}</div></div>`:''}`;
+      const notes=[
+        s.arrived_at?'':'',
+        s._setup>0?faultChip(s):'',
+        (s._breaks&&s._breaks.length)?`<span class="chip warn">☕ أثناء بريك: ${s._breaks.join('، ')}</span>`:'',
+        s._delayedBy?`<span class="chip bad">⏳ تأخير في بدء الحجز ${s._delayedBy}د — الحجز السابق تجاوز وقته</span>`:'',
+        s._mismatch?'<span class="chip warn">⚠ أُسند بالوقت — اللاعبون لا يطابقون قائمة الحجز</span>':'',
+        s._surplus?`<span class="chip ok">لعب زيادة +${s._surplus}د</span>`:'',
+        s._over?`<span class="chip ${s._delaysNext?'bad':'warn'}">تجاوز وقت الحجز ${s._over}د${s._delaysNext?' — أخّر الحجز التالي!':''}</span>`:'',
+        (hasRecording(s)&&!s.sent_at&&s.rec_status!=='declined')?'<span class="chip warn" style="cursor:pointer" onclick="switchTab(\'rec\')">📼 التسجيل لم يُرسَل</span>':'',
+        staffBooked(s)?'<span class="chip">👤 حجز موظف</span>':'',
+        s._second?'<span class="chip">دبل — مستحق ٤٠د بلا تجهيز</span>':''
+      ].filter(Boolean).join('');
+      body=`<div class="dcols">
+        <div class="dcol">
+          <div class="secttl">⏱ الزمن</div>
+          ${playBar(s)}
+          <div class="metrics">
+            <div class="metric hl"><div class="v">${mmss(s._netSec)}</div><div class="l">صافي اللعب</div>
+              <div class="s">داخل الخرائط ${mmss(s._playSec)} · توقف ${mmss(s._gapSec)}</div></div>
+            <div class="metric"><div class="v" style="color:${s._setup?'var(--amber)':'var(--ink)'}">${mmss(s._setupSec)}</div><div class="l">التجهيز</div>
+              <div class="s">المسموح ${s._second?0:SETUP}د${s._setup?` · زائد ${s._setup}د`:''}</div></div>
+            <div class="metric"><div class="v" style="color:${s._deficit?'var(--red)':'var(--green)'}">${s._deficit?'−'+s._deficit+'د':'✓'}</div><div class="l">${s._deficit?'نقص':'سليم'}</div>
+              <div class="s">المستحق ${s._entitled}د</div></div>
+            <div class="metric"><div class="v">${s._actual} / ${s.booked_players}</div><div class="l">لعب/محجوز</div>
+              ${s.actual_players!=null?`<div class="s">الاستقبال: ${s.actual_players}</div>`:''}</div>
+          </div>
+          <div class="secttl" style="margin-top:12px">🚶 رحلة العميل</div>
+          ${journeyLine(s)}
+          ${notes?`<div class="secttl" style="margin-top:12px">📌 ملاحظات</div><div class="row sm">${notes}</div>`:''}
+        </div>
+        <div class="dcol">
+          <div class="secttl">🗺 الخرائط — ${s._games.length} جولة</div>
+          <div class="maps">
+            ${s._games.map((g,i)=>{
+              const prev=i?s._games[i-1]:null;
+              const gap=prev?Math.round((g.start-prev.end)/1000):0;
+              const score=(g.team_one_score!=null&&g.team_two_score!=null)?`${g.team_one_score} - ${g.team_two_score}`:'';
+              return `${gap>20?`<div class="gapc" title="توقف بين الخريطتين"><span>⏸ توقف</span><b>${mmss(gap)}</b></div>`:''}
+              <div class="mapc" style="--gc:${col}">
+                <div class="row" style="gap:6px"><span class="mp">${g.map||'—'}</span><span class="grow"></span><span class="dim sm">${i+1}</span></div>
+                <div class="dur">${mmss(g.duration_sec||0)}</div>
+                <div class="tm">${fmtT(g.start)} → ${fmtT(g.end)}</div>
+                <div class="sc">${score?`النتيجة ${score} · `:''}${g.players.length}👤</div>
+              </div>`;}).join('')}
+          </div>
+          ${players.length?`<div class="secttl" style="margin-top:12px">🏅 النقاط — ${players.length} لاعب</div>
+          <div class="pgrid">${players.map(p=>`<div class="prow"><span class="grow">${p.name}${p.mvp?' <span class="mvp">MVP</span>':''}</span>
+            <span class="kda">${p.k}/${p.d}/${p.a}</span><span class="score">${p.score.toLocaleString('en')}</span></div>`).join('')}</div>`:''}
+        </div>
+      </div>`;
     }else{
       const past=Date.now()>s._endT&&DAY<=opDay();
       body=`<div class="${s._swallowed&&past?'sm':'dim sm'}" style="${s._swallowed&&past?'color:var(--red);font-weight:700':''}">${s._swallowed&&past?'⚠ وقت هذا الحجز استهلكه تجاوز الحجز السابق (نفس المجموعة واصلت اللعب) — العميل لم يحضر على الأرجح':(past?'لم يُرصد أي لعب لهذا الحجز (تأكد من تشغيل المزامنة)':'لم يبدأ بعد')}</div>
@@ -2285,7 +2302,7 @@ function sweep(root){
 }
 
 /* ═════════ التبويبات ═════════ */
-const TABS=[['ops','التشغيل'],['rcp','الاستقبال'],['ana','التفاصيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون']];
+const TABS=[['rcp','الاستقبال'],['ana','التشغيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون']];
 function buildTabs(){
   document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>
     `<button id="tb-${k}" class="${k===TAB?'on':''}" onclick="switchTab('${k}')">${n}${k==='rec'?' <span class="badge" id="recBadge" style="display:none"></span>':''}</button>`).join('');
@@ -2294,7 +2311,7 @@ function switchTab(k){TAB=k;
   for(const [t] of TABS){document.getElementById('tb-'+t).classList.toggle('on',t===k);document.getElementById('tab-'+t).classList.toggle('on',t===k)}
   document.body.classList.toggle('wide',k==='sales'||k==='rep');   // الجداول تأخذ عرض الشاشة
 }
-function renderAll(){renderOps();renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
+function renderAll(){renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
 function setDay(d){if(!d)return;DAY=d;ANA_INIT=false;RCP_INIT=false;document.getElementById('datePick').value=d;load(true)}
 function shiftDay(n){const d=new Date(DAY+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);setDay(d.toISOString().slice(0,10))}
 function status(t){document.getElementById('fStatus').textContent=trText(t)}
