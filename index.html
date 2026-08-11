@@ -1075,8 +1075,8 @@ function renderSales(){
     }).join(''):'';
     return main+subs;
   }).join('');
-  /* سطور الكافيه: مبلغ + طريقة دفع + خصم فقط */
-  const manualRows=(S.extras||[]).map((x,i)=>{
+  /* السطور اليدوية في المبيعات: إيفا نايت/إيفنت فقط — الكافيه يُدار من تبويب التقرير */
+  const manualRows=(S.extras||[]).filter(x=>x.label!=='café').map((x,i)=>{
     const amt=+x.amount||0;
     const d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
     const dv=(d&&d.pct!=null&&d.code)?+(amt*d.pct/100).toFixed(2):0;
@@ -1099,9 +1099,9 @@ function renderSales(){
     <td><button class="btn ghost" style="color:var(--red);padding:2px 6px" onclick="extraDel('${x.id}')">✕</button></td></tr>`;
   }).join('');
   const net=gross-discT;
-  // مبيعات إضافية (كافيه…) تدخل مجاميع الدفع أيضاً
+  // سطور إيفا نايت/إيفنت تدخل مجاميع الدفع (الكافيه مستبعَد — يُدار في التقرير)
   let extraT=0,extraD=0;
-  for(const x of (S.extras||[])){
+  for(const x of (S.extras||[]).filter(x=>x.label!=='café')){
     const a=+x.amount||0;
     const d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
     const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0;
@@ -1136,21 +1136,12 @@ function renderSales(){
   </table></div>
   <div class="card" style="margin-top:10px">
     <div class="row" style="gap:6px">
-      <b>☕ كافيه:</b>
-      <input class="disc" id="cafeAmt" type="number" min="0" step="0.05" placeholder="المبلغ" style="width:90px">
-      <select class="disc-sel" id="cafePay">
-        <option value="">— طريقة الدفع —</option>
-        ${PAYMENTS.map(p=>`<option>${p}</option>`).join('')}
-      </select>
-      <select class="disc-sel" id="cafeDisc">
-        ${DISCOUNTS.map(d=>`<option value="${d.code}">${d.label}</option>`).join('')}
-      </select>
-      <button class="btn primary" onclick="cafeAdd()">+ إضافة</button>
-      <span class="grow"></span>
       <button class="btn" onclick="quickSale('إيفا نايت',15)" title="يضيف سطر إيفا نايت بـ١٥ — السعر قابل للتعديل في الجدول، وكل ضغطة تضيف سطراً">🌙 إيفا نايت ١٥</button>
       <button class="btn" onclick="quickSale('إيفنت',0)" title="يضيف سطر إيفنت — اكتب السعر في خانة المبلغ بالجدول، وكل ضغطة تضيف سطراً">🎉 إيفنت</button>
+      <span class="grow"></span>
+      <span class="dim sm">مبيعات الكافيه تُدار من تبويب «التقرير»</span>
     </div>
-    <div class="dim sm" style="margin-top:6px">سطور «إيفا نايت / إيفنت / كافيه» تدخل مجاميع الدفع والصافي والتصدير تلقائياً — عدّل السعر من خانة المبلغ، واضغط الزر مجدداً لسطر إضافي.</div>
+    <div class="dim sm" style="margin-top:6px">سطور «إيفا نايت / إيفنت» تدخل مجاميع الدفع والصافي والتصدير تلقائياً — عدّل السعر من خانة المبلغ، واضغط الزر مجدداً لسطر إضافي.</div>
   </div>
   <div class="row" style="align-items:flex-start;margin-top:12px;gap:12px">
     <div class="tblwrap paytbl"><table>
@@ -1303,7 +1294,7 @@ function exportCSV(){
         d&&d.code?d.label:'',p.disc?p.disc.toFixed(2):'',p.net.toFixed(2),p.pay,i===0?(s.sale_note||''):'']);
     });
   }
-  for(const x of (S.extras||[])){
+  for(const x of (S.extras||[]).filter(x=>x.label!=='café')){
     const v=+x.amount||0;
     if(x.pay_method&&payTotals.has(x.pay_method))payTotals.set(x.pay_method,payTotals.get(x.pay_method)+v);else payUnset+=v;
     out.push(['','','','مبيعات إضافية',x.label||'','',x.qty||1,'',v.toFixed(2),'','',v.toFixed(2),x.pay_method||'',x.note||'']);
@@ -1586,7 +1577,8 @@ async function quickSale(label,amount){
   try{
     await sbInsert('extra_sales',row);
     S.extras=await sbGet(`extra_sales?day=eq.${DAY}&order=created_at&select=*`);
-    renderSales();renderRep();status('✓ أُضيف سطر '+label);
+    renderSales();renderRep();sweep(document.querySelector('main'));
+    status('✓ أُضيف سطر '+trText(label));
   }catch(e){status(/extra_sales|discount_code|at_time/.test(e.message)?'⚠ شغّل ملف eva_v4.sql في Supabase أولاً':'⚠ '+e.message)}
 }
 async function extraDel(id){
@@ -1761,13 +1753,13 @@ function printSales(preview){
       }
     }
   }
-  for(const x of (S.extras||[])){
+  for(const x of (S.extras||[]).filter(x=>x.label!=='café')){
     const a=+x.amount||0,d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
     const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0;
     gross+=a;disc+=dv;const v=a-dv;
     if(x.pay_method&&payT.has(x.pay_method)){payT.set(x.pay_method,payT.get(x.pay_method)+v);payN.set(x.pay_method,payN.get(x.pay_method)+1)}
     else unset+=v;
-    rows+=`<tr class="walk"><td>ك</td><td>${x.at_time||''}</td><td>—</td><td class="r">café</td><td>—</td><td>1</td>
+    rows+=`<tr class="walk"><td>ك</td><td>${x.at_time||''}</td><td>—</td><td class="r">${x.label||'café'}</td><td>—</td><td>1</td>
       <td>—</td><td>${a.toFixed(2)}</td><td>${dv?'−'+dv.toFixed(2):''}${d&&d.code?' <span class="mut">'+d.label+'</span>':''}</td>
       <td><b>${v.toFixed(2)}</b></td><td>${x.pay_method||'<b class="bad">بلا دفع</b>'}</td><td class="r mut">${x.note||'—'}</td></tr>`;
   }
@@ -1942,6 +1934,9 @@ const EN={
  'اضغط على رأس أي حجز لفتحه':'Click a booking header to expand','دبل':'Double','👤 موظف':'👤 Staff','لم يحضر':'No-show','لا يوجد أشخاص متبقّون للتقسيم':'No remaining people to split',
  'اكتب البند والمبلغ':'Enter item and amount','مبيعات إضافية':'Extra sales',
  '☕ كافيه:':'☕ Café:','المبلغ':'Amount','— طريقة الدفع —':'— payment —','+ إضافة':'+ Add','اكتب المبلغ':'Enter amount',
+ 'إيفا نايت':'EVA Night','إيفنت':'Event','🌙 إيفا نايت ١٥':'🌙 EVA Night 15','🎉 إيفنت':'🎉 Event',
+ 'مبيعات الكافيه تُدار من تبويب «التقرير»':'Café sales are managed in the Report tab',
+ 'سطور «إيفا نايت / إيفنت» تدخل مجاميع الدفع والصافي والتصدير تلقائياً — عدّل السعر من خانة المبلغ، واضغط الزر مجدداً لسطر إضافي.':'“EVA Night / Event” lines join the payment totals, net and export automatically — edit the price in the Amount field and press the button again to add another line.',
  'يدخل المجاميع وطرق الدفع والتصدير تلقائياً':'Joins totals, payment methods and export automatically',
  'اختر حسابك وأدخل الرمز':'Choose your account and enter the code','دخول':'Sign in','الرمز':'Code',
  'الرمز غير صحيح':'Wrong code','اختر حسابك أولاً':'Choose your account first',
@@ -1978,6 +1973,7 @@ const EN_RX=[
  [/^([\d.]+) بلا دفع$/,'$1 unpaid'],[/^لعب (\d+)د من (\d+)$/,'played $1m of $2'],
  [/^(\d+) لُعبت · (\d+) لم يحضر(.*)$/,'$1 played · $2 no-show$3'],[/^ · (\d+) أُلغي$/,' · $1 cancelled'],
  [/^(\d+)👤(.*)$/,'$1👤$2'],
+ [/^✓ أُضيف سطر (.+)$/,'✓ Added line: $1'],
 ];
 let LANG=localStorage.getItem('em_lang')||'ar';
 function toggleLang(){LANG=LANG==='ar'?'en':'ar';localStorage.setItem('em_lang',LANG);applyLang()}
