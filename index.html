@@ -342,35 +342,44 @@ tr.cancelled td{opacity:.5}
   select,input{border:none!important;background:none!important}
 }
 /* ═══ بطاقات النتائج (نمط EVA) ═══ */
-.rwrap{max-width:1120px;margin:0 auto}
-.rcard{background:#fff;color:#16202b;border-radius:16px;overflow:hidden;margin-bottom:18px;box-shadow:0 10px 34px rgba(0,0,0,.4)}
-.rhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 22px;background:linear-gradient(100deg,#0a1b33,#164074);color:#fff}
-.rhead .rgame{font-size:11px;font-weight:800;letter-spacing:2.5px;opacity:.8}
-.rhead .rmap{font-size:23px;font-weight:900;letter-spacing:1px;line-height:1.12;margin-top:2px}
-.rhead .rmeta{text-align:right;font-weight:900;font-size:17px;line-height:1.25;white-space:nowrap}
-.rhead .rmeta .dim{opacity:.75;font-weight:700;font-size:14px}
-.rscore{display:flex;align-items:center;justify-content:center;gap:26px;padding:16px 22px;background:#f3f7fb;border-bottom:1px solid #e7eef4}
-.rscore .tm{display:flex;align-items:center;gap:14px;font-weight:900}
-.rscore .tm.b{flex-direction:row}
-.rscore .nm{font-size:16px;letter-spacing:1px}
-.rscore .tm.a .nm{color:#c0810c}.rscore .tm.b .nm{color:#2b8fd0}
-.rscore .big{font-size:36px;font-weight:900;font-variant-numeric:tabular-nums;color:#8494a2}
-.rscore .tm.a.win .big{color:#d99413}.rscore .tm.b.win .big{color:#2b8fd0}
-.rscore .vs{font-size:13px;font-weight:900;color:#9aa7b3;letter-spacing:1px}
+.rwrap{max-width:1200px;margin:0 auto}
+.rcard{background:#fff;color:#1a2733;border-radius:14px;overflow:hidden;margin-bottom:22px;box-shadow:0 14px 42px rgba(0,0,0,.5);border-bottom:4px solid #7b3ff2}
+.rhead{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:16px 26px;color:#fff;background:linear-gradient(103deg,#081627 0%,#123a6d 52%,#0b2244 100%)}
+.rhead::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(118deg,rgba(255,255,255,.045) 0 2px,transparent 2px 30px);pointer-events:none}
+.rhead>*{position:relative;z-index:1}
+.glogo{font-size:10.5px;font-weight:800;letter-spacing:2px;line-height:1.15;opacity:.9}
+.glogo b{display:block;font-size:20px;letter-spacing:3px;font-weight:900}
+.glogo b i{color:#39b6ff;font-style:normal}
+.rtitle{text-align:center}
+.rtitle .sub{font-size:11px;font-weight:800;letter-spacing:4px;opacity:.72}
+.rtitle .mode{font-size:27px;font-weight:900;letter-spacing:2px;line-height:1.04}
+.rdt{text-align:right;font-size:20px;font-weight:900;line-height:1.18;white-space:nowrap}
+.rscore{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 28px;background:#eef3f8;border-bottom:1px solid #dce6ee}
+.rgrp{grid-column:2;display:flex;align-items:center;gap:26px;justify-self:center}
+.rside{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:104px}
+.rside .logo{width:54px;height:54px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18))}
+.rside .nm{font-size:14px;font-weight:900;letter-spacing:1.5px}
+.rside.a .nm{color:#c8890d}.rside.b .nm{color:#2487c9}
+.rscore .big{font-size:42px;font-weight:900;font-variant-numeric:tabular-nums;color:#8a99a7;min-width:66px;text-align:center;line-height:1}
+.rscore .big.wa{color:#e0980f}.rscore .big.wb{color:#2487c9}
+.rscore .vs{font-size:15px;font-weight:900;color:#9aa7b3;letter-spacing:1px}
+.rdur{grid-column:3;justify-self:end;text-align:right;color:#2f4457}
+.rdur .dl{font-size:13px;font-weight:800;letter-spacing:2.5px;color:#7a8ca0}
+.rdur .dv{font-size:27px;font-weight:900;letter-spacing:1px;line-height:1.05}
 .rbody{display:grid;grid-template-columns:1fr 1fr}
-.rteam{padding:10px 16px 14px}
-.rteam.a{border-inline-end:1px solid #eef2f5}
-.rteam .cap{display:grid;grid-template-columns:1fr auto 58px;gap:10px;font-size:10.5px;font-weight:800;color:#8a99a7;letter-spacing:1px;padding:2px 6px 8px;border-bottom:2px solid #eef2f5;margin-bottom:2px}
-.rteam .cap span:last-child{text-align:right}
-.rteam.a .cap{color:#c0810c}.rteam.b .cap{color:#2b8fd0}
-.rrow{display:grid;grid-template-columns:1fr auto 58px;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid #f2f6f9;font-variant-numeric:tabular-nums}
-.rrow .rn{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px;min-width:0}
+.rteam{padding:6px 18px 16px}
+.rteam.a{border-inline-end:1px solid #edf1f5}
+.rcap{display:grid;grid-template-columns:1fr auto 64px;gap:10px;font-size:11px;font-weight:800;color:#95a3b1;letter-spacing:1px;padding:12px 10px 9px;border-bottom:2px solid #eef2f5}
+.rcap span:last-child{text-align:right}
+.rrows{padding-top:2px}
+.rrow{display:grid;grid-template-columns:1fr auto 64px;align-items:center;gap:10px;padding:11px 10px;font-variant-numeric:tabular-nums;border-radius:8px}
+.rrow:nth-child(even){background:#f6f9fb}
+.rrow .rn{font-weight:800;font-size:16px;display:flex;align-items:center;gap:9px;min-width:0}
 .rrow .rn>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rrow .kda{color:#5b6b78;font-weight:700;font-size:14px;letter-spacing:.5px}
-.rrow .sc{text-align:right;font-weight:900;font-size:16px}
-.rteam.a .sc{color:#c0810c}.rteam.b .sc{color:#2b8fd0}
-.crown{flex:none;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-size:9.5px;font-weight:900;padding:2px 6px;border-radius:5px;letter-spacing:.5px}
-@media(max-width:640px){.rbody{grid-template-columns:1fr}.rteam.a{border-inline-end:none;border-bottom:1px solid #eef2f5}.rhead .rmap{font-size:18px}.rscore{gap:14px}.rscore .big{font-size:28px}.rscore .nm{font-size:14px}}
+.rrow .kda{color:#59697a;font-weight:700;font-size:15px;letter-spacing:1px}
+.rrow .sc{text-align:right;font-weight:900;font-size:17px;color:#26333f}
+.crown{flex:none;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-size:10px;font-weight:900;padding:3px 7px;border-radius:6px;letter-spacing:.5px;box-shadow:0 2px 5px rgba(109,40,217,.4)}
+@media(max-width:680px){.rhead{grid-template-columns:1fr;justify-items:center;text-align:center;gap:8px}.rdt,.glogo{text-align:center}.rscore{grid-template-columns:1fr;gap:14px;justify-items:center}.rgrp{grid-column:1;gap:16px}.rdur{grid-column:1;justify-self:center;text-align:center}.rbody{grid-template-columns:1fr}.rteam.a{border-inline-end:none;border-bottom:1px solid #edf1f5}.rtitle .mode{font-size:21px}.rscore .big{font-size:32px}}
 </style>
 </head>
 <body>
@@ -2489,11 +2498,18 @@ function sweep(root){
 
 /* ═════════ النتائج (بطاقات بأسلوب EVA) ═════════ */
 function rEsc(s){return String(s==null?'':s).replace(/[<>&]/g,c=>c==='<'?'&lt;':c==='>'?'&gt;':'&amp;')}
+function rH12(t){let[H,M]=String(t).split(':').map(Number);const ap=H<12?'AM':'PM';H=H%12||12;return H+':'+String(M||0).padStart(2,'0')+' '+ap}
+function rDur(sec){sec=Math.max(0,Math.round(+sec||0));const m=Math.floor(sec/60),s=sec%60;return m+'M'+String(s).padStart(2,'0')+'S'}
+function rEmblem(grad){return '<svg class="logo" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" fill="url(#'+grad+')"/><path d="M17 46 C21 22 42 14 50 20 C36 22 29 32 27 48 Z" fill="#fff" opacity=".95"/><circle cx="46" cy="20" r="5" fill="#fff"/></svg>'}
 function renderResults(){
   const el=document.getElementById('tab-res'); if(!el)return;
   const games=[...(S.dayRounds||[])].sort((a,b)=>b.end-a.end);
   if(!games.length){el.innerHTML='<div class="empty">لا نتائج مرصودة اليوم بعد</div>';return}
-  el.innerHTML='<div class="rwrap"><div class="row" style="margin-bottom:14px">'
+  const defs='<svg width="0" height="0" style="position:absolute"><defs>'
+    +'<linearGradient id="emGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffcf5c"/><stop offset="1" stop-color="#df8500"/></linearGradient>'
+    +'<linearGradient id="emBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#74d2f9"/><stop offset="1" stop-color="#1c7ec0"/></linearGradient>'
+    +'</defs></svg>';
+  el.innerHTML=defs+'<div class="rwrap"><div class="row" style="margin-bottom:16px">'
     +'<h2 style="margin:0">🏆 نتائج آخر المباريات</h2><span class="grow"></span>'
     +'<span class="dim sm">'+games.length+' مباراة · '+DAY+'</span></div>'
     +games.map(resultCard).join('')+'</div>';
@@ -2506,24 +2522,35 @@ function resultCard(g){
   let A=ps.filter(p=>p.team===k1), B=ps.filter(p=>p.team===k2);
   if(!A.length&&!B.length){const h=Math.ceil(ps.length/2);A=ps.slice(0,h);B=ps.slice(h)}
   const s1=g.team_one_score, s2=g.team_two_score;
-  const n1=(k1!=null?k1:'ALLIANCE'), n2=(k2!=null?k2:'REBELS');
-  const col=(list,cls)=>{
+  const n1=(k1!=null?String(k1):'ALLIANCE').toUpperCase(), n2=(k2!=null?String(k2):'REBELS').toUpperCase();
+  const w1=s1!=null&&s2!=null&&s1>s2, w2=s1!=null&&s2!=null&&s2>s1;
+  const team=(list,cls)=>{
     const rows=list.slice().sort((a,b)=>b.score-a.score).map(p=>
-      '<div class="rrow"><span class="rn">'+(p.mvp?'<span class="crown">MVP</span>':'')+'<span>'+rEsc(p.name)+'</span></span>'
+      '<div class="rrow"><span class="rn">'+(p.mvp?'<span class="crown">♛ MVP</span>':'')+'<span>'+rEsc(p.name)+'</span></span>'
       +'<span class="kda">'+p.kills+' / '+p.deaths+' / '+p.assists+'</span>'
-      +'<span class="sc">'+p.score+'</span></div>').join('')||'<div class="dim sm" style="padding:10px 4px">—</div>';
-    return '<div class="rteam '+cls+'"><div class="cap"><span>PLAYER</span><span>K / D / A</span><span>SCORE</span></div>'+rows+'</div>';
+      +'<span class="sc">'+p.score+'</span></div>').join('')||'<div class="dim sm" style="padding:14px 10px">—</div>';
+    return '<div class="rteam '+cls+'"><div class="rcap"><span>PLAYER</span><span>K / D / A</span><span>SCORE</span></div><div class="rrows">'+rows+'</div></div>';
   };
   const gname=g.cc?'COLOR CHAOS':'BATTLE ARENA';
-  return '<div class="rcard"><div class="rhead">'
-    +'<div><div class="rgame">AFTER·H '+gname+'</div><div class="rmap">'+rEsc((g.map||'—')).toUpperCase()+'</div></div>'
-    +'<div class="rmeta"><div>'+fmtT(g.end)+'</div><div class="dim">'+mmss(g.duration_sec||0)+'</div></div></div>'
-    +'<div class="rscore">'
-      +'<div class="tm a'+(s1>s2?' win':'')+'"><span class="nm">'+rEsc(n1)+'</span><span class="big">'+(s1!=null?s1:'-')+'</span></div>'
-      +'<span class="vs">VS</span>'
-      +'<div class="tm b'+(s2>s1?' win':'')+'"><span class="big">'+(s2!=null?s2:'-')+'</span><span class="nm">'+rEsc(n2)+'</span></div>'
-    +'</div>'
-    +'<div class="rbody">'+col(A,'a')+col(B,'b')+'</div></div>';
+  const mapU=rEsc((g.map||'—')).toUpperCase();
+  const d=String(DAY).split('-'); const dstr=(+d[1])+'/'+(+d[2])+'/'+String(d[0]).slice(2);
+  return '<div class="rcard">'
+   +'<div class="rhead">'
+     +'<div class="glogo">AFTER·H<b>BATTLE<i> </i>ARENA</b></div>'
+     +'<div class="rtitle"><div class="sub">'+gname+' · EVA</div><div class="mode">'+mapU+'</div></div>'
+     +'<div class="rdt">'+dstr+'<br>'+rH12(fmtT(g.end))+'</div>'
+   +'</div>'
+   +'<div class="rscore">'
+     +'<div class="rgrp">'
+       +'<div class="rside a">'+rEmblem('emGold')+'<span class="nm">'+n1+'</span></div>'
+       +'<span class="big '+(w1?'wa':'')+'">'+(s1!=null?s1:'-')+'</span>'
+       +'<span class="vs">VS</span>'
+       +'<span class="big '+(w2?'wb':'')+'">'+(s2!=null?s2:'-')+'</span>'
+       +'<div class="rside b">'+rEmblem('emBlue')+'<span class="nm">'+n2+'</span></div>'
+     +'</div>'
+     +'<div class="rdur"><div class="dl">DURATION</div><div class="dv">'+rDur(g.duration_sec)+'</div></div>'
+   +'</div>'
+   +'<div class="rbody">'+team(A,'a')+team(B,'b')+'</div></div>';
 }
 
 /* ═════════ التبويبات ═════════ */
