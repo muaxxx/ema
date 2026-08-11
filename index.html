@@ -1,0 +1,2141 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EM · نظام إيفا مراسي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══ EM v2.2 — ثيم فاتح · Tajawal · بطاقات ملوّنة كإيفا ═══ */
+:root{
+  /* لوحة إيفا: خلفية بيضاء مزرقّة + بلوكات صلبة + تباين قوي */
+  --bg:#e7eff6; --card:#ffffff; --card2:#e8f2f8; --line:#d6e4ee; --line2:#c3d7e4;
+  --ink:#102331; --dim:#49637a; --teal:#1a92a6; --teal-d:#115e6d;
+  --pink:#c2338f; --blue:#2b87e3; --green:#1fae68; --purple:#8b55e8;
+  --amber:#d29a1c; --red:#e04b59; --orange:#e8862e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);
+  font:15px/1.65 'Tajawal',system-ui,'Segoe UI',Tahoma,sans-serif;padding-bottom:64px;min-height:100vh}
+header{position:sticky;top:0;z-index:50;background:#ffffffd9;border-bottom:1px solid var(--line2);backdrop-filter:blur(10px)}
+.hrow{display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:18px;color:var(--teal-d)}
+.brand small{color:var(--dim);font-weight:500}
+.datenav{display:flex;align-items:center;gap:5px;margin-inline-start:auto}
+.datenav button,.btn{background:#fff;color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:5px 12px;cursor:pointer;font:700 13px 'Tajawal',system-ui;transition:.15s;box-shadow:0 1px 2px rgba(27,42,56,.05)}
+.datenav input{background:#fff;color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:4px 8px;font:700 13px 'Tajawal',system-ui}
+.btn:hover,.datenav button:hover{border-color:var(--teal);transform:translateY(-1px)}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn.danger{background:var(--red);border-color:var(--red);color:#fff;font-weight:800}
+.btn.ghost{background:none;box-shadow:none}
+nav{display:flex;gap:2px;padding:0 12px;overflow-x:auto;scrollbar-width:none}
+nav button{background:none;border:none;color:var(--dim);font:800 14px 'Tajawal',system-ui;padding:9px 15px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.on{color:var(--teal-d);border-color:var(--teal)}
+nav button .badge{background:var(--red);color:#fff;border-radius:9px;font-size:11px;padding:0 6px;margin-inline-start:4px}
+main{max-width:1100px;margin:0 auto;padding:16px}
+body.wide main{max-width:1560px}
+/* نافذة تقسيم الدفع */
+.ovl{position:fixed;inset:0;background:#000000bb;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.dlg{background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:16px 18px;max-width:560px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.dlg h3{font-size:16px;margin-bottom:4px}
+.splitrow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line2);flex-wrap:wrap}
+.splitrow .n{width:64px}
+.rem{background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px;margin-top:10px}
+.noteb{background:none;border:1px dashed var(--line2);border-radius:7px;color:var(--dim);cursor:pointer;padding:2px 8px;font:12.5px 'Tajawal';max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.noteb.has{color:var(--ink);border-style:solid;border-color:var(--teal-d)}
+/* بوابة الدخول */
+.gate{position:fixed;inset:0;z-index:500;background:#0b1016;display:flex;align-items:center;justify-content:center;padding:20px}
+.gatebox{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:26px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);max-width:420px;width:100%}
+.gtitle{font-size:22px;font-weight:800;color:var(--teal)}
+.ubtn{background:var(--card2);border:2px solid var(--line2);border-radius:12px;padding:9px 16px;cursor:pointer;color:var(--ink);font:800 14px 'Tajawal';margin:3px}
+.ubtn.on{border-color:var(--teal);background:#12303a;color:#fff}
+body.locked{overflow:hidden}
+#who{font-size:12.5px;color:var(--dim)}
+.tab{display:none}.tab.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+h2{font-size:15px;color:var(--dim);margin:20px 0 10px;font-weight:800}
+.card{background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:13px 16px;margin-bottom:10px;border-inline-start:5px solid var(--dim);box-shadow:0 2px 8px rgba(27,42,56,.06)}
+.hero{background:linear-gradient(135deg,#fff,#f2f7fb);border:1px solid var(--line2);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 4px 16px rgba(27,42,56,.08)}
+.hero .big{font-size:20px;font-weight:800}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.grow{flex:1}
+.chip{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--line2);border-radius:999px;padding:1px 11px;font-size:12px;color:var(--dim);font-weight:700}
+.chip.warn{color:var(--amber);border-color:#eBD48b;background:#fdf6e2}
+.chip.ok{color:#127a48;border-color:#b9e4cd;background:#ecf9f2}
+.chip.bad{color:#c22e3c;border-color:#f3c2c7;background:#fdeef0}
+.chip.info{color:#1d6dbd;border-color:#bcd9f5;background:#ecf4fd}
+.chip .x{cursor:pointer;opacity:.6;font-weight:800;margin-inline-start:2px}
+.chip .x:hover{opacity:1;color:var(--red)}
+.t{color:var(--teal-d);font-weight:800;font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.dim{color:var(--dim)}.sm{font-size:12.5px}
+.empty{color:var(--dim);text-align:center;padding:28px;background:var(--card);border:1px dashed var(--line2);border-radius:14px}
+footer{position:fixed;bottom:0;inset-inline:0;background:#ffffffd9;border-top:1px solid var(--line2);padding:7px 16px;font-size:12.5px;color:var(--dim);display:flex;gap:14px;backdrop-filter:blur(10px)}
+.flash{animation:fl 1.6s ease 2}
+@keyframes fl{0%,100%{background:var(--card)}50%{background:#dff1f5}}
+/* شريط اللعب داخل بطاقة التفاصيل */
+.bar{position:relative;height:12px;background:#e6edf4;border-radius:8px;margin:8px 0 4px;overflow:hidden;border:1px solid var(--line2)}
+.bar .seg{position:absolute;top:0;bottom:0;border-radius:8px}
+.bar .setup{background:repeating-linear-gradient(45deg,#eBD48b,#eBD48b 5px,#f6e8bd 5px,#f6e8bd 10px)}
+.bar .play{background:linear-gradient(90deg,var(--teal-d),var(--teal))}
+.bar .mark{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--red)}
+.barlbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--dim);margin-bottom:8px;flex-wrap:wrap;gap:4px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:9px;margin:10px 0 6px}
+.metric{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:9px 10px;text-align:center}
+.metric.hl{border-color:#a8d8e2;background:#e9f6f9}
+.metric .v{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.metric .l{font-size:11.5px;color:var(--dim);margin-top:1px}
+.metric .s{font-size:11px;color:var(--dim)}
+.rounds{margin-top:9px;border-top:1px dashed var(--line2);padding-top:9px;display:flex;flex-direction:column;gap:4px}
+.round{display:flex;gap:8px;align-items:center;font-size:13px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+/* رحلة العميل */
+.journey{display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:var(--card2);border:1px solid var(--line2);
+  border-radius:10px;padding:7px 11px;margin-top:9px;font-size:12.5px}
+.journey .jst{color:var(--dim)}
+.journey .jst.on{color:var(--ink)}
+.journey .jst b{color:var(--dim);font-weight:700}
+.journey .jst.on b{color:var(--teal)}
+.journey .jst.warn{color:var(--amber)}
+.journey .jar{color:var(--line2)}
+/* الخرائط والأزمنة — الأهم في البطاقة */
+.maps{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.mapc{flex:1 1 168px;background:var(--card2);border:1px solid var(--line2);border-radius:12px;padding:9px 11px;border-inline-start:5px solid var(--gc,var(--teal))}
+.mapc .mp{font-weight:800;font-size:14.5px;letter-spacing:.2px}
+.mapc .dur{font-size:21px;font-weight:800;color:var(--teal);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;line-height:1.15}
+.mapc .tm{font-size:12px;color:var(--dim);direction:ltr;unicode-bidi:isolate}
+.mapc .sc{font-size:11.5px;color:var(--dim)}
+.gapc{flex:0 0 62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  font-size:11px;line-height:1.25;color:var(--amber);background:#1e1a10;border:1px dashed #4a3d18;border-radius:10px;padding:4px 2px}
+.gapc b{font-size:12.5px;font-variant-numeric:tabular-nums;direction:ltr}
+/* اللاعبون — مضغوطون في أعمدة */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:1px 12px;margin-top:5px}
+.pgrid .prow{padding:2px 7px;font-size:12.5px}
+.pgrid .prow .score{min-width:44px;font-size:12.5px}
+.pgrid .prow .kda{font-size:11px}
+.plist{margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+.prow{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:9px;font-size:13px}
+.prow:nth-child(even){background:#f2f7fb}
+.prow .score{color:var(--teal-d);font-weight:800;min-width:52px;text-align:left;direction:ltr}
+.prow .kda{color:var(--dim);font-size:12px;direction:ltr;unicode-bidi:isolate}
+.mvp{background:linear-gradient(90deg,#d4af37,#f1c40f);color:#5b4503;font-size:10px;font-weight:800;border-radius:6px;padding:0 6px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{background:var(--teal-d);color:#fff;font-weight:800;text-align:right;padding:8px 10px;font-size:12.5px;white-space:nowrap}
+th:first-child{border-radius:0 10px 10px 0}th:last-child{border-radius:10px 0 0 10px}
+[dir=ltr] th{text-align:left}
+[dir=ltr] th:first-child{border-radius:10px 0 0 10px}[dir=ltr] th:last-child{border-radius:0 10px 10px 0}
+td{padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+tr.total td{font-weight:800;border-top:2px solid var(--line2);background:var(--card2)}
+tr.walkin td{background:#fdf6e2}
+tr.cancelled td,.card.cancelled{opacity:.55}
+.disc{width:64px;background:#fff;color:var(--ink);border:1px solid var(--line2);border-radius:7px;padding:3px 6px;font:700 13px 'Tajawal';text-align:center}
+select.disc-sel{background:#fff;color:var(--ink);border:1.5px solid var(--line2);border-radius:8px;padding:4px 6px;font:700 12.5px 'Tajawal';min-width:108px;cursor:pointer}
+select.disc-sel:hover{border-color:var(--teal)}
+.xmail{width:170px;background:#fff;color:var(--ink);border:1px solid var(--line2);border-radius:7px;padding:3px 8px;font:13px 'Tajawal';direction:ltr}
+.cnt{width:56px;background:#fff;color:var(--ink);border:1px solid var(--line2);border-radius:7px;padding:3px 6px;font:800 14px 'Tajawal';text-align:center}
+.tblwrap{overflow-x:auto;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:4px 8px;box-shadow:0 2px 8px rgba(27,42,56,.06)}
+input[type=time]{background:#fff;color:var(--ink);border:1px solid var(--line2);border-radius:7px;padding:3px 6px;font:700 13px 'Tajawal'}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--teal)}
+/* ── بلوك حجز صلب بنص أبيض (كجدول إيفا) ── */
+.evablock{border:none;border-radius:12px;padding:11px 15px;margin-bottom:8px;color:#fff;box-shadow:0 2px 8px rgba(23,48,66,.18)}
+.evablock .t,.evablock .dim{color:#fff}
+.evablock .dim{opacity:.85}
+.evablock .wchip{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.22);border-radius:999px;padding:1px 11px;font-size:12px;color:#fff;font-weight:700}
+.evablock .wchip.solid{background:#fff;color:var(--ink)}
+.evablock .wchip.alarm{background:#ffffff;color:#c22e3c}
+/* رأس بطاقة التفاصيل بلون اللعبة الصلب */
+.dstrip{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 15px;border-radius:12px 12px 0 0;color:#fff}
+.dstrip .t{color:#fff;font-size:18px}
+.dstrip .wchip{background:rgba(255,255,255,.2);border-radius:999px;padding:2px 12px;font-size:11.5px;font-weight:600;opacity:.95}
+.dstrip .wchip b{font-weight:800;font-size:13.5px;font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;margin-inline-start:3px}
+.dstrip .wchip.alarm,.dstrip .wchip.solid{font-weight:800;font-size:12.5px}
+.dwrap{background:#fff;border:1px solid var(--line2);border-radius:14px;margin-bottom:14px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);border-inline-start:6px solid var(--gc,var(--teal))}
+.dwrap.open{box-shadow:0 10px 26px rgba(0,0,0,.45)}
+.dwrap .dbody{padding:12px 15px;border-top:1px solid var(--line2)}
+.dstrip{cursor:pointer;user-select:none}
+.dstrip:hover{filter:brightness(1.09)}
+.chev{transition:transform .18s;font-size:15px;opacity:.85}
+.dwrap.open .chev{transform:rotate(180deg)}
+.anabar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.stafflist{display:flex;flex-direction:column;gap:7px;margin-bottom:6px}
+.staffrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line2);
+  border-inline-start:5px solid var(--line2);border-radius:12px;padding:9px 13px}
+.staffrow.on{border-inline-start-color:var(--teal);background:#12262e}
+.rolechip{font-size:11px;border-radius:999px;padding:1px 10px;background:var(--card2);color:var(--dim);border:1px solid var(--line2)}
+.rolechip.r-gm{color:#6ab2f7;border-color:#1e3a5a}
+.rolechip.r-reception{color:#3fd58a;border-color:#1e4a2e}
+.rolechip.r-cashier{color:#e0b64a;border-color:#5a4a1e}
+.rolechip.r-tech{color:#a06bff;border-color:#3a2a5a}
+.rolechip.r-super{color:#ff6b78;border-color:#5a2a2e}
+.rolechip.r-cafe{color:#ff8a3d;border-color:#5a3a1e}
+/* ═══ لوحة التشغيل ═══ */
+.opsgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:11px;margin-bottom:6px}
+.opsnow,.opscard{background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:14px 16px;box-shadow:0 4px 14px rgba(0,0,0,.28)}
+.opsnow{grid-column:span 2;background:linear-gradient(135deg,#13202b,#161d26);border-inline-start:6px solid var(--teal)}
+.opsnow.ok{border-inline-start-color:var(--green)}
+.opsnow.warn{border-inline-start-color:var(--amber)}
+.opslbl{font-size:11.5px;color:var(--dim);font-weight:700;letter-spacing:.3px;margin-bottom:5px}
+.opsbig{font-size:20px;font-weight:800;line-height:1.3}
+.opsbig2{font-size:17px;font-weight:800}
+.opssub{font-size:12.5px;color:var(--dim);margin-top:3px}
+.opsstats{display:flex;gap:14px;flex-wrap:wrap}
+.opsstats div{display:flex;flex-direction:column}
+.opsstats b{font-size:20px;font-variant-numeric:tabular-nums}
+.opsstats b.bad{color:var(--red)}.opsstats b.ok{color:var(--green)}
+.opsstats span{font-size:11px;color:var(--dim)}
+.strip{display:flex;gap:5px;flex-wrap:wrap}
+.tick{flex:1 1 74px;min-width:74px;border-radius:10px;padding:7px 6px;text-align:center;cursor:pointer;
+  border:1px solid var(--line2);background:var(--card);transition:.15s}
+.tick:hover{transform:translateY(-2px)}
+.tick span{display:block;font-size:11.5px;color:var(--dim);direction:ltr}
+.tick b{display:block;font-size:12.5px;margin-top:2px}
+.tick.good{background:color-mix(in srgb,var(--gc) 26%,#0e1319);border-color:var(--gc)}
+.tick.short{background:#2a1418;border-color:#7a2b35;color:#ff9aa4}
+.tick.now{background:linear-gradient(135deg,color-mix(in srgb,var(--gc) 55%,#0e1319),color-mix(in srgb,var(--gc) 25%,#0e1319));border-color:var(--gc);color:#fff}
+.tick.soon{opacity:.75}
+.tick.noplay,.tick.idle{opacity:.5}
+.tick.noshow{background:#2a1418;border-color:#7a2b35}
+.tick.cx{opacity:.35;text-decoration:line-through}
+.tick.walkin{background:#241d0d;border-color:#5a4a1e;color:var(--amber)}
+.alerts{display:flex;flex-direction:column;gap:6px}
+.alert{padding:8px 12px;border-radius:10px;font-size:13px;border-inline-start:4px solid var(--line2);background:var(--card)}
+.alert.bad{border-inline-start-color:var(--red);background:#1e1214;color:#ffb3ba}
+.alert.warn{border-inline-start-color:var(--amber);background:#1e1a10;color:#f0c98a}
+/* ═══ المبيعات كنظام محاسبي: فواتير + لوحة تحصيل ═══ */
+.acc{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start}
+@media(max-width:1000px){.acc{grid-template-columns:1fr}}
+.inv{background:var(--card);border:1px solid var(--line2);border-radius:14px;margin-bottom:10px;overflow:hidden;
+  border-inline-start:5px solid var(--gc,var(--line2));box-shadow:0 3px 12px rgba(0,0,0,.28)}
+.inv.due{border-inline-start-color:var(--red)}
+.inv.void{opacity:.5}
+.inv.walk{border-inline-start-color:var(--amber);background:#1d1a12}
+.inv.cafe{border-inline-start-color:var(--amber)}
+.invh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;background:#131b24}
+.invh .num{color:var(--dim);font-weight:800;min-width:26px}
+.invh .t{font-size:16px}
+.invh .gtag{color:#fff;border-radius:6px;padding:1px 9px;font-size:11.5px;font-weight:800}
+.invh .who{font-weight:700}
+.invh .ord{font-size:11.5px;color:var(--dim);direction:ltr;unicode-bidi:isolate}
+.invh .amt{font-size:19px;font-weight:800;color:var(--teal);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.invb{padding:9px 14px 11px}
+.lines{display:flex;flex-direction:column;gap:3px}
+.lin{display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 8px;border-radius:8px;background:#151d27}
+.lin .qty{font-weight:800;color:var(--ink);min-width:22px;text-align:center}
+.lin .lnet{font-weight:800;font-variant-numeric:tabular-nums;direction:ltr;min-width:56px;text-align:left}
+.lin .pay{font-size:11.5px;border-radius:999px;padding:1px 10px;min-width:86px;text-align:center}
+.lin .pay.set{background:#0f2418;color:var(--green);border:1px solid #1e4a2e}
+.lin .pay.unset{background:#271215;color:var(--red);border:1px solid #5a2a2e}
+.invtools{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line2)}
+.accside{position:sticky;top:96px;display:flex;flex-direction:column;gap:10px}
+.sumcard{background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:13px 15px;box-shadow:0 3px 12px rgba(0,0,0,.25)}
+.sumtop{text-align:center;padding-bottom:10px;margin-bottom:8px;border-bottom:1px solid var(--line2)}
+.sumnet{font-size:30px;font-weight:800;color:var(--green);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.sumnet span{font-size:13px;color:var(--dim);margin-inline-start:4px}
+.sumrow{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px;color:var(--dim)}
+.sumrow b{color:var(--ink);font-variant-numeric:tabular-nums}
+.sumrow.danger b{color:var(--red)}
+.sumhdr{font-weight:800;font-size:13px;margin-bottom:7px;color:var(--teal)}
+.payline{display:flex;align-items:center;gap:7px;padding:4px 0;font-size:13px;border-bottom:1px solid #1c2630}
+.payline b{font-variant-numeric:tabular-nums;direction:ltr}
+.payline b.free{color:var(--amber)}
+.payline.tot{border:none;border-top:2px solid var(--line2);margin-top:5px;padding-top:7px;font-weight:800}
+.card.rcpfold{padding:8px 14px;opacity:.85}
+.card.rcpfold:hover{opacity:1;border-color:var(--teal)}
+.chip.sm{font-size:11px;padding:1px 9px}
+/* جدول مجموع الدفع المصغّر */
+.paytbl{max-width:250px}
+.paytbl td,.paytbl th{padding:3px 10px;font-size:12.5px}
+tr:nth-child(even) td{background:#f4fafd}
+tr.walkin td{background:#fdf3dd!important}
+@media(max-width:640px){.metric .v{font-size:16px}main{padding:9px}}
+/* ═══ رجوع لثيم أمس الغامق (بطلب المؤسس) — يتغلّب على ما فوقه ═══ */
+:root{
+  --bg:#0e1319; --card:#161d26; --card2:#1b242f; --line:#243140; --line2:#2b3a4c;
+  --ink:#e8eef2; --dim:#8aa0b0; --teal:#2aa6bc; --teal-d:#0e6c7d; --amber:#e0b64a; --red:#ff6b78;
+}
+body{background:var(--bg)}
+header,footer{background:#101820ee}
+.brand{color:var(--teal)}
+.datenav button,.btn,.datenav input{background:var(--card2);color:var(--ink);border-color:var(--line2);box-shadow:none}
+.btn.primary{background:var(--teal-d);border-color:#0e6c7d;color:#fff}
+.btn.danger{background:#6e2230;border-color:#a13040;color:#ffd9dd}
+nav button.on{color:var(--ink)}
+.card{background:var(--card);border-color:var(--line2);box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.hero{background:linear-gradient(135deg,#13202b,#161d26);border-color:var(--line2);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.chip{background:var(--card2);border-color:var(--line2);color:var(--dim)}
+.chip.warn{color:#e0b64a;border-color:#5a4a1e;background:#241d0d}
+.chip.ok{color:#3fd58a;border-color:#1e4a2e;background:#0f2418}
+.chip.bad{color:#ff6b78;border-color:#5a2a2e;background:#271215}
+.chip.info{color:#6ab2f7;border-color:#1e3a5a;background:#101d2c}
+.t{color:var(--teal)}
+.empty{background:var(--card);border-color:var(--line2)}
+.bar{background:#0e151d;border-color:var(--line2)}
+.bar .setup{background:repeating-linear-gradient(45deg,#5a4a1e,#5a4a1e 5px,#3d3315 5px,#3d3315 10px)}
+.metric{background:var(--card2);border-color:var(--line)}
+.metric.hl{border-color:#0e6c7d;background:linear-gradient(180deg,#12303a,#152430)}
+.prow:nth-child(even){background:#171f2a}
+.prow .score{color:var(--teal)}
+td{border-bottom-color:#1c2630}
+tr:nth-child(even) td{background:#131b25}
+tr.total td{background:var(--card2)}
+tr.walkin td{background:#2a2210!important}
+tr.cancelled td{opacity:.5}
+.tblwrap{background:var(--card);border-color:var(--line2);box-shadow:none}
+.disc,select.disc-sel,.xmail,.cnt,input[type=time]{background:var(--card2);color:var(--ink);border-color:var(--line2);color-scheme:dark}
+.dwrap{background:var(--card);border-color:var(--line2)}
+.dwrap .dbody{background:var(--card)}
+@keyframes fl{0%,100%{background:var(--card)}50%{background:#1e3340}}
+/* نظام ألوان متدرّج يتوافق مع الخلفية الغامقة: تدرّج عميق من لون اللعبة + توهّج خفيف */
+.evablock{
+  background:linear-gradient(135deg,color-mix(in srgb,var(--gc,#456) 78%,#0a0f14),color-mix(in srgb,var(--gc,#456) 38%,#0a0f14));
+  border:1px solid color-mix(in srgb,var(--gc,#456) 50%,#0a0f14);
+  box-shadow:0 4px 16px color-mix(in srgb,var(--gc,#456) 22%,transparent);
+}
+.evablock:hover{box-shadow:0 6px 22px color-mix(in srgb,var(--gc,#456) 34%,transparent)}
+.dstrip{background:linear-gradient(90deg,color-mix(in srgb,var(--gc,#456) 80%,#0a0f14),color-mix(in srgb,var(--gc,#456) 42%,#0a0f14))}
+/* جدول المبيعات مضغوط كي لا يُقصّ عمود الدفع */
+#salesTable td{padding:5px 6px;font-size:13px}
+#salesTable tr.subrow td{background:#101923;font-size:12.5px}
+#salesTable tr.subrow td:first-child{border-inline-start:3px solid var(--teal-d)}
+#salesTable .cnt{width:46px}
+#salesTable select.disc-sel{min-width:0;width:104px}
+#salesTable select.pay{width:92px}
+@media print{
+  header,footer,nav,.btn,button{display:none!important}
+  body{background:#fff;padding:0}
+  .tab{display:none}.tab.on{display:block}
+  .tblwrap,.card,.hero{box-shadow:none;border:1px solid #ccc}
+  select,input{border:none!important;background:none!important}
+}
+</style>
+</head>
+<body>
+<div id="gate" class="gate">
+  <div class="gatebox">
+    <div class="gtitle">EM · نظام مراسي</div>
+    <div class="dim sm" style="margin-bottom:14px">اختر حسابك وأدخل الرمز</div>
+    <div class="row" id="userBtns" style="justify-content:center"></div>
+    <input id="pin" type="password" inputmode="numeric" maxlength="8" placeholder="الرمز"
+      style="margin-top:14px;width:150px;text-align:center;letter-spacing:6px;font-size:18px"
+      class="disc" onkeydown="if(event.key==='Enter')doLogin()">
+    <div><button class="btn primary" style="margin-top:12px;padding:8px 26px" onclick="doLogin()">دخول</button></div>
+    <div id="gateMsg" class="sm" style="margin-top:10px;min-height:18px;color:var(--red)"></div>
+  </div>
+</div>
+<header>
+  <div class="hrow">
+    <span class="brand">EM · نظام مراسي <small>v5.0 · بناء 10-08 23:10</small></span>
+    <div class="datenav">
+      <button id="langBtn" onclick="toggleLang()" style="font-weight:800">EN</button>
+      <button onclick="shiftDay(-1)" title="اليوم السابق">▶</button>
+      <input type="date" id="datePick" onchange="setDay(this.value)">
+      <button onclick="shiftDay(1)" title="اليوم التالي">◀</button>
+      <button onclick="setDay(opDay())">اليوم</button>
+      <button class="btn primary" onclick="load(true)">↻</button>
+      <span id="who"></span>
+      <button class="btn ghost" onclick="logout()" title="خروج">⎋</button>
+    </div>
+  </div>
+  <nav id="tabs"></nav>
+</header>
+<main>
+  <section id="tab-ops"   class="tab on"></section>
+  <section id="tab-rcp"   class="tab"></section>
+  <section id="tab-ana"   class="tab"></section>
+  <section id="tab-sales" class="tab"></section>
+  <section id="tab-rec"   class="tab"></section>
+  <section id="tab-gm"    class="tab"></section>
+  <section id="tab-rep"   class="tab"></section>
+</main>
+<footer><span id="fStatus">…</span><span id="fClock" style="margin-inline-start:auto"></span></footer>
+
+<script>
+/* ═════════ الإعداد ═════════ */
+const SB='https://vbnvweeefcjinynsrdja.supabase.co';
+const K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibnZ3ZWVlZmNqaW55bnNyZGphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxODExMTgsImV4cCI6MjEwMTc1NzExOH0.ULItNHOZQMVJF94TqCry2S0FVonkZpBWxGDlm-2GP4g';
+const H={apikey:K,Authorization:'Bearer '+K};
+const BLOCK=40, SETUP=10, EARLY=8, BRIEF_LEAD=3, ARRIVE_LEAD=10;
+const SHIFT=3*3600e3;
+const GID={1:'EVA BATTLE ARENA',2:'ZOMBIES',3:'LEGEND OF MARS',4:'MULTIGAME ARCADE POD',5:'EVA MOON OF THE DEAD',6:'EVA DARTS',7:'ZOMBIES - INITIATION',8:'MOON OF THE DEAD - SURVIVAL',9:'EVA KARTING GP',10:'RABBIDS: COLOR CHAOS'};
+/* أكواد الخصم — من ملف إكسل المبيعات (النسبة من مبلغ الجلسة، null = مبلغ يدوي) */
+const DISCOUNTS=[
+  {code:'',        label:'بلا خصم',            pct:0},
+  {code:'EVA20',   label:'EVA20 — 20%',        pct:20},
+  {code:'AlSalam', label:'Al Salam Bank — 10%',pct:10},
+  {code:'Tistahl', label:'Tistahl — 25%',      pct:25},
+  {code:'3+1',     label:'3+1 — 25%',          pct:25},
+  {code:'Ladies',  label:'Ladies — 50%',       pct:50},
+  {code:'Huthaifa',label:'Free Huthaifa — مجاني',pct:100},
+  {code:'D30',     label:'خصم 30%',            pct:30},
+  {code:'V50',     label:'V 50%',              pct:50},
+  {code:'VFREE',   label:'V FREE — مجاني',     pct:100},
+  {code:'SBronze', label:'S Bronze 20%',       pct:20},
+  {code:'SSilver', label:'S Silver 25%',       pct:25},
+  {code:'SGold',   label:'S Gold 35%',         pct:35},
+  {code:'SPlat',   label:'S Platinum 50%',     pct:50},
+  {code:'BP10',    label:'BP 10%',             pct:10},
+  {code:'BP15',    label:'BP 15%',             pct:15},
+  {code:'80plus',  label:'80+ (مبلغ يدوي)',    pct:null},
+  {code:'80staff', label:'80+ STAFF (يدوي)',   pct:null},
+  {code:'manual',  label:'مبلغ يدوي…',         pct:null},
+];
+/* طرق الدفع — من ملف الإكسل (مجاميع اليوم تُحسب لكل طريقة). Super Nova = مجاني بلا مبلغ */
+const PAYMENTS=['Card','Cash','Benefit','Online Tap','Battle Pass','Bank Transfer','Gift Card','24 Sessions','10 Sessions','Coupon','Super Nova'];
+const FREE_PAY=['Super Nova'];
+/* «How you Know about EVA» — سؤال الاستقبال (كعمود الإكسل) */
+const ROLES={gm:'قيم ماستر',reception:'استقبال',cashier:'كاشير',tech:'فنّي',super:'مشرف',cafe:'كافيه'};
+const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const HEARD=['Instagram','TikTok','Snapchat','Google','صديق أو معرفة','مررنا بالمكان','إعلان','مؤثّر','زيارة سابقة','أخرى'];
+const isFreePay=p=>FREE_PAY.includes(p);
+
+/* ═════════ أدوات وقت ═════════ */
+const pad=n=>String(n).padStart(2,'0');
+const loc=t=>new Date(new Date(t).getTime()+SHIFT);
+const fmtT=t=>{const d=loc(t);return pad(d.getUTCHours())+':'+pad(d.getUTCMinutes())};
+const fmtTS=t=>{const d=loc(t);return fmtT(t)+':'+pad(d.getUTCSeconds())};
+const mins=ms=>Math.round(ms/60000);
+const mmss=sec=>{sec=Math.max(0,Math.round(sec));return Math.floor(sec/60)+':'+pad(sec%60)};
+function opDay(){const d=new Date(Date.now()+SHIFT);if(d.getUTCHours()<2)d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10)}
+const isSunday=day=>new Date(day+'T00:00:00Z').getUTCDay()===0;
+function hmToTs(hm){if(!hm)return null;let t=Date.parse(DAY+'T'+hm+':00Z')-SHIFT;if(hm<'06:00')t+=86400e3;return t}
+const esc=t=>String(t??'').replace(/'/g,'’').replace(/</g,'‹');
+
+/* ═════════ الألعاب ═════════ */
+function gameName(g){const m=/^gameId (\d+)$/.exec(g||'');return m?(GID[m[1]]||g):(g||'—')}
+/* ألوان إيفا نفسها (من جدول admin.eva.gg): باتل تيل · مون ماجنتا */
+function gameColor(g){const n=(gameName(g)).toUpperCase();
+  if(n.includes('MOON'))return'#c2338f';
+  if(n.includes('CHAOS')||n.includes('RABBIDS'))return'#2b87e3';
+  if(n.includes('BATTLE'))return'#2fa3b5';
+  if(n.includes('ZOMBIE'))return'#8b55e8';
+  if(n.includes('MARS'))return'#d29a1c';
+  if(n.includes('KARTING'))return'#e8862e';
+  return'#8296a7'}
+function shortGame(g){return gameName(g).replace(/^EVA /,'').replace('RABBIDS: ','')}
+/* خلفية البطاقة بلون اللعبة (كطريقة إيفا) */
+function tint(col,p){return `color-mix(in srgb, ${col} ${p||10}%, white)`}
+
+/* ═════════ التسعيرة ═════════ */
+function rateFor(startAt,day){
+  if(isSunday(day))return 9.5;
+  const d=loc(startAt),t=d.getUTCHours()*60+d.getUTCMinutes();
+  return (t>=17*60 && t<22*60+20) ? 12.5 : 9.5;
+}
+
+/* ═════════ الدخول — أربعة حسابات فقط ═════════
+   لتغيير رمز أي حساب: بدّل الرقم في PINS ثم أعد النشر. */
+const PINS={'ميري':'1111','أنور':'2222','محمد':'3333','مهند':'4444'};
+const USERS=Object.keys(PINS);
+let USER=localStorage.getItem('em_user')||'', PICK='';
+function buildGate(){
+  document.getElementById('userBtns').innerHTML=USERS.map(u=>
+    `<button class="ubtn ${PICK===u?'on':''}" onclick="pickUser('${u}')">${u}</button>`).join('');
+}
+function pickUser(u){PICK=u;buildGate();document.getElementById('pin').focus()}
+function doLogin(){
+  const pin=document.getElementById('pin').value.trim();
+  const msg=document.getElementById('gateMsg');
+  if(!PICK){msg.textContent='اختر حسابك أولاً';return}
+  if(PINS[PICK]!==pin){msg.textContent='الرمز غير صحيح';document.getElementById('pin').value='';return}
+  USER=PICK;localStorage.setItem('em_user',USER);
+  openApp();
+}
+function openApp(){
+  document.getElementById('gate').style.display='none';
+  document.body.classList.remove('locked');
+  const w=document.getElementById('who');if(w)w.textContent='👤 '+USER;
+  if(!loadedOnce)load(true);
+}
+function logout(){localStorage.removeItem('em_user');location.reload()}
+
+/* ═════════ الحالة ═════════ */
+let DAY=opDay(), TAB='ops';
+let S={slots:[],rounds:[],dayRounds:[],walkins:[],firstSeen:new Map(),dir:new Map(),gms:[],staff:[],extras:[],gmMissing:false};
+let loadedOnce=false;
+
+/* ═════════ الجلب والكتابة ═════════ */
+async function sbGet(path){const r=await fetch(SB+'/rest/v1/'+path,{headers:H});if(!r.ok)throw new Error(path.split('?')[0]+': '+(await r.text()).slice(0,140));return r.json()}
+async function sbPatch(table,id,body){
+  const r=await fetch(`${SB}/rest/v1/${table}?id=eq.${id}`,{method:'PATCH',
+    headers:{...H,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error((await r.text()).slice(0,140));
+}
+async function sbUpsert(table,body,conflict){
+  const r=await fetch(`${SB}/rest/v1/${table}?on_conflict=${conflict}`,{method:'POST',
+    headers:{...H,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error((await r.text()).slice(0,140));
+}
+async function sbInsert(table,body){
+  const r=await fetch(`${SB}/rest/v1/${table}`,{method:'POST',
+    headers:{...H,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error((await r.text()).slice(0,140));
+}
+async function sbDelete(table,q){
+  const r=await fetch(`${SB}/rest/v1/${table}?${q}`,{method:'DELETE',headers:H});
+  if(!r.ok)throw new Error((await r.text()).slice(0,140));
+}
+
+async function load(manual){
+  status(manual?'يجلب…':'يحدّث…');
+  try{
+    const [slots,rounds,dir,staff]=await Promise.all([
+      sbGet(`slots?slot_date=eq.${DAY}&order=start_at&select=*`),
+      sbGet(`game_rounds?order=played_at&select=id,slot_id,played_at,map,duration_sec,team_one,team_one_score,team_two,team_two_score,raw`),
+      sbGet(`eva_directory?select=username,eva_user_id,email`).catch(()=>[]),
+      sbGet(`gm_staff?select=*&order=name`).catch(()=>[]),
+    ]);
+    S.gmMissing=false;
+    const gms=await sbGet(`gm_shifts?day=eq.${DAY}&select=*`).catch(()=>{S.gmMissing=true;return[]});
+    S.extras=await sbGet(`extra_sales?day=eq.${DAY}&order=created_at&select=*`).catch(()=>[]);
+    // فتحات الشبكة غير المحجوزة (0 لاعب) ليست حجوزات — تُخفى تماماً
+    S.slots=(slots||[]).filter(s=>(s.booked_players||0)>0);
+    S.rounds=rounds||[]; S.staff=staff||[]; S.gms=gms||[];
+    S.dir=new Map((dir||[]).map(u=>[u.username,u.email]));
+    compute(); loadedOnce=true; renderAll();
+    status(`آخر تحديث ${fmtTS(Date.now())} · ${S.slots.length} حجز · ${S.dayRounds.length} جولة`);
+  }catch(e){status('⚠ '+e.message)}
+}
+
+function breaksDuring(t0,t1){
+  return S.gms.filter(g=>g.break_start&&g.break_end).filter(g=>{
+    const bs=hmToTs(g.break_start),be=hmToTs(g.break_end);
+    return bs!=null&&be!=null&&bs<t1&&t0<be;
+  }).map(g=>g.name);
+}
+
+/* ═════════ نموذج التحليل ═════════ */
+function compute(){
+  const dayStart=new Date(DAY+'T03:00:00Z').getTime();
+  const dayEnd  =dayStart+23*3600e3;
+  S.dayRounds=S.rounds.filter(r=>{const t=+new Date(r.played_at);return t>=dayStart&&t<dayEnd})
+    .map(r=>{
+      const end=+new Date(r.played_at), dur=(r.duration_sec||0)*1000;
+      const players=((r.raw&&r.raw.players)||[]).map(p=>({
+        id:p.userId, name:(p.data&&p.data.niceName)||p.name||'ضيف', email:p.email||null,
+        score:(p.data&&p.data.score)||0, kills:(p.data&&p.data.kills)||0,
+        deaths:(p.data&&p.data.deaths)||0, assists:(p.data&&p.data.assists)||0, mvp:!!p.isMvp}));
+      return {...r,end,start:end-dur,players,cc:String(r.id).startsWith('cc-')};
+    }).sort((a,b)=>a.start-b.start);
+
+  S.firstSeen=new Map();
+  for(const r of S.rounds){
+    const st=+new Date(r.played_at)-(r.duration_sec||0)*1000;
+    for(const p of ((r.raw&&r.raw.players)||[])){
+      if(p.userId!=null && !S.firstSeen.has(p.userId)) S.firstSeen.set(p.userId,st);
+    }
+  }
+
+  const key=s=>s.eva_key_player||s.email||s.account_name||('#'+s.id);
+  for(const s of S.slots){
+    const st=+new Date(s.start_at);
+    s._t=st; s._endT=st+BLOCK*60000; s._key=key(s);
+    s._cancelled=s.state==='cancelled';
+    s._rIds=new Set((s.roster||[]).map(p=>p.user_id).filter(v=>v!=null));
+    s._games=[]; s._briefTarget=st-BRIEF_LEAD*60000;
+  }
+  const act=S.slots.filter(s=>!s._cancelled);
+
+  /* الإسناد بجلسات الطاقم المتواصل (درس خالد/أيمن — «ساهل بالأسماء»):
+     نفس الأسماء تلعب بلا انقطاع = نفس المجموعة مهما امتدّت. الجلسة تُرسى على
+     الحجز الذي بدأت في نافذته، وتتوزّع جولاتها على بلوكات نفس العميل المتتالية،
+     وما فاض بعد آخر بلوك له يبقى تجاوزاً عليه — لا يُنسب للعميل التالي الذي لم يحضر.
+     تغيّر الأسماء (ولو بلا فجوة) = مجموعة جديدة = جلسة جديدة. */
+  const sessions=[];
+  for(const g of S.dayRounds){
+    g._ids=g.players.map(p=>p.id).filter(v=>v!=null);
+    const last=sessions[sessions.length-1];
+    if(last){
+      const gap=g.start-last.end;
+      const ovC=(g._ids.length&&last.ids.size)?g._ids.some(id=>last.ids.has(id)):null;
+      const join=gap<=EARLY*60000 ? (ovC!==false) : (gap<=15*60000&&ovC===true);
+      if(join){last.games.push(g);last.end=Math.max(last.end,g.end);for(const id of g._ids)last.ids.add(id);continue}
+    }
+    sessions.push({start:g.start,end:g.end,games:[g],ids:new Set(g._ids)});
+  }
+  S.orphanSessions=[];
+  for(const sess of sessions){
+    /* صاحب الجلسة = الحجز الذي **يحتوي** وقت بدايتها؛ ولا نستعمل نافذة البدء المبكر
+       إلا إن لم يحتوِها أيّ حجز (درس: جولة 21:33 داخل حجز 21:00 كانت تُنسب لـ21:40). */
+    let anchor=act.find(s=>s._t<=sess.start&&sess.start<s._endT)
+            || act.find(s=>sess.start<s._t&&s._t-sess.start<=EARLY*60000);
+    if(!anchor){S.orphanSessions.push(sess);continue}
+    const sameKey=act.filter(s=>s._key===anchor._key&&s._t>=anchor._t).sort((a,b)=>a._t-b._t);
+    for(const g of sess.games){
+      let tgt=anchor;
+      for(const s of sameKey)if(s._t<=g.start)tgt=s;   // بلوك العميل الذي يحتوي بداية الجولة
+      tgt._games.push(g);g._slot=tgt;
+    }
+    // القائمة معروفة ولا أحد من طاقم الجلسة فيها → تنبيه (لا يغيّر الإسناد)
+    if(anchor._rIds.size&&sess.ids.size&&![...sess.ids].some(id=>anchor._rIds.has(id)))
+      for(const g of sess.games)if(g._slot)g._slot._mismatch=true;
+  }
+
+  /* «حجز ثانٍ متّصل» (دبل) = نفس المجموعة واصلت في البلوك التالي.
+     يُحدَّد بتطابق اللاعبين فعلياً؛ فحسابُ موظفٍ يحجز لعملاء مختلفين متتاليين
+     ليس دبل (درس حجزَي صلاح ١٧:٤٠ و١٨:٢٠ — عميلان مختلفان). */
+  for(const s of act){
+    const prev=act.find(p=>p._endT===s._t);
+    let second=false;
+    if(prev){
+      const a=new Set(s._games.flatMap(g=>g._ids||[])), b=new Set(prev._games.flatMap(g=>g._ids||[]));
+      if(a.size&&b.size){
+        let hit=0; for(const id of a)if(b.has(id))hit++;
+        second=hit>=Math.max(1,Math.min(a.size,b.size)*0.5);      // نصف اللاعبين فأكثر
+      } else second=(prev._key===s._key)&&!staffBooked(s);        // بلا بيانات لعب: الحساب، ما لم يكن موظفاً
+    }
+    s._second=second;
+    s._entitled=second?BLOCK:BLOCK-SETUP;
+  }
+  for(const s of S.slots)if(s._cancelled){s._second=false;s._entitled=BLOCK-SETUP}
+
+  let occupied=0;
+  for(const s of S.slots){
+    if(s._cancelled){s._rounds=0;continue}
+    s._effStart=Math.max(s._t,occupied);
+    s._delayedBy=Math.max(0,mins(s._effStart-s._t));
+    const gs=s._games;
+    s._rounds=gs.length;
+    if(gs.length){
+      const first=Math.min(...gs.map(g=>g.start)), last=Math.max(...gs.map(g=>g.end));
+      s._firstStart=first; s._lastEnd=last;
+      s._netSec=(last-first)/1000;
+      s._playSec=gs.reduce((a,g)=>a+(g.duration_sec||0),0);
+      s._gapSec=Math.max(0,s._netSec-s._playSec);
+      s._net=mins(last-first);
+      s._setupSec=Math.max(0,(first-s._effStart)/1000);
+      s._setup=Math.max(0,mins(first-s._effStart)-(s._second?0:SETUP));
+      s._deficit=Math.max(0,s._entitled-s._net);
+      s._surplus=Math.max(0,s._net-s._entitled);
+      s._over=Math.max(0,mins(last-s._endT));
+      s._actual=Math.max(...gs.map(g=>g.players.length),0);
+      occupied=Math.max(occupied,last);
+      if(s._setup>0){
+        // دخول الملعب أدقّ من البريفنق، والبريفنق أدقّ من الوصول
+        if(s.entered_at) s._fault=(+new Date(s.entered_at)<=s._effStart)?'staff':'client';
+        else if(s.briefed_at) s._fault=(+new Date(s.briefed_at)<=s._briefTarget)?'staff':'client';
+        else if(s.arrived_at) s._fault=(+new Date(s.arrived_at)<=s._t-ARRIVE_LEAD*60000)?'staff':'client';
+        s._breaks=breaksDuring(s._effStart,first);
+      }
+    }
+    const roster=s.roster||[];
+    s._newPlayers=roster.filter(p=>p.user_id==null||!S.firstSeen.has(p.user_id)||S.firstSeen.get(p.user_id)>=s._t).length;
+    s._briefKnown=roster.length>0;
+  }
+  for(const s of act) s._delaysNext=!!(s._over&&act.some(n=>n._key!==s._key&&n._t>=s._endT&&s._lastEnd&&n._t<s._lastEnd));
+  // حجز بلا لعب التهم وقتَه تجاوزُ السابق → غالباً لم يحضر
+  for(const s of act) s._swallowed=!s._rounds&&s._effStart>=s._endT-5*60000;
+
+  S.walkins=S.orphanSessions.map(sess=>({start:sess.start,end:sess.end,games:sess.games}));
+  for(const w of S.walkins){
+    w.net=mins(w.end-w.start);
+    w.players=Math.max(...w.games.map(g=>g.players.length),0);
+    w.overCancelled=S.slots.some(s=>s._cancelled&&w.games.some(g=>g.start>=s._t-EARLY*60000&&g.start<s._endT));
+  }
+}
+/* الخطّ الزمني الموحّد: حجوزات + لعب بدون حجز في مكانه الزمني */
+function timeline(){
+  return [
+    ...S.slots.map(s=>({t:s._t,slot:s})),
+    ...S.walkins.map(w=>({t:w.start,walkin:w})),
+  ].sort((a,b)=>a.t-b.t);
+}
+
+/* ═════════ عناصر مشتركة ═════════ */
+/* الدفع يُدخله الموظف يدوياً بالكامل (قرار المؤسس) — حالة إيفا لا تُعرض ولا تُفترض */
+function payChip(){return ''}
+/* حجز باسم موظف = حجزه موظفٌ لصالح عميل → «اسأل العميل في البريفنق».
+   مطابقة دقيقة بالكلمة كاملة (لا تُطابق «Mohamed» العامة — المقصود حساب mah تحديداً).
+   لإضافة/حذف اسم: عدّل هذه القائمة فقط. */
+const STAFF_NAMES=['salah','salahx','صلاح','mohannad','مهند','mah','mahk','marie','ميري'];
+const STAFF_FULL=['salah saidam','marie dhean'];
+function staffBooked(s){
+  const acc=(s.account_name||'').trim().toLowerCase();
+  if(STAFF_FULL.includes(acc))return true;
+  const toks=(acc+' '+(s.eva_key_player||'').toLowerCase()).split(/[\s#·._-]+/).filter(Boolean);
+  return toks.some(t=>STAFF_NAMES.includes(t));
+}
+function roundLine(g,withGame,fg){
+  const col=fg||(g.cc?'#2b87e3':(g._slot?gameColor(g._slot.game):'var(--dim)'));
+  const gname=withGame?(g.cc?'Color Chaos':(g._slot?shortGame(g._slot.game):'Arena')):'';
+  const score=(g.team_one_score!=null&&g.team_two_score!=null)?`${g.team_one_score} - ${g.team_two_score}`:'—';
+  const mut=fg?`style="color:${fg};opacity:.85"`:'class="dim"';
+  return `<div class="round"><span class="dot" style="background:${col}"></span>
+    <span class="t" ${fg?`style="color:${fg}"`:''}>${fmtT(g.start)}–${fmtT(g.end)}</span>
+    <span ${fg?`style="color:${fg}"`:''}>${mmss(g.duration_sec||0)}</span>
+    ${gname?`<span style="color:${col};font-weight:800">${gname}</span>`:''}
+    <span ${mut}>${g.map||''}</span>
+    <span ${mut}>النتيجة ${score}</span>
+    <span ${mut}>${g.players.length}👤</span></div>`;
+}
+function briefChip(s,onColor){
+  if(!s._briefKnown)return'';
+  const cls=onColor?'wchip':'chip info';
+  return s._newPlayers>0
+    ?`<span class="${cls}">🎙 بريفنق مقترح · ${s._newPlayers} جديد</span>`
+    :`<span class="${cls}" style="${onColor?'opacity:.8':''}">بلا بريفنق — سبق لعبوا</span>`;
+}
+/* اسم صاحب الحجز — أو أصحاب الحجوزات إن تعدّدوا في الفتحة نفسها */
+function partiesLabel(s){
+  const pt=partiesOf(s);
+  if(pt.length<2)return s.account_name||'—';
+  const est=pt.some(p=>p.estimated)&&!(s.pay_splits||[]).some(x=>x.name);
+  return pt.map(p=>`${p.name} <b>${p.players}</b>`).join(' · ')+(est?' <span class="chip warn" title="لم تعطِ إيفا العدد — وزّعناه بالتساوي، صحّحه من «÷ تقسيم»">أعداد تقديرية</span>':'');
+}
+function slotPlayers(s){
+  const m=new Map();
+  for(const g of s._games)for(const p of g.players){
+    const k=p.id!=null?('u'+p.id):('n'+p.name);
+    const e=m.get(k)||{name:p.name,score:0,k:0,d:0,a:0,mvp:false};
+    e.score+=p.score;e.k+=p.kills;e.d+=p.deaths;e.a+=p.assists;e.mvp=e.mvp||p.mvp;
+    m.set(k,e);
+  }
+  return[...m.values()].sort((a,b)=>b.score-a.score);
+}
+function walkinCard(w,rich){
+  return `<div class="evablock" style="--gc:#e8a13c">
+    <div class="row"><span class="t" style="font-size:16px">${fmtT(w.start)}–${fmtT(w.end)}</span>
+      <span style="font-weight:800">⚠ لعب بدون حجز</span>
+      <span class="dim">${w.players}👤 · ${w.games.length} جولة · ${w.net}د</span>
+      <span class="grow"></span>
+      ${w.overCancelled?'<span class="wchip alarm">بعد حجز ملغى — تحقّق من التحصيل</span>':''}</div>
+    <div class="rounds" style="border-color:rgba(255,255,255,.35)">${w.games.map(g=>roundLine(g,true,'#fff')).join('')}</div>
+    ${rich?`<div class="sm" style="margin-top:6px;opacity:.9">اللاعبون: ${[...new Set(w.games.flatMap(g=>g.players.map(p=>p.name)))].join('، ')||'—'}</div>`:''}
+  </div>`;
+}
+
+/* ═════════ التشغيل ═════════ */
+function fieldStatus(){
+  const now=Date.now();
+  if(DAY!==opDay())return{cls:'',txt:'يوم سابق — راجع «التفاصيل»'};
+  const act=S.slots.filter(s=>!s._cancelled);
+  const cur=act.find(s=>s._t<=now&&now<s._endT);
+  const lastG=[...S.dayRounds].sort((a,b)=>b.end-a.end)[0];
+  if(cur){
+    if(cur._rounds){
+      const gap=mins(now-cur._lastEnd);
+      return gap<=2?{cls:'ok',txt:`🎮 يلعب الآن — ${shortGame(cur.game)} · ${cur._rounds} جولة حتى الآن`}
+                   :{cls:'ok',txt:`⏸ داخل الملعب (بين الخرائط) — آخر جولة انتهت ${fmtT(cur._lastEnd)}`};
+    }
+    const sinceStart=mins(now-cur._t);
+    return sinceStart<=(cur._second?0:SETUP)
+      ?{cls:'',txt:`🛠 تجهيز — حجز ${fmtT(cur._t)} (${shortGame(cur.game)})`}
+      :{cls:'warn',txt:`⏳ لم يُرصد بدء اللعب بعد — حجز ${fmtT(cur._t)} متأخّر ${sinceStart-(cur._second?0:SETUP)}د عن المسموح`};
+  }
+  if(lastG&&mins(now-lastG.end)<=3&&!lastG._slot)return{cls:'warn',txt:'🎮 لعب جارٍ بدون حجز!'};
+  const next=act.find(s=>s._t>now);
+  return next?{cls:'',txt:`الملعب فاضٍ — القادم ${fmtT(next._t)} (${shortGame(next.game)}) بعد ${mins(next._t-now)}د`}
+             :{cls:'',txt:'الملعب فاضٍ — لا حجوزات قادمة اليوم'};
+}
+function gmNowLine(){
+  if(!S.gms.length)return'';
+  const now=Date.now();
+  const onBreak=S.gms.filter(g=>{const a=hmToTs(g.break_start),b=hmToTs(g.break_end);return a!=null&&b!=null&&a<=now&&now<b}).map(g=>g.name);
+  const inside=S.gms.map(g=>g.name).filter(n=>!onBreak.includes(n));
+  return `<div class="sm dim" style="margin-top:7px">👥 داخل الملعب: <b style="color:var(--ink)">${inside.join('، ')||'—'}</b>${onBreak.length?` · ☕ بريك: <b style="color:var(--amber)">${onBreak.join('، ')}</b>`:''}</div>`;
+}
+function renderOps(){
+  const el=document.getElementById('tab-ops'); if(!el)return;
+  const act=S.slots.filter(s=>!s._cancelled);
+  if(!act.length&&!S.dayRounds.length){el.innerHTML='<div class="empty">لا حجوزات ولا لعب مرصود في هذا اليوم</div>';return}
+  const now=Date.now(), live=DAY===opDay();
+  const cur=act.find(s=>s._t<=now&&now<s._endT);
+  const next=act.find(s=>s._t>now);
+  const fs2=fieldStatus();
+  const onBreak=S.gms.filter(g=>{const a=hmToTs(g.break_start),b=hmToTs(g.break_end);return a!=null&&b!=null&&a<=now&&now<b}).map(g=>g.name);
+  const inside=S.gms.map(g=>g.name).filter(n=>onBreak.indexOf(n)<0);
+  const played=act.filter(s=>s._rounds);
+  const alerts=[];
+  for(const s of act){
+    if(s._deficit>=5)alerts.push({t:s._t,k:'bad',x:fmtT(s._t)+' — نقص '+s._deficit+'د'});
+    if(s._setup>5)alerts.push({t:s._t,k:'warn',x:fmtT(s._t)+' — تجهيز زائد '+s._setup+'د'+(s._fault==='staff'?' (تشغيلي)':s._fault==='client'?' (العميل)':'')});
+    if(s._delaysNext)alerts.push({t:s._t,k:'bad',x:fmtT(s._t)+' — تجاوز '+s._over+'د وأخّر الحجز التالي'});
+    if(s._swallowed&&now>s._endT)alerts.push({t:s._t,k:'bad',x:fmtT(s._t)+' — لم يحضر'});
+  }
+  for(const w of S.walkins)alerts.push({t:w.start,k:'warn',x:fmtT(w.start)+' — لعب بدون حجز ('+w.players+' لاعب · '+w.net+'د)'});
+  const unsent=played.filter(s=>hasRecording(s)&&!s.sent_at&&s.rec_status!=='declined').length;
+  if(unsent)alerts.push({t:now,k:'warn',x:unsent+' تسجيل لم يُرسَل'});
+  alerts.sort((a,b)=>a.t-b.t);
+
+  /* شريط اليوم: كل حجز خانة ملوّنة بحالته */
+  const strip=timeline().map(it=>{
+    if(it.walkin){const w=it.walkin;
+      return '<div class="tick walkin" title="لعب بدون حجز '+fmtT(w.start)+'"><span>'+fmtT(w.start)+'</span><b>بدون حجز</b></div>';}
+    const s=it.slot;
+    let cls='idle',lbl='—';
+    if(s._cancelled){cls='cx';lbl='أُلغي';}
+    else if(s._rounds){cls=s._deficit?'short':'good';lbl=s._deficit?('−'+s._deficit+'د'):(s._net+'د');}
+    else if(s._swallowed&&now>s._endT){cls='noshow';lbl='لم يحضر';}
+    else if(s._t<=now&&now<s._endT){cls='now';lbl='الآن';}
+    else if(now>=s._endT){cls='noplay';lbl='بلا لعب';}
+    else {cls='soon';lbl='بعد '+mins(s._t-now)+'د';}
+    return '<div class="tick '+cls+'" style="--gc:'+gameColor(s.game)+'" title="'+shortGame(s.game)+' · '+(s.account_name||'')+'" onclick="goAna(\''+s.id+'\')">'
+      +'<span>'+fmtT(s._t)+'</span><b>'+lbl+'</b></div>';
+  }).join('');
+
+  let h='<div class="opsgrid">'
+   +'<div class="opsnow '+(fs2.cls||'')+'">'
+     +'<div class="opslbl">حالة الملعب</div>'
+     +'<div class="opsbig">'+fs2.txt+'</div>'
+     +(cur&&cur._rounds?'<div class="opssub">آخر جولة '+fmtT(cur._lastEnd)+' · '+cur._rounds+' جولة · '+mmss(cur._netSec)+' صافي لعب</div>':'')
+     +(cur?'<div class="opssub">🧑 '+partiesLabel(cur)+' · '+(cur._actual||cur.actual_players||cur.booked_players)+' لاعب</div>':'')
+   +'</div>'
+   +'<div class="opscard">'
+     +'<div class="opslbl">القادم</div>'
+     +(next?('<div class="opsbig2"><span class="t">'+fmtT(next._t)+'</span> '+shortGame(next.game)+'</div>'
+        +'<div class="opssub">'+partiesLabel(next)+' · '+next.booked_players+' لاعب</div>'
+        +'<div class="opssub" style="margin-top:6px">'+(next._second
+            ? '<span class="chip ok">لا يحتاج بريفنق (دبل)</span>'
+            : '<span class="chip info">🎙 البريفنق قبل '+fmtT(next._briefTarget)+'</span>')
+        +' <span class="chip">بعد '+mins(next._t-now)+'د</span></div>')
+      :'<div class="opsbig2 dim">لا حجوزات قادمة</div>')
+   +'</div>'
+   +'<div class="opscard">'
+     +'<div class="opslbl">الطاقم داخل الملعب</div>'
+     +'<div class="opsbig2">'+(live?(inside.join('، ')||'<span class="dim">لم يُسجَّل</span>'):'—')+'</div>'
+     +(onBreak.length&&live?'<div class="opssub" style="color:var(--amber)">☕ بريك: '+onBreak.join('، ')+'</div>':'')
+   +'</div>'
+   +'<div class="opscard">'
+     +'<div class="opslbl">حصيلة اليوم</div>'
+     +'<div class="opsstats">'
+       +'<div><b>'+act.length+'</b><span>حجز</span></div>'
+       +'<div><b>'+played.length+'</b><span>لُعب</span></div>'
+       +'<div><b class="'+(played.reduce((a,s)=>a+s._deficit,0)?'bad':'ok')+'">'+played.reduce((a,s)=>a+s._deficit,0)+'د</b><span>نقص</span></div>'
+       +'<div><b>'+played.reduce((a,s)=>a+s._rounds,0)+'</b><span>جولة</span></div>'
+     +'</div>'
+   +'</div>'
+  +'</div>'
+  +'<h2>شريط اليوم</h2><div class="strip">'+strip+'</div>'
+  +'<h2>ما يحتاج انتباهك ('+alerts.length+')</h2>'
+  +(alerts.length?'<div class="alerts">'+alerts.map(a=>'<div class="alert '+a.k+'">'+a.x+'</div>').join('')+'</div>'
+                 :'<div class="empty">لا ملاحظات — اليوم يسير سليماً ✓</div>');
+  el.innerHTML=h;
+}
+
+/* ═════════ الاستقبال ═════════ */
+/* الاستقبال: الحجوزات المنتهية مطويّة — القادم والجاري مفتوحان */
+let RCP_OPEN=new Set(), RCP_INIT=false;
+function toggleRcp(id){RCP_OPEN.has(id)?RCP_OPEN.delete(id):RCP_OPEN.add(id);renderRcp();sweep(document.getElementById('tab-rcp'))}
+function rcpAll(on){
+  const act=S.slots.filter(s=>!s._cancelled), now=Date.now();
+  RCP_OPEN=new Set((on?act:act.filter(s=>s._endT>now)).map(s=>s.id));
+  renderRcp();sweep(document.getElementById('tab-rcp'));
+}
+function renderRcp(){
+  const el=document.getElementById('tab-rcp');
+  const act=S.slots.filter(s=>!s._cancelled);
+  if(!act.length){el.innerHTML='<div class="empty">لا حجوزات في هذا اليوم</div>';return}
+  const now=Date.now();
+  if(!RCP_INIT){RCP_INIT=true;RCP_OPEN=new Set(act.filter(s=>s._endT>now).map(s=>s.id))}   // المنتهية مطويّة
+  const next=act.find(s=>!s._rounds&&s._endT>now);
+  const fs=fieldStatus();
+  let h=`<div class="hero">
+    <div class="big" style="color:${fs.cls==='ok'?'var(--green)':fs.cls==='warn'?'var(--amber)':'var(--ink)'}">${fs.txt}</div>
+    ${DAY===opDay()?gmNowLine():''}
+    <div class="big" style="font-size:17px;margin-top:8px">${next?`⏰ القادم: ${fmtT(next._t)} ${shortGame(next.game)}${next._second?' — <span style="color:var(--green)">حجز ثانٍ متّصل: لا يحتاج بريفنق</span>':` — أدخلهم البريفنق قبل <span class="t">${fmtT(next._briefTarget)}</span>`}`:'لا حجوزات قادمة'}</div>
+    <div class="row" style="margin-top:9px">
+      <button class="btn" onclick="rcpAll(false)">اطوِ المنتهية</button>
+      <button class="btn" onclick="rcpAll(true)">افتح الكل</button>
+      <span class="dim sm">المنتهية مطويّة — اضغط أي سطر لفتحه</span>
+    </div>
+    <div class="dim sm" style="margin-top:6px">اضغط ما ينطبق: <b>وصل</b> عند حضوره · <b>البريفنق</b> عند إدخاله (قبل الحجز بـ${BRIEF_LEAD} دقائق) · <b>دخول الملعب</b> عند دخوله فعلياً — وإن لم يحتج بريفنق (حجز ثانٍ متّصل) يكفي «وصل» و«دخول الملعب». بهذه الأختام يُعرف سبب تأخير التجهيز: العميل أم الطاقم.</div></div>`;
+  h+=act.map(s=>{
+    const col=gameColor(s.game);
+    const cur=s._t<=now&&now<s._endT, past=now>=s._endT;
+    const briefLate=s.briefed_at&&(+new Date(s.briefed_at)>s._briefTarget);
+    const arr=s.arrived_at, brf=s.briefed_at, ent=s.entered_at;
+    const cnt=s.actual_players;
+    const open=RCP_OPEN.has(s.id);
+    if(!open)return `<div class="card rcpfold" style="border-inline-start-color:${col};cursor:pointer" onclick="toggleRcp('${s.id}')">
+      <div class="row">
+        <span class="chev" style="opacity:.6">⌄</span>
+        <span class="t" style="font-size:16px">${fmtT(s._t)}</span>
+        <span style="color:${col};font-weight:800">${shortGame(s.game)}</span>
+        <span class="dim sm">🧑 ${partiesLabel(s)} · ${cnt??s.booked_players}/${s.booked_players}👤</span>
+        <span class="grow"></span>
+        ${arr?`<span class="chip ok sm">وصل ${fmtT(arr)}</span>`:'<span class="chip warn sm">بلا ختم وصول</span>'}
+        ${brf?`<span class="chip ${briefLate?'warn':'ok'} sm">بريفنق ${fmtT(brf)}</span>`
+             :(ent?`<span class="chip ok sm">دخل ${fmtT(ent)}</span>`
+                  :(s._second?'<span class="chip sm">بلا بريفنق (دبل)</span>':'<span class="chip warn sm">بلا بريفنق</span>'))}
+        ${s.heard_from?`<span class="chip sm">${s.heard_from}</span>`:'<span class="chip warn sm">لم يُسأل</span>'}
+        ${cur?'<span class="chip info">جارٍ</span>':'<span class="chip">انتهى</span>'}
+      </div></div>`;
+    return `<div class="card" style="border-inline-start-color:${col};background:${cur?`color-mix(in srgb, ${col} 20%, #10161d)`:'var(--card)'}">
+      <div class="row" style="cursor:pointer" onclick="toggleRcp('${s.id}')">
+        <span class="chev" style="opacity:.6;transform:rotate(180deg)">⌄</span>
+        <span class="t" style="font-size:17px">${fmtT(s._t)}</span>
+        <span style="color:${col};font-weight:800">${shortGame(s.game)}</span>
+        <span class="dim">🧑 ${partiesLabel(s)} · ${s.booked_players}👤</span>
+        <span class="grow"></span>
+        ${payChip(s.payment)}
+        ${cur?'<span class="chip info">جارٍ</span>':past?'<span class="chip">انتهى</span>':`<span class="chip">بعد ${mins(s._t-now)}د</span>`}
+      </div>
+      <div class="row sm" style="margin-top:6px">
+        ${s._second
+          ?'<span class="chip ok">✋ لا يحتاج بريفنق — حجز ثانٍ متّصل (ولا تجهيز)</span>'
+          :(s._briefKnown&&s._newPlayers===0
+            ?'<span class="chip ok">✋ لا يحتاج بريفنق — كلّهم سبق لعبوا</span>'
+            :`<span class="chip info">🎙 يحتاج بريفنق${s._newPlayers?` · ${s._newPlayers} جديد`:''} — أدخلهم قبل <b class="t">${fmtT(s._briefTarget)}</b></span>`)}
+        ${staffBooked(s)?'<span class="chip bad">👤 حجز موظف — اسأل العميل عن اسمه وبياناته</span>':''}
+      </div>
+      <div class="row" style="margin-top:8px">
+        ${arr?`<span class="chip ok">وصل ${fmtT(arr)} <span class="x" onclick="rcpClear('${s.id}','arrived_at')">✕</span></span>`
+             :`<button class="btn primary" onclick="rcpStamp('${s.id}','arrived_at')">وصل ✓</button>`}
+        ${s._second?'' : (brf
+          ?`<span class="chip ${briefLate?'warn':'ok'}">دخل البريفنق ${fmtT(brf)}${briefLate?` — متأخر ${mins(new Date(brf)-s._briefTarget)}د`:''} <span class="x" onclick="rcpClear('${s.id}','briefed_at')">✕</span></span>`
+          :`<button class="btn" onclick="rcpStamp('${s.id}','briefed_at')">→ دخل البريفنق</button>`)}
+        ${ent?`<span class="chip ok">دخل الملعب ${fmtT(ent)} <span class="x" onclick="rcpClear('${s.id}','entered_at')">✕</span></span>`
+             :(brf?'':`<button class="btn" onclick="rcpStamp('${s.id}','entered_at')">⇥ دخل الملعب</button>`)}
+        ${(()=>{
+          /* الأولوية: عدّ الموظف ← رصد إيفا ← المحجوز مفترضاً (لا داعي لضغطة تأكيد) */
+          const started=now>=s._t;
+          const src=cnt!=null?'مؤكَّد':(s._actual?'من إيفا':(started?'مفترض':''));
+          const eff=cnt??s._actual??(started?s.booked_players:null);
+          const short=eff!=null&&eff<s.booked_players;
+          return `<span class="chip">العدد
+            <input class="cnt" type="number" min="0" max="30" value="${eff??''}" placeholder="${s.booked_players}"
+              onchange="rcpCount('${s.id}',this.value)" title="عدّله إن اختلف">
+            / ${s.booked_players}</span>
+          ${short?`<span class="chip warn">ناقص ${s.booked_players-eff}</span>`
+                 :(eff!=null?`<span class="chip ok">مكتمل${src?' · '+src:''}</span>`:'')}`;
+        })()}
+      </div>
+      <div class="row" style="margin-top:8px">
+        <span class="chip ${s.heard_from?'ok':'warn'}">❓ How you Know about EVA</span>
+        <select class="disc-sel" style="min-width:150px" onchange="rcpHeard('${s.id}',this.value)">
+          <option value="">— اسأل العميل —</option>
+          ${HEARD.map(h=>`<option ${s.heard_from===h?'selected':''}>${h}</option>`).join('')}
+        </select>
+        ${s.heard_from==='أخرى'||(s.heard_from&&!HEARD.includes(s.heard_from))
+          ?`<input class="xmail" style="direction:rtl;width:150px" value="${HEARD.includes(s.heard_from)?'':(s.heard_from||'')}" placeholder="اكتب المصدر…" onchange="rcpHeard('${s.id}',this.value)">`:''}
+      </div></div>`;
+  }).join('');
+  el.innerHTML=h;
+}
+async function rcpStamp(id,field){
+  try{await sbPatch('slots',id,{[field]:new Date().toISOString()});const s=S.slots.find(x=>x.id===id);if(s)s[field]=new Date().toISOString();compute();renderAll();status('✓ سُجّل')}
+  catch(e){status('⚠ '+e.message)}
+}
+async function rcpClear(id,field){
+  try{await sbPatch('slots',id,{[field]:null});const s=S.slots.find(x=>x.id===id);if(s)s[field]=null;compute();renderAll();status('✓ أُلغي الختم')}
+  catch(e){status('⚠ '+e.message)}
+}
+async function rcpHeard(id,v){
+  try{await sbPatch('slots',id,{heard_from:v||null});const s=S.slots.find(x=>x.id===id);if(s)s.heard_from=v||null;renderAll();status('✓ حُفظ مصدر المعرفة')}
+  catch(e){status(/heard_from|column/.test(e.message)?'⚠ شغّل ملف eva_v4.sql في Supabase أولاً':'⚠ '+e.message)}
+}
+async function rcpCount(id,v){
+  const n=v===''?null:Math.max(0,+v);
+  try{await sbPatch('slots',id,{actual_players:n});const s=S.slots.find(x=>x.id===id);if(s)s.actual_players=n;compute();renderAll();status('✓ حُفظ العدد')}
+  catch(e){status('⚠ '+e.message)}
+}
+
+/* ═════════ التفاصيل ═════════ */
+function playBar(s){
+  const end=Math.max(s._endT,s._lastEnd||0);
+  const span=end-s._t||1;
+  const pct=x=>Math.max(0,Math.min(100,(x-s._t)/span*100));
+  return `<div class="bar">
+      <div class="seg setup" style="inset-inline-start:0;width:${pct(s._firstStart)}%"></div>
+      <div class="seg play" style="inset-inline-start:${pct(s._firstStart)}%;width:${Math.max(1,pct(s._lastEnd)-pct(s._firstStart))}%"></div>
+      ${s._lastEnd>s._endT?`<div class="mark" style="inset-inline-start:${pct(s._endT)}%"></div>`:''}
+    </div>
+    <div class="barlbl"><span>الحجز ${fmtT(s._t)}</span><span>بدء اللعب ${fmtT(s._firstStart)}</span><span>النهاية ${fmtT(s._lastEnd)}</span><span>نهاية الحجز ${fmtT(s._endT)}</span></div>`;
+}
+/* رحلة العميل: وصل → البريفنق/دخل الملعب → بدء اللعب (مع الفروق) */
+function journeyLine(s){
+  const step=(lbl,t,fb)=>`<span class="jst ${t?'on':''}"><b>${lbl}</b> ${t?fmtT(t):(fb||'--')}</span>`;
+  const arrow='<span class="jar">→</span>';
+  const parts=[step('وصل',s.arrived_at)];
+  // خطوة واحدة: البريفنق أو دخول الملعب — أيّهما سُجّل، بوقته
+  if(s.briefed_at)      parts.push(step('دخل البريفنق',s.briefed_at));
+  else if(s.entered_at) parts.push(step('دخل الملعب',s.entered_at));
+  else                  parts.push(step(s._second?'دخل الملعب':'دخل البريفنق/الملعب',null));
+  parts.push(step('بدأ اللعب',s._firstStart,s._rounds?'':'لم يبدأ'));
+  return `<div class="journey">${parts.join(arrow)}</div>`;
+}
+function faultChip(s){
+  if(s._fault==='client')return'<span class="chip warn">سبب التأخير: العميل (تأخّر في الوصول/البريفنق/دخول الملعب)</span>';
+  if(s._fault==='staff')return'<span class="chip bad">سبب التأخير: تشغيلي — العميل كان جاهزاً في وقته</span>';
+  return'<span class="chip">سبب التأخير غير معروف (لا أختام استقبال)</span>';
+}
+function renderAna(){
+  const el=document.getElementById('tab-ana');
+  const played=S.slots.filter(s=>s._rounds);
+  const totDef=played.reduce((a,s)=>a+s._deficit,0);
+  const wMin=S.walkins.reduce((a,w)=>a+w.net,0);
+  let h=`<div class="hero"><div class="big" style="color:${totDef?'var(--amber)':'var(--green)'}">${totDef?`إجمالي النقص اليوم: ${totDef} دقيقة`:'لا نقص مرصود اليوم ✓'}</div>
+    <div class="dim sm">${played.length} جلسة ملعوبة من ${S.slots.filter(s=>!s._cancelled).length} حجز${wMin?` · لعب بدون حجز ${wMin}د`:''} — الأرقام من إيفا مباشرة، لا يملك أحد تغييرها</div></div>`;
+
+  if(!S.slots.length&&!S.walkins.length){el.innerHTML=h+'<div class="empty">لا بيانات</div>';return}
+  if(!ANA_INIT){ANA_INIT=true;ANA_OPEN=new Set(S.slots.filter(s=>!s._cancelled).map(s=>s.id))}   // مفتوحة أول مرة
+
+  h+=timeline().map(item=>{
+    if(item.walkin)return walkinCard(item.walkin,true);
+    const s=item.slot;
+    const col=gameColor(s.game);
+    if(s._cancelled)return `<div class="evablock" id="ana-${s.id}" style="background:#4a5866">
+      <div class="row"><span class="t" style="font-size:16px">${fmtT(s._t)}–${fmtT(s._endT)}</span>
+        <span style="text-decoration:line-through;font-weight:800">${shortGame(s.game)}</span>
+        ${s.account_name?`<span class="dim">🧑 ${s.account_name}</span>`:''}
+        <span class="grow"></span><span class="wchip alarm">أُلغي من إيفا — خارج الحسابات</span></div></div>`;
+    const emails=s.email?` · <span style="direction:ltr;unicode-bidi:isolate">${s.email}</span>`:'';
+    let body;
+    if(s._rounds){
+      const players=slotPlayers(s);
+      const maps=[...new Set(s._games.map(g=>g.map).filter(Boolean))];
+      body=`${playBar(s)}
+      <div class="metrics">
+        <div class="metric hl"><div class="v">${mmss(s._netSec)}</div><div class="l">صافي اللعب</div>
+          <div class="s">داخل الخرائط ${mmss(s._playSec)} · توقف بينها ${mmss(s._gapSec)}</div></div>
+        <div class="metric"><div class="v" style="color:${s._setup?'var(--amber)':'var(--ink)'}">${mmss(s._setupSec)}</div><div class="l">التجهيز أخذ</div>
+          <div class="s">المسموح ${s._second?0:SETUP}د${s._setup?` · زائد ${s._setup}د`:''}</div></div>
+        <div class="metric"><div class="v" style="color:${s._deficit?'var(--red)':'var(--green)'}">${s._deficit?'−'+s._deficit+'د':'✓'}</div><div class="l">${s._deficit?'نقص عن المستحق':'سليم'}</div>
+          <div class="s">المستحق ${s._entitled}د</div></div>
+        <div class="metric"><div class="v">${s._actual} / ${s.booked_players}</div><div class="l">لعب/محجوز</div>
+          ${s.actual_players!=null?`<div class="s">الاستقبال: وصل ${s.actual_players}</div>`:''}</div>
+      </div>
+      ${journeyLine(s)}
+      <div class="row sm" style="margin-top:7px">
+        ${s._setup>0?faultChip(s):''}
+        ${s._breaks&&s._breaks.length?`<span class="chip warn">☕ أثناء بريك: ${s._breaks.join('، ')}</span>`:''}
+        ${s._delayedBy?`<span class="chip bad">⏳ تأخير في بدء الحجز ${s._delayedBy}د — الحجز السابق تجاوز وقته (التجهيز محسوب من ${fmtT(s._effStart)})</span>`:''}
+        ${s._mismatch?'<span class="chip warn">⚠ أُسند بالوقت — اللاعبون لا يطابقون قائمة الحجز</span>':''}
+        ${s._surplus?`<span class="chip ok">لعب زيادة +${s._surplus}د</span>`:''}
+        ${s._over?`<span class="chip ${s._delaysNext?'bad':'warn'}">تجاوز وقت الحجز ${s._over}د${s._delaysNext?' — أخّر الحجز التالي!':''}</span>`:''}
+        ${!s.sent_at?'<span class="chip warn" style="cursor:pointer" onclick="switchTab(\'rec\')">📼 التسجيل لم يُرسَل</span>':'<span class="chip ok">📼 أُرسل</span>'}
+      </div>
+      <div class="dim sm" style="margin-top:11px">الخرائط والأزمنة — ${s._games.length} جولة · داخل الخرائط ${mmss(s._playSec)} · توقف بينها ${mmss(s._gapSec)}</div>
+      <div class="maps">
+        ${s._games.map((g,i)=>{
+          const prev=i?s._games[i-1]:null;
+          const gap=prev?Math.round((g.start-prev.end)/1000):0;
+          const score=(g.team_one_score!=null&&g.team_two_score!=null)?`${g.team_one_score} - ${g.team_two_score}`:'';
+          return `${gap>20?`<div class="gapc" title="توقف بين الخريطتين"><span>⏸ توقف</span><b>${mmss(gap)}</b></div>`:''}
+          <div class="mapc" style="--gc:${col}">
+            <div class="row" style="gap:6px"><span class="mp">${g.map||'—'}</span><span class="grow"></span><span class="dim sm">${i+1}</span></div>
+            <div class="dur">${mmss(g.duration_sec||0)}</div>
+            <div class="tm">${fmtT(g.start)} → ${fmtT(g.end)}</div>
+            <div class="sc">${score?`النتيجة ${score} · `:''}${g.players.length}👤</div>
+          </div>`;
+        }).join('')}
+      </div>
+      ${players.length?`<div class="plist"><div class="dim sm">النقاط — اللاعبون (${players.length})</div>
+        <div class="pgrid">${players.map(p=>`<div class="prow"><span class="grow">${p.name}${p.mvp?' <span class="mvp">MVP</span>':''}</span>
+          <span class="kda">${p.k}/${p.d}/${p.a}</span><span class="score">${p.score.toLocaleString('en')}</span></div>`).join('')}</div></div>`:''}`;
+    }else{
+      const past=Date.now()>s._endT&&DAY<=opDay();
+      body=`<div class="${s._swallowed&&past?'sm':'dim sm'}" style="${s._swallowed&&past?'color:var(--red);font-weight:700':''}">${s._swallowed&&past?'⚠ وقت هذا الحجز استهلكه تجاوز الحجز السابق (نفس المجموعة واصلت اللعب) — العميل لم يحضر على الأرجح':(past?'لم يُرصد أي لعب لهذا الحجز (تأكد من تشغيل المزامنة)':'لم يبدأ بعد')}</div>
+      ${journeyLine(s)}
+      ${s._delayedBy?`<div class="row sm" style="margin-top:5px"><span class="chip bad">⏳ تأخير في بدء الحجز ${s._delayedBy}د — الملعب مشغول بالحجز السابق</span></div>`:''}`;
+    }
+    const open=ANA_OPEN.has(s.id);
+    return `<div class="dwrap ${open?'open':''}" id="ana-${s.id}" style="--gc:${col}">
+      <div class="dstrip" style="--gc:${col}" onclick="toggleAna('${s.id}')">
+        <span class="chev">⌄</span>
+        <span class="t">${fmtT(s._t)}–${fmtT(s._endT)}</span>
+        <span style="font-weight:800;letter-spacing:.3px">${gameName(s.game)}</span>
+        <span style="opacity:.92;font-size:12.5px">🧑 ${partiesLabel(s)}</span>
+        <span class="grow"></span>
+        ${s._rounds?`<span class="wchip">صافي اللعب <b>${mmss(s._netSec)}</b></span>
+          <span class="wchip">التجهيز <b>${s._setupSec?mmss(s._setupSec):'—'}</b>${s._setup?` <span style="color:#ffd9a0">(زائد ${s._setup}د)</span>`:''}</span>
+          <span class="wchip">جولات <b>${s._rounds}</b></span>`:''}
+        ${s._second?'<span class="wchip">دبل</span>':''}
+        ${staffBooked(s)?'<span class="wchip">👤 موظف</span>':''}
+        ${s._rounds?(s._deficit?`<span class="wchip alarm">نقص ${s._deficit}د</span>`:'<span class="wchip solid" style="color:var(--green)">سليم</span>')
+          :(s._swallowed?'<span class="wchip alarm">لم يحضر</span>':'<span class="wchip">لم يُرصد لعب</span>')}
+      </div>
+      ${open?`<div class="dbody">${emails?`<div class="dim sm" style="margin-bottom:6px">${emails.replace(/^ · /,'')}</div>`:''}${body}</div>`:''}</div>`;
+  }).join('');
+  el.innerHTML=`<div class="anabar">
+      <button class="btn" onclick="anaAll(false)">اطوِ الكل</button>
+      <button class="btn" onclick="anaAll(true)">افتح الكل</button>
+      <button class="btn" onclick="anaProblems()">المشاكل فقط</button>
+      <span class="dim sm">اضغط على رأس أي حجز لطيّه أو فتحه</span>
+    </div>`+h;
+}
+/* بطاقات التفاصيل: مفتوحة افتراضياً، والرأس يلخّص — والضغط عليه يطويها عند الحاجة */
+let ANA_OPEN=new Set(), ANA_INIT=false;
+function toggleAna(id){ANA_OPEN.has(id)?ANA_OPEN.delete(id):ANA_OPEN.add(id);renderAna();sweep(document.getElementById('tab-ana'))}
+function anaAll(on){ANA_OPEN=on?new Set(S.slots.map(s=>s.id)):new Set();renderAna();sweep(document.getElementById('tab-ana'))}
+function anaProblems(){
+  ANA_OPEN=new Set(S.slots.filter(s=>!s._cancelled&&(s._deficit||s._setup||s._delayedBy||s._swallowed||s._over)).map(s=>s.id));
+  renderAna();sweep(document.getElementById('tab-ana'));status(`فُتحت ${ANA_OPEN.size} بطاقة فيها ملاحظات`);
+}
+function goAna(id){switchTab('ana');ANA_OPEN.add(id);renderAna();sweep(document.getElementById('tab-ana'));const c=document.getElementById('ana-'+id);if(c){c.scrollIntoView({behavior:'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),3500)}}
+
+/* ═════════ المبيعات ═════════ */
+function discCode(s){return s.discount_code??''}
+function discAmountFor(s,amt){
+  const d=DISCOUNTS.find(x=>x.code===discCode(s));
+  if(d&&d.pct!=null&&d.code!=='')return +(amt*d.pct/100).toFixed(2);
+  return +(s.discount||0);
+}
+/* ── حساب الجلسة مع تقسيم الدفع ──
+   splits = [{n,pay,code}] لأشخاصٍ يدفعون بطريقة/خصم مختلف؛ الباقون على الطريقة والخصم الأساسيين. */
+/* أطراف الحجز: تصحيح الموظف اليدوي (pay_splits) يتقدّم على تقدير إيفا */
+function partiesOf(s){
+  const sp=Array.isArray(s.pay_splits)?s.pay_splits.filter(x=>+x.n>0&&x.name):[];
+  if(sp.length)return sp.map(x=>({name:x.name,players:+x.n}));
+  return Array.isArray(s.parties)?s.parties.filter(p=>+p.players>0):[];
+}
+function saleCalc(s){
+  const rate=rateFor(s.start_at,DAY);
+  const total=s.actual_players??s._actual??s.booked_players??0;
+  const splits=Array.isArray(s.pay_splits)?s.pay_splits.filter(x=>+x.n>0):[];
+  const used=splits.reduce((a,x)=>a+(+x.n||0),0);
+  const restN=Math.max(0,total-used);
+  const parts=[];
+  const lineOf=(n,pay,code,manual,name)=>{
+    const amt=+(n*rate).toFixed(2);
+    const d=DISCOUNTS.find(x=>x.code===(code||''));
+    let disc=(d&&d.pct!=null&&d.code)?+(amt*d.pct/100).toFixed(2):(+manual||0);
+    if(isFreePay(pay))disc=amt;                     // سوبر نوفا: مجاني بالكامل
+    return {n,pay:pay||'',code:code||'',name:name||'',amt,disc:+disc.toFixed(2),net:+Math.max(0,amt-disc).toFixed(2)};
+  };
+  const pt=Array.isArray(s.parties)?s.parties.filter(p=>+p.players>0):[];
+  if(!splits.length&&pt.length>1){
+    /* عدة حجوزات في الفتحة نفسها (٩ صلاح + ١ بدر) — سطر لكل صاحب حجز */
+    const sum=pt.reduce((a,p)=>a+(+p.players||0),0);
+    for(const p of pt){
+      const n=sum&&sum!==total?Math.round((+p.players)*total/sum):(+p.players);
+      if(n>0)parts.push(lineOf(n,s.pay_method||'',discCode(s),s.discount,p.name));
+    }
+  }else{
+    if(restN>0||!splits.length)parts.push(lineOf(restN,s.pay_method||'',discCode(s),s.discount,pt.length===1?pt[0].name:''));
+    for(const x of splits)parts.push(lineOf(+x.n,x.pay,x.code,x.amount,x.name));
+  }
+  return {rate,total,restN,splits,parts,multi:parts.length>1,
+    amt:+parts.reduce((a,p)=>a+p.amt,0).toFixed(2),
+    disc:+parts.reduce((a,p)=>a+p.disc,0).toFixed(2),
+    net:+parts.reduce((a,p)=>a+p.net,0).toFixed(2)};
+}
+function renderSales(){
+  const el=document.getElementById('tab-sales');
+  if(!S.slots.length&&!S.walkins.length){el.innerHTML='<div class="empty">لا حجوزات في هذا اليوم</div>';return}
+  const payT=new Map(PAYMENTS.map(p=>[p,0])), payN=new Map(PAYMENTS.map(p=>[p,0]));
+  let gross=0,discT=0,unpaid=0,idx=0,cards='';
+  for(const item of timeline()){
+    if(item.walkin){
+      const w=item.walkin, rate=rateFor(new Date(w.start).toISOString(),DAY), amt=w.players*rate;
+      cards+='<div class="inv walk"><div class="invh"><span class="t">'+fmtT(w.start)+'</span>'
+        +'<b style="color:var(--amber)">لعب بدون حجز</b>'
+        +'<span class="dim sm">'+w.players+' لاعب × '+rate.toFixed(2)+'</span>'
+        +'<span class="grow"></span><span class="amt">'+amt.toFixed(2)+'</span></div>'
+        +'<div class="invb dim sm">تقديري من رصد إيفا — راجعه مع الكاشير، لا يدخل المجاميع</div></div>';
+      continue;
+    }
+    const s=item.slot;
+    if(s._cancelled||(s._swallowed&&Date.now()>s._endT&&!s.pay_method)){
+      cards+='<div class="inv void"><div class="invh"><span class="t">'+fmtT(s._t)+'</span>'
+        +'<b style="text-decoration:line-through">'+shortGame(s.game)+'</b>'
+        +'<span class="dim sm">'+(s.account_name||'')+'</span><span class="grow"></span>'
+        +'<span class="chip bad">'+(s._cancelled?'أُلغي من إيفا':'لم يحضر')+' — لا يُحصَّل</span></div></div>';
+      continue;
+    }
+    idx++;
+    const c=saleCalc(s);
+    gross+=c.amt; discT+=c.disc;
+    const parts=c.parts.filter(p=>p.n>0);
+    for(const p of parts){
+      if(p.pay&&payT.has(p.pay)){payT.set(p.pay,payT.get(p.pay)+p.net);payN.set(p.pay,payN.get(p.pay)+p.n)}
+      else if(!p.pay)unpaid+=p.net;
+    }
+    const due=parts.some(p=>!p.pay);
+    const linesHtml=parts.map(p=>{
+      const d=DISCOUNTS.find(x=>x.code===p.code);
+      return '<div class="lin"><span class="qty">'+p.n+'</span><span class="dim">×</span><span>'+c.rate.toFixed(2)+'</span>'
+        +(p.name?'<b>'+p.name+'</b>':'<span class="dim">لاعبون</span>')
+        +(d&&d.code?'<span class="chip warn sm">'+d.label+'</span>':'')
+        +'<span class="grow"></span>'
+        +(p.disc?'<span class="dim sm">−'+p.disc.toFixed(2)+'</span>':'')
+        +'<span class="lnet">'+p.net.toFixed(2)+'</span>'
+        +'<span class="pay '+(p.pay?'set':'unset')+'">'+(p.pay||'بلا دفع')+'</span></div>';
+    }).join('');
+    const tools=c.multi
+      ? '<span class="chip info">مقسّم على '+parts.length+'</span>'
+      : '<select class="disc-sel" onchange="setSaleField(\''+s.id+'\',\'pay_method\',this.value)">'
+        +'<option value="">— طريقة الدفع —</option>'
+        +PAYMENTS.map(p=>'<option '+((s.pay_method||'')===p?'selected':'')+'>'+p+'</option>').join('')
+        +'</select>'
+        +'<select class="disc-sel" onchange="setDiscCode(\''+s.id+'\',this.value)">'
+        +DISCOUNTS.map(d=>'<option value="'+d.code+'" '+(discCode(s)===d.code?'selected':'')+'>'+d.label+'</option>').join('')
+        +'</select>';
+    cards+='<div class="inv '+(due?'due':'paidok')+'" style="--gc:'+gameColor(s.game)+'">'
+      +'<div class="invh"><span class="num">#'+idx+'</span><span class="t">'+fmtT(s._t)+'</span>'
+      +'<span class="gtag" style="background:'+gameColor(s.game)+'">'+shortGame(s.game)+'</span>'
+      +'<span class="who">'+partiesLabel(s)+'</span><span class="grow"></span>'
+      +'<span class="ord">'+(s.order_no?'طلب #'+s.order_no:'<span class="dim">بلا رقم طلب</span>')+'</span>'
+      +'<span class="amt">'+c.net.toFixed(2)+'</span></div>'
+      +'<div class="invb"><div class="lines">'+linesHtml+'</div>'
+      +'<div class="invtools">'+tools
+      +'<button class="btn" onclick="splitOpen(\''+s.id+'\')">÷ تقسيم</button>'
+      +'<button class="noteb '+(s.sale_note?'has':'')+'" onclick="noteEdit(\''+s.id+'\')">'+(s.sale_note||'📝 ملاحظة')+'</button>'
+      +'<span class="grow"></span><span class="dim sm">الإجمالي '+c.amt.toFixed(2)+(c.disc?' · خصم −'+c.disc.toFixed(2):'')+'</span>'
+      +'</div></div></div>';
+  }
+  let cafeT=0,cafeD=0,cafeRows='';
+  for(const x of (S.extras||[])){
+    const a=+x.amount||0,d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
+    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0, v=Math.max(0,a-dv);
+    cafeT+=a;cafeD+=dv;
+    if(x.pay_method&&payT.has(x.pay_method)){payT.set(x.pay_method,payT.get(x.pay_method)+v);payN.set(x.pay_method,payN.get(x.pay_method)+1)}
+    else unpaid+=v;
+    cafeRows+='<div class="lin"><span class="dim sm">'+(x.at_time||'')+'</span><b>café</b>'
+      +(d&&d.code?'<span class="chip warn sm">'+d.label+'</span>':'')
+      +'<span class="grow"></span>'
+      +'<input class="disc" type="number" min="0" step="0.05" value="'+a+'" onchange="extraSet(\''+x.id+'\',\'amount\',this.value)">'
+      +'<span class="lnet">'+v.toFixed(2)+'</span>'
+      +'<select class="disc-sel" onchange="extraSet(\''+x.id+'\',\'pay_method\',this.value)">'
+      +'<option value="">— الدفع —</option>'
+      +PAYMENTS.map(p=>'<option '+(x.pay_method===p?'selected':'')+'>'+p+'</option>').join('')
+      +'</select>'
+      +'<button class="btn ghost" style="color:var(--red)" onclick="extraDel(\''+x.id+'\')">✕</button></div>';
+  }
+  gross+=cafeT; discT+=cafeD;
+  const net=gross-discT;
+  const payRows=PAYMENTS.filter(p=>payN.get(p)>0).map(p=>
+    '<div class="payline"><span>'+p+'</span><span class="dim sm">'+payN.get(p)+'</span>'
+    +'<span class="grow"></span><b class="'+(isFreePay(p)?'free':'')+'">'+payT.get(p).toFixed(2)+'</b></div>').join('')
+    ||'<div class="dim sm">لم تُحدَّد طرق الدفع بعد</div>';
+  el.innerHTML='<div class="acc"><div class="accmain">'
+    +'<div class="row" style="margin-bottom:10px"><h2 style="margin:0">فواتير اليوم ('+idx+')</h2><span class="grow"></span>'
+    +'<button class="btn" onclick="printSales()">🖨 تقرير المبيعات</button>'
+    +'<button class="btn" onclick="exportCSV()">⬇ Excel</button></div>'
+    +cards
+    +'<div class="inv cafe"><div class="invh"><b>☕ الكافيه</b><span class="grow"></span>'
+    +'<span class="amt">'+(cafeT-cafeD).toFixed(2)+'</span></div>'
+    +'<div class="invb"><div class="lines">'+(cafeRows||'<div class="dim sm">لا مبيعات كافيه اليوم</div>')+'</div>'
+    +'<div class="invtools">'
+    +'<input class="disc" id="cafeAmt" type="number" min="0" step="0.05" placeholder="المبلغ" style="width:92px">'
+    +'<select class="disc-sel" id="cafePay"><option value="">— الدفع —</option>'+PAYMENTS.map(p=>'<option>'+p+'</option>').join('')+'</select>'
+    +'<select class="disc-sel" id="cafeDisc">'+DISCOUNTS.map(d=>'<option value="'+d.code+'">'+d.label+'</option>').join('')+'</select>'
+    +'<button class="btn primary" onclick="cafeAdd()">+ إضافة</button></div></div></div>'
+    +'</div><aside class="accside">'
+    +'<div class="sumcard"><div class="sumtop"><div class="sumnet">'+net.toFixed(2)+'<span>BD</span></div>'
+    +'<div class="dim sm">صافي مبيعات اليوم</div></div>'
+    +'<div class="sumrow"><span>الإجمالي</span><b>'+gross.toFixed(2)+'</b></div>'
+    +'<div class="sumrow"><span>الخصومات</span><b style="color:var(--amber)">−'+discT.toFixed(2)+'</b></div>'
+    +'<div class="sumrow"><span>الكافيه</span><b>'+(cafeT-cafeD).toFixed(2)+'</b></div>'
+    +'<div class="sumrow '+(unpaid?'danger':'')+'"><span>بلا طريقة دفع</span><b>'+unpaid.toFixed(2)+'</b></div></div>'
+    +'<div class="sumcard"><div class="sumhdr">توزيع التحصيل</div>'+payRows
+    +'<div class="payline tot"><span>المجموع</span><span class="grow"></span><b>'+net.toFixed(2)+'</b></div></div>'
+    +'<div class="sumcard dim sm">التسعيرة: '+(isSunday(DAY)?'الأحد — ٩٫٥٠ لليوم كامل':'٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)')
+    +'<br>العدد المحاسَب: تعديل الموظف ← رصد إيفا ← المحجوز.</div>'
+    +'</aside></div>';
+}
+
+/* ── تقسيم الدفع: نافذة كاملة (عدّل ثم احفظ) ── */
+let SPL=null;   // {id, arr:[{n,pay,code}], mainPay, mainCode}
+function splitOpen(id){
+  const s=S.slots.find(x=>x.id===id);if(!s)return;
+  const arr=(s.pay_splits||[]).map(x=>({n:+x.n||1,pay:x.pay||'',code:x.code||'',name:x.name||''}));
+  if(!arr.length){
+    const pt=partiesOf(s);
+    if(pt.length>1)pt.forEach(p=>arr.push({n:+p.players||1,pay:s.pay_method||'',code:'',name:p.name}));
+    else arr.push({n:s.actual_players??s._actual??s.booked_players??1,pay:s.pay_method||'',code:discCode(s),name:''});
+  }
+  const cur=s.actual_players??s._actual??s.booked_players??0;
+  const sum=arr.reduce((a,x)=>a+(+x.n||0),0);
+  SPL={id,arr,total:Math.max(cur,sum)};    // العدد المحاسَب — قابل للتعديل
+  splitRender();
+}
+function splitClose(){SPL=null;const o=document.getElementById('splitOvl');if(o)o.remove()}
+function splitRender(){
+  if(!SPL)return;
+  const s=S.slots.find(x=>x.id===SPL.id);if(!s)return;
+  const total=SPL.total;
+  const rate=rateFor(s.start_at,DAY);
+  const used=SPL.arr.reduce((a,x)=>a+(+x.n||0),0);
+  const rest=total-used;
+  const paySel=(v,on)=>`<select class="disc-sel" style="min-width:118px" onchange="${on}">
+      <option value="">— طريقة الدفع —</option>
+      ${PAYMENTS.map(p=>`<option ${v===p?'selected':''}>${p}</option>`).join('')}</select>`;
+  const discSel=(v,on)=>`<select class="disc-sel" style="min-width:130px" onchange="${on}">
+      ${DISCOUNTS.map(d=>`<option value="${d.code}" ${v===d.code?'selected':''}>${d.label}</option>`).join('')}</select>`;
+  let o=document.getElementById('splitOvl');
+  if(!o){o=document.createElement('div');o.id='splitOvl';o.className='ovl';o.onclick=e=>{if(e.target===o)splitClose()};document.body.appendChild(o)}
+  const totalNet=SPL.arr.reduce((a,x)=>a+(isFreePay(x.pay)?0:(x.n*rate*(1-((DISCOUNTS.find(d=>d.code===x.code)||{}).pct||0)/100))),0);
+  o.innerHTML=`<div class="dlg">
+    <h3>تقسيم الدفع — حجز <span class="t">${fmtT(s._t)}</span> · ${shortGame(s.game)}</h3>
+    <div class="dim sm">اكتب لكل مجموعة: العدد وطريقة الدفع والخصم. مثال: ٢ سوبر نوفا · ٥ كاش · ٣ كارد</div>
+    <div class="rem" style="margin-top:10px">
+      <div class="row">
+        <b>عدد اللاعبين المحاسَبين</b>
+        <input class="cnt" type="number" min="0" max="40" value="${total}" onchange="splitTotal(this.value)">
+        <span class="dim sm">(المحجوز ${s.booked_players||0}${s._actual?` · رصد إيفا ${s._actual}`:''})</span>
+        <span class="grow"></span>
+        <span class="${rest===0?'chip ok':'chip warn'}">${rest===0?'✓ موزّع بالكامل':(rest>0?`باقٍ ${rest}`:`زائد ${-rest}`)}</span>
+        ${rest>0?`<button class="btn" onclick="splitAddRow(${rest})">أضف صفاً بالباقي (${rest})</button>`:''}
+        ${rest<0?`<button class="btn" onclick="splitTotal(${used})">اجعل العدد ${used}</button>`:''}
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      ${SPL.arr.map((x,i)=>`<div class="splitrow">
+        <input class="cnt n" type="number" min="1" max="40" value="${x.n}" onchange="splitSet(${i},'n',this.value)">
+        <span class="dim sm">لاعب</span>
+        ${x.name?`<b style="min-width:92px">${x.name}</b>`:''}
+        ${paySel(x.pay,`splitSet(${i},'pay',this.value)`)}
+        ${discSel(x.code,`splitSet(${i},'code',this.value)`)}
+        <span class="grow"></span>
+        <span class="t">${(isFreePay(x.pay)?0:(x.n*rate*(1-((DISCOUNTS.find(d=>d.code===x.code)||{}).pct||0)/100))).toFixed(2)}</span>
+        <button class="btn ghost" style="color:var(--red)" onclick="splitDel(${i})">✕</button>
+      </div>`).join('')}
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="splitAddRow()">+ إضافة صف</button>
+      <span class="grow"></span>
+      <span class="dim sm">صافي الحجز</span><b class="t" style="font-size:17px">${totalNet.toFixed(2)}</b>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn primary" onclick="splitSave()">حفظ</button>
+      <button class="btn" onclick="splitClose()">إلغاء</button>
+      <span class="grow"></span>
+      <button class="btn ghost" style="color:var(--red)" onclick="splitClear()">مسح التقسيم</button>
+    </div>
+  </div>`;
+  sweep(o);
+}
+function splitSet(i,field,v){
+  if(!SPL||!SPL.arr[i])return;
+  SPL.arr[i][field]=field==='n'?Math.max(1,+v||1):v;
+  splitRender();
+}
+function splitTotal(v){if(SPL){SPL.total=Math.max(0,+v||0);splitRender()}}
+function splitAddRow(n){if(SPL){SPL.arr.push({n:Math.max(1,+n||1),pay:'',code:'',name:''});splitRender()}}
+function splitDel(i){if(SPL){SPL.arr.splice(i,1);splitRender()}}
+function splitClear(){if(SPL){SPL.arr=[];splitSave()}}
+async function splitSave(){
+  if(!SPL)return;
+  const {id,arr,total}=SPL;
+  const clean=arr.filter(x=>+x.n>0);
+  const sum=clean.reduce((a,x)=>a+(+x.n||0),0);
+  const body={pay_splits:clean.length?clean:null};
+  // العدد المحاسَب = مجموع الصفوف (فلا يبقى «باقٍ» غامض)
+  body.actual_players=clean.length?sum:(total||null);
+  try{
+    await sbPatch('slots',id,body);
+    const s=S.slots.find(x=>x.id===id);
+    if(s){s.pay_splits=body.pay_splits;s.actual_players=body.actual_players;}
+    splitClose();compute();renderAll();status('✓ حُفظ التقسيم');
+  }catch(e){status(/pay_splits|column/.test(e.message)?'⚠ شغّل ملف eva_v4.sql في Supabase أولاً — عمود تقسيم الدفع غير موجود':'⚠ '+e.message)}
+}
+/* ملاحظة الصف — نافذة إدخال بسيطة */
+function noteEdit(id){
+  const s=S.slots.find(x=>x.id===id);if(!s)return;
+  const v=prompt('ملاحظة على هذا الحجز (تظهر في المبيعات والتسجيلات والتقارير):',s.sale_note||'');
+  if(v===null)return;
+  setSaleField(id,'sale_note',v);
+}
+async function setSaleField(id,field,v){
+  try{await sbPatch('slots',id,{[field]:String(v).trim()||null});const s=S.slots.find(x=>x.id===id);if(s)s[field]=String(v).trim()||null;renderSales();renderRec();renderRep();status('✓ حُفظ')}
+  catch(e){status(new RegExp(field).test(e.message)?'⚠ شغّل eva_v3.sql في Supabase أولاً (أعمدة المبيعات)':'⚠ '+e.message)}
+}
+async function setDiscCode(id,code){
+  const s=S.slots.find(x=>x.id===id); if(!s)return;
+  const rate=rateFor(s.start_at,DAY);
+  const n=s.actual_players??s._actual??s.booked_players??0;
+  const d=DISCOUNTS.find(x=>x.code===code);
+  const amt=n*rate;
+  const val=(d&&d.pct!=null&&code!=='')?+(amt*d.pct/100).toFixed(2):(d&&d.pct==null?+(s.discount||0):null);
+  try{
+    await sbPatch('slots',id,{discount_code:code||null,discount:val});
+    s.discount_code=code||null;s.discount=val;renderSales();status('✓ حُفظ الخصم');
+  }catch(e){status(/discount_code/.test(e.message)?'⚠ شغّل eva_v3.sql في Supabase أولاً (عمود كود الخصم)':'⚠ '+e.message)}
+}
+async function setDiscount(id,v){
+  try{await sbPatch('slots',id,{discount:v===''?null:+v});const s=S.slots.find(x=>x.id===id);if(s)s.discount=v===''?null:+v;renderSales();status('✓ حُفظ الخصم')}
+  catch(e){status('⚠ لم يُحفظ الخصم: '+e.message)}
+}
+function exportCSV(){
+  const out=[['S.NO','الوقت','رقم الطلب','الحساب','اللعبة','محجوز','لعبوا','سعر الفرد','المبلغ','كود الخصم','الخصم','الصافي','الدفع','ملاحظة']];
+  let idx=0;const payTotals=new Map(PAYMENTS.map(p=>[p,0]));let payUnset=0;
+  for(const item of timeline()){
+    if(item.walkin){const w=item.walkin;const rate=rateFor(new Date(w.start).toISOString(),DAY);const amt=w.players*rate;
+      out.push(['',fmtT(w.start),'','','بدون حجز','',w.players,rate,amt.toFixed(2),'','',amt.toFixed(2),'غير محصّل؟','تقديري']);continue}
+    const s=item.slot;
+    if(s._cancelled){out.push(['',fmtT(s._t),'',s.account_name||'',shortGame(s.game),s.booked_players||0,'','','','أُلغي من إيفا','','','','']);continue}
+    if(s._swallowed&&Date.now()>s._endT&&!s.pay_method){out.push(['',fmtT(s._t),'',s.account_name||'',shortGame(s.game),s.booked_players||0,'','','','لم يحضر — لا يُحصَّل','','','','']);continue}
+    idx++;
+    const c=saleCalc(s);
+    const playedN=s.actual_players??s._actual??'';
+    const parts=c.parts.filter(p=>p.n>0);
+    parts.forEach((p,i)=>{
+      if(p.pay&&payTotals.has(p.pay))payTotals.set(p.pay,payTotals.get(p.pay)+p.net);else if(!p.pay)payUnset+=p.net;
+      const d=DISCOUNTS.find(x=>x.code===p.code);
+      out.push([i===0?idx:'',fmtT(s._t),i===0?(s.order_no||''):'',i===0?(s.account_name||''):'↳ تقسيم',
+        i===0?shortGame(s.game):'',i===0?(s.booked_players||0):'',p.n,c.rate,p.amt.toFixed(2),
+        d&&d.code?d.label:'',p.disc?p.disc.toFixed(2):'',p.net.toFixed(2),p.pay,i===0?(s.sale_note||''):'']);
+    });
+  }
+  for(const x of (S.extras||[])){
+    const v=+x.amount||0;
+    if(x.pay_method&&payTotals.has(x.pay_method))payTotals.set(x.pay_method,payTotals.get(x.pay_method)+v);else payUnset+=v;
+    out.push(['','','','مبيعات إضافية',x.label||'','',x.qty||1,'',v.toFixed(2),'','',v.toFixed(2),x.pay_method||'',x.note||'']);
+  }
+  out.push([]);out.push(['','مجموع الدفع']);out.push(['','الطريقة','Total']);
+  for(const p of PAYMENTS){const v=payTotals.get(p);if(v)out.push(['',p,v.toFixed(2)])}
+  if(payUnset)out.push(['','غير محدد',payUnset.toFixed(2)]);
+  const csv='﻿'+out.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`مبيعات-${DAY}.csv`;a.click();
+  status('⬇ صُدّر ملف Excel (CSV)');
+}
+
+/* ═════════ التسجيلات ═════════ */
+function slotEmails(s){
+  const set=new Set();
+  if(s.email)set.add(s.email);
+  for(const p of (s.roster||[])){const e=S.dir.get(p.name);if(e)set.add(e)}
+  for(const g of s._games)for(const p of g.players)if(p.email)set.add(p.email);
+  return[...set];
+}
+/* ألعاب بلا تسجيل فيديو: الزومبي وكولر تشاوس */
+const NO_REC=/CHAOS|RABBIDS|ZOMBIE/;
+const hasRecording=s=>!NO_REC.test(gameName(s.game).toUpperCase());
+function renderRec(){
+  const el=document.getElementById('tab-rec');
+  const noRec=S.slots.filter(s=>s._rounds&&!hasRecording(s));
+  const played=S.slots.filter(s=>s._rounds&&hasRecording(s));
+  if(!played.length&&!S.walkins.length){el.innerHTML='<div class="empty">لا جلسات ملعوبة بعد — تظهر هنا فور انتهاء اللعب</div>';updateRecBadge(0);return}
+  const pending=played.filter(s=>!s.sent_at&&s.rec_status!=='declined');
+  const declined=played.filter(s=>s.rec_status==='declined').length;
+  updateRecBadge(pending.length);
+  const rows=timeline().filter(i=>i.walkin||i.slot._rounds).map(item=>{
+    if(item.walkin){
+      const w=item.walkin;
+      const emails=[...new Set(w.games.flatMap(g=>g.players.map(p=>p.email).filter(Boolean)))];
+      return `<tr class="walkin">
+        <td class="t">${fmtT(w.start)}</td>
+        <td style="color:var(--amber);font-weight:800">بدون حجز</td>
+        <td class="dim">${[...new Set(w.games.flatMap(g=>g.players.map(p=>p.name)))].slice(0,3).join('، ')}</td>
+        <td>${emails.length?emails.map(e=>`<span class="chip" style="cursor:pointer" onclick="copyTxt('${e}')">📋 ${e}</span>`).join(' '):'<span class="dim sm">—</span>'}</td>
+        <td class="dim sm">—</td>
+        <td>${w.games.length}</td>
+        <td class="dim sm">يدويّ</td>
+        <td class="dim sm">—</td></tr>`;
+    }
+    const s=item.slot;
+    const emails=slotEmails(s);
+    return `<tr>
+      <td class="t">${fmtT(s._t)}</td>
+      <td style="color:${gameColor(s.game)};font-weight:800">${shortGame(s.game)}</td>
+      <td>${s.account_name||'—'}</td>
+      <td>${emails.length?emails.map(e=>`<span class="chip" style="cursor:pointer" title="نسخ" onclick="copyTxt('${e}')">📋 ${e}</span>`).join(' '):'<span class="chip bad">لا إيميل!</span>'}</td>
+      <td><input class="xmail" type="email" value="${s.extra_email||''}" placeholder="إيميل إضافي…" onchange="setExtraEmail('${s.id}',this.value)"></td>
+      <td>${s._rounds}</td>
+      <td>${s.sent_at
+        ?`<span class="chip ok">أُرسل ${fmtT(s.sent_at)}</span> <button class="btn" onclick="markSent('${s.id}',false)">تراجع</button>`
+        :(s.rec_status==='declined'
+          ?`<span class="chip">🚫 لا يريد التسجيل</span> <button class="btn" onclick="recStatus('${s.id}',null)">تراجع</button>`
+          :`<div class="row" style="gap:5px;flex-wrap:nowrap">
+              <button class="btn danger" onclick="markSent('${s.id}',true)">لم يُرسَل — علّم أُرسل</button>
+              <button class="btn" onclick="recStatus('${s.id}','declined')" title="العميل لا يريد التسجيل">🚫 لا يريد</button>
+            </div>`)}</td>
+      <td><button class="noteb ${s.sale_note?'has':''}" onclick="noteEdit('${s.id}')" title="${s.sale_note||'أضف ملاحظة'}">${s.sale_note||'📝'}</button></td>
+    </tr>`;
+  }).join('');
+  el.innerHTML=`<div class="hero"><div class="big" style="color:${pending.length?'var(--red)':'var(--green)'}">
+    ${pending.length?`⏰ ${pending.length} تسجيل لم يُرسَل بعد`:'كل تسجيلات اليوم المرصودة أُرسلت ✓'}</div>
+    <div class="dim sm">أرسل الفيديوهات للإيميل (والإضافي إن وُجد) ثم اضغط الزر الأحمر · ومن لا يريد التسجيل اضغط «🚫 لا يريد»${declined?` — ${declined} اليوم`:''}</div>
+    ${noRec.length?`<div class="dim sm" style="margin-top:6px">🚫 بلا تسجيل بطبيعتها (زومبي · كولر تشاوس): ${noRec.map(s=>fmtT(s._t)+' '+shortGame(s.game)).join('، ')}</div>`:''}</div>
+  <div class="tblwrap"><table>
+    <tr><th>الوقت</th><th>اللعبة</th><th>الحساب</th><th>الإيميل (من إيفا)</th><th>إيميل إضافي (يدوي)</th><th>جولات</th><th>الإرسال</th><th>ملاحظات</th></tr>
+    ${rows}
+  </table></div>`;
+}
+async function setExtraEmail(id,v){
+  try{await sbPatch('slots',id,{extra_email:v.trim()||null});const s=S.slots.find(x=>x.id===id);if(s)s.extra_email=v.trim()||null;status('✓ حُفظ الإيميل الإضافي')}
+  catch(e){status(/extra_email/.test(e.message)?'⚠ شغّل eva_v3.sql في Supabase أولاً':'⚠ '+e.message)}
+}
+async function recStatus(id,v){
+  try{await sbPatch('slots',id,{rec_status:v});const s=S.slots.find(x=>x.id===id);if(s)s.rec_status=v;renderRec();renderRep();status(v?'✓ سُجّل: لا يريد التسجيل':'✓ أُلغي')}
+  catch(e){status(/rec_status|column/.test(e.message)?'⚠ شغّل السطر: alter table slots add column if not exists rec_status text;':'⚠ '+e.message)}
+}
+async function markSent(id,on){
+  try{await sbPatch('slots',id,{sent_at:on?new Date().toISOString():null});const s=S.slots.find(x=>x.id===id);if(s)s.sent_at=on?new Date().toISOString():null;renderRec();renderAna();status('✓ حُدّثت حالة الإرسال')}
+  catch(e){status('⚠ '+e.message)}
+}
+function copyTxt(t){navigator.clipboard&&navigator.clipboard.writeText(t);status('📋 نُسخ: '+t)}
+function updateRecBadge(n){const b=document.getElementById('recBadge');if(b)b.style.display=n?'':'none',b.textContent=n}
+
+/* ═════════ التقرير اليومي ═════════ */
+function renderRep(){
+  const el=document.getElementById('tab-rep');
+  const act=S.slots.filter(s=>!s._cancelled);
+  if(!act.length&&!S.walkins.length){el.innerHTML='<div class="empty">لا بيانات لهذا اليوم</div>';return}
+  const played=act.filter(s=>s._rounds);
+  const noShow=act.filter(s=>s._swallowed&&Date.now()>s._endT);
+  const noPlay=act.filter(s=>!s._rounds&&!s._swallowed&&Date.now()>s._endT);
+  const cancelled=S.slots.filter(s=>s._cancelled);
+  const late=played.filter(s=>s._setup>0);
+  const short=played.filter(s=>s._deficit>0);
+  const over=played.filter(s=>s._over>0);
+  const staffB=act.filter(s=>staffBooked(s));
+  const totDef=short.reduce((a,s)=>a+s._deficit,0);
+  const totSetup=late.reduce((a,s)=>a+s._setup,0);
+  const totPlayers=played.reduce((a,s)=>a+(s.actual_players??s._actual??0),0);
+  const totBooked=act.reduce((a,s)=>a+(s.booked_players||0),0);
+  const rounds=played.reduce((a,s)=>a+s._rounds,0);
+  const playMin=Math.round(played.reduce((a,s)=>a+s._netSec,0)/60);
+  const faultClient=late.filter(s=>s._fault==='client').length;
+  const faultStaff=late.filter(s=>s._fault==='staff').length;
+  const faultUnknown=late.length-faultClient-faultStaff;
+  const unsent=played.filter(s=>hasRecording(s)&&!s.sent_at&&s.rec_status!=='declined').length;
+  const declinedRec=played.filter(s=>s.rec_status==='declined').length;
+  // المال (مع تقسيمات الدفع والمبيعات الإضافية)
+  let gross=0,discT=0,unpaid=0;
+  for(const s of act){
+    if(s._swallowed&&Date.now()>s._endT&&!s.pay_method)continue;
+    const c=saleCalc(s);
+    gross+=c.amt;discT+=c.disc;
+    for(const p of c.parts)if(p.n&&!p.pay)unpaid+=p.net;
+  }
+  const extras=S.extras||[];
+  const extraT=extras.reduce((a,x)=>a+(+x.amount||0),0);
+  gross+=extraT;
+  for(const x of extras)if(!x.pay_method)unpaid+=(+x.amount||0);
+  // توزيع الألعاب
+  const byGame=new Map();
+  for(const s of act){const g=shortGame(s.game);const e=byGame.get(g)||{n:0,p:0};e.n++;e.p+=(s.actual_players??s._actual??s.booked_players??0);byGame.set(g,e)}
+  const worst=[...short].sort((a,b)=>b._deficit-a._deficit).slice(0,5);
+  const gmLine=S.gms.length?S.gms.map(g=>g.name+(g.break_start?` <span class="dim sm">(بريك ${g.break_start}${g.break_end?'–'+g.break_end:''})</span>`:'')).join(' · '):'<span class="dim">لم يُسجَّل طاقم اليوم</span>';
+
+  el.innerHTML=`
+  <div class="hero">
+    <div class="row" style="justify-content:space-between">
+      <div class="big">📋 تقرير يوم ${DAY}${isSunday(DAY)?' <span class="chip">الأحد</span>':''}</div>
+      <div class="row" style="gap:6px">
+        <button class="btn primary" onclick="printOps()">🖨 طباعة تقرير التشغيل</button>
+        <button class="btn" onclick="printSales()">🖨 تقرير المبيعات</button>
+      </div>
+    </div>
+    <div class="metrics" style="margin-top:12px">
+      <div class="metric hl"><div class="v">${act.length}</div><div class="l">حجوزات اليوم</div>
+        <div class="s">${played.length} لُعبت · ${noShow.length} لم يحضر${cancelled.length?` · ${cancelled.length} أُلغي`:''}</div></div>
+      <div class="metric"><div class="v" style="color:${totDef?'var(--red)':'var(--green)'}">${totDef}د</div><div class="l">إجمالي النقص</div>
+        <div class="s">في ${short.length} حجز</div></div>
+      <div class="metric"><div class="v" style="color:${late.length?'var(--amber)':'var(--green)'}">${late.length}</div><div class="l">حجوزات تأخّر تجهيزها</div>
+        <div class="s">مجموع التأخير ${totSetup}د</div></div>
+      <div class="metric"><div class="v">${totPlayers}</div><div class="l">لاعبون لعبوا</div>
+        <div class="s">من ${totBooked} محجوز</div></div>
+      <div class="metric"><div class="v">${rounds}</div><div class="l">جولات</div>
+        <div class="s">${playMin} دقيقة لعب</div></div>
+      <div class="metric"><div class="v" style="color:var(--green)">${(gross-discT).toFixed(2)}</div><div class="l">صافي المبيعات</div>
+        <div class="s">${extraT?`إضافية ${extraT.toFixed(2)} · `:''}${discT?`خصم ${discT.toFixed(2)} · `:''}${unpaid?`<b style="color:var(--red)">${unpaid.toFixed(2)} بلا دفع</b>`:'كلها محصّلة'}</div></div>
+    </div>
+  </div>
+
+  <h2>مبيعات إضافية (كافيه وغيرها)</h2>
+  <div class="card">
+    <div class="row" style="gap:6px">
+      <input class="xmail" id="exLabel" placeholder="البند (مثل: قهوة، ماء، سناك)" style="direction:rtl;width:210px">
+      <input class="cnt" id="exQty" type="number" min="1" value="1" title="الكمية">
+      <input class="disc" id="exAmt" type="number" min="0" step="0.25" placeholder="المبلغ" style="width:86px">
+      <select class="disc-sel" id="exPay">
+        <option value="">— الدفع —</option>
+        ${PAYMENTS.map(p=>`<option>${p}</option>`).join('')}
+      </select>
+      <input class="disc" id="exNote" placeholder="ملاحظة" style="width:110px">
+      <button class="btn primary" onclick="extraAdd()">+ إضافة سطر</button>
+    </div>
+    ${extras.length?`<div class="tblwrap" style="margin-top:10px"><table>
+      <tr><th>البند</th><th>الكمية</th><th>المبلغ</th><th>الدفع</th><th>ملاحظة</th><th></th></tr>
+      ${extras.map(x=>`<tr>
+        <td>${x.label||'—'}</td><td>${x.qty||1}</td><td style="font-weight:800">${(+x.amount||0).toFixed(2)}</td>
+        <td><select class="disc-sel" onchange="extraSet('${x.id}','pay_method',this.value)">
+          <option value="">— اختر —</option>
+          ${PAYMENTS.map(p=>`<option ${x.pay_method===p?'selected':''}>${p}</option>`).join('')}
+        </select></td>
+        <td class="dim sm">${x.note||''}</td>
+        <td><button class="btn ghost" style="color:var(--red)" onclick="extraDel('${x.id}')">✕</button></td>
+      </tr>`).join('')}
+      <tr class="total"><td colspan="2">المجموع</td><td>${extraT.toFixed(2)}</td><td colspan="3"></td></tr>
+    </table></div>`:'<div class="dim sm" style="margin-top:8px">لا مبيعات إضافية اليوم — أضف أعلاه وستدخل مجاميع الدفع والمبيعات تلقائياً</div>'}
+  </div>
+
+  <h2>مسؤولية التأخير</h2>
+  <div class="card">
+    <div class="row">
+      <span class="chip bad">تشغيلي: ${faultStaff}</span>
+      <span class="chip warn">من العميل: ${faultClient}</span>
+      <span class="chip">غير معروف (بلا أختام استقبال): ${faultUnknown}</span>
+      <span class="grow"></span>
+      <span class="dim sm">إجمالي ${totSetup} دقيقة تجهيز زائد</span>
+    </div>
+    ${late.length?`<div class="rounds">${late.map(s=>`<div class="round">
+      <span class="dot" style="background:${s._fault==='staff'?'var(--red)':s._fault==='client'?'var(--amber)':'var(--dim)'}"></span>
+      <span class="t">${fmtT(s._t)}</span><span>${shortGame(s.game)}</span>
+      <span class="dim">${s.account_name||'—'}</span>
+      <span style="color:var(--amber);font-weight:700">+${s._setup}د</span>
+      <span class="dim sm">${s._fault==='staff'?'تشغيلي':s._fault==='client'?'العميل':'بلا أختام'}</span>
+      ${s._breaks&&s._breaks.length?`<span class="chip warn">☕ ${s._breaks.join('، ')}</span>`:''}
+    </div>`).join('')}</div>`:'<div class="dim sm" style="margin-top:6px">لا تأخير تجهيز اليوم ✓</div>'}
+  </div>
+
+  <h2>أكبر حالات النقص</h2>
+  <div class="card">${worst.length?`<div class="rounds" style="border:none;padding-top:0">${worst.map(s=>`<div class="round">
+      <span class="dot" style="background:${gameColor(s.game)}"></span>
+      <span class="t">${fmtT(s._t)}</span><span>${shortGame(s.game)}</span>
+      <span class="dim">${s.account_name||'—'}</span>
+      <span class="grow"></span>
+      <span class="chip bad">−${s._deficit}د</span>
+      <span class="dim sm">لعب ${s._net}د من ${s._entitled}</span>
+    </div>`).join('')}</div>`:'<div class="dim sm">لا نقص اليوم ✓</div>'}</div>
+
+  <h2>How you Know about EVA — كيف عرفوا إيفا</h2>
+  <div class="card">${(()=>{
+    const cnt=new Map();let asked=0;
+    for(const s of act){if(!s.heard_from)continue;asked++;cnt.set(s.heard_from,(cnt.get(s.heard_from)||0)+1)}
+    const miss=act.filter(s=>!s.heard_from);
+    if(!asked)return '<div class="dim sm">لم يُسأل أحد اليوم — السؤال في تبويب «الاستقبال» لكل حجز</div>';
+    const max=Math.max(...cnt.values());
+    return `<div style="display:flex;flex-direction:column;gap:6px">
+      ${[...cnt].sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="row" style="gap:8px">
+        <span style="min-width:120px">${k}</span>
+        <div style="flex:1;background:var(--card2);border-radius:6px;height:16px;overflow:hidden">
+          <div style="height:100%;width:${Math.round(v/max*100)}%;background:linear-gradient(90deg,var(--teal-d),var(--teal))"></div></div>
+        <b style="min-width:28px;text-align:left">${v}</b>
+      </div>`).join('')}</div>
+      <div class="dim sm" style="margin-top:8px">أُجيب عن ${asked} من ${act.length} حجز${miss.length?` · لم يُسأل: ${miss.map(s=>fmtT(s._t)).join('، ')}`:' ✓'}</div>`;
+  })()}</div>
+
+  <h2>ملخّص اليوم</h2>
+  <div class="tblwrap"><table>
+    <tr><th>البند</th><th>العدد</th><th>تفصيل</th></tr>
+    <tr><td>حجوزات لُعبت</td><td>${played.length}</td><td class="dim sm">${played.map(s=>fmtT(s._t)).join('، ')||'—'}</td></tr>
+    <tr><td>لم يحضر</td><td>${noShow.length}</td><td class="dim sm">${noShow.map(s=>fmtT(s._t)+' '+(s.account_name||'')).join('، ')||'—'}</td></tr>
+    <tr><td>لم يُرصد لعب</td><td>${noPlay.length}</td><td class="dim sm">${noPlay.map(s=>fmtT(s._t)).join('، ')||'—'}</td></tr>
+    <tr><td>أُلغيت في إيفا</td><td>${cancelled.length}</td><td class="dim sm">${cancelled.map(s=>fmtT(s._t)).join('، ')||'—'}</td></tr>
+    <tr><td>لعب بدون حجز</td><td>${S.walkins.length}</td><td class="dim sm">${S.walkins.map(w=>fmtT(w.start)+'–'+fmtT(w.end)).join('، ')||'—'}</td></tr>
+    <tr><td>تجاوز وقت الحجز</td><td>${over.length}</td><td class="dim sm">${over.map(s=>fmtT(s._t)+' +'+s._over+'د'+(s._delaysNext?' (أخّر التالي)':'')).join('، ')||'—'}</td></tr>
+    <tr><td>تأخير في بدء الحجز</td><td>${act.filter(s=>s._delayedBy).length}</td><td class="dim sm">${act.filter(s=>s._delayedBy).map(s=>fmtT(s._t)+" +"+s._delayedBy+"د"+(s.account_name?" ("+s.account_name+")":"")).join("، ")||"—"}</td></tr>
+    <tr><td>حجوزات باسم موظف</td><td>${staffB.length}</td><td class="dim sm">${staffB.map(s=>fmtT(s._t)+' '+(s.account_name||'')).join('، ')||'—'}</td></tr>
+    <tr><td>تسجيلات لم تُرسَل</td><td>${unsent}</td><td class="dim sm">${unsent?'راجع تبويب التسجيلات':'كلها أُرسلت ✓'}${declinedRec?` · ${declinedRec} لا يريدون التسجيل`:''}</td></tr>
+    <tr><td>الألعاب</td><td>${byGame.size}</td><td class="dim sm">${[...byGame].map(([g,e])=>`${g}: ${e.n} حجز / ${e.p}👤`).join(' · ')}</td></tr>
+    <tr><td>طاقم اليوم</td><td>${S.gms.length}</td><td class="dim sm">${gmLine}</td></tr>
+  </table></div>`;
+}
+
+async function extraAdd(){
+  const label=(document.getElementById('exLabel').value||'').trim();
+  const amount=+document.getElementById('exAmt').value||0;
+  if(!label||!amount){status('اكتب البند والمبلغ');return}
+  const row={day:DAY,label,qty:+document.getElementById('exQty').value||1,amount,
+    pay_method:document.getElementById('exPay').value||null,
+    note:(document.getElementById('exNote').value||'').trim()||null};
+  try{
+    await sbInsert('extra_sales',row);
+    S.extras=await sbGet(`extra_sales?day=eq.${DAY}&order=created_at&select=*`);
+    renderRep();renderSales();status('✓ أُضيف السطر');
+  }catch(e){status(/extra_sales/.test(e.message)?'⚠ شغّل eva_v4.sql في Supabase أولاً (جدول المبيعات الإضافية)':'⚠ '+e.message)}
+}
+async function extraSet(id,field,v){
+  const val=(field==='amount'||field==='qty')?(+v||0):((v||'').trim()||null);
+  try{
+    await sbPatch('extra_sales',id,{[field]:val});
+    const x=(S.extras||[]).find(e=>e.id===id);if(x)x[field]=val;
+    renderRep();renderSales();status('✓ حُفظ');
+  }catch(e){status(/at_time|column/.test(e.message)?'⚠ شغّل ملف eva_v4.sql في Supabase أولاً':'⚠ '+e.message)}
+}
+async function cafeAdd(){
+  const amount=+document.getElementById('cafeAmt').value||0;
+  if(!amount){status('اكتب المبلغ');return}
+  const row={day:DAY,label:'café',qty:1,amount,at_time:fmtT(Date.now()),
+    pay_method:document.getElementById('cafePay').value||null,
+    discount_code:document.getElementById('cafeDisc').value||null};
+  try{
+    await sbInsert('extra_sales',row);
+    S.extras=await sbGet(`extra_sales?day=eq.${DAY}&order=created_at&select=*`);
+    renderSales();renderRep();status('✓ أُضيف سطر كافيه');
+  }catch(e){status(/extra_sales|discount_code|at_time/.test(e.message)?'⚠ شغّل ملف eva_v4.sql في Supabase أولاً':'⚠ '+e.message)}
+}
+async function extraDel(id){
+  try{await sbDelete('extra_sales',`id=eq.${id}`);
+    S.extras=(S.extras||[]).filter(x=>x.id!==id);renderRep();renderSales();status('✓ حُذف السطر')}
+  catch(e){status('⚠ '+e.message)}
+}
+
+/* ═════════ الطباعة: تقريران مستقلان (تشغيل · مبيعات) ═════════ */
+const REP_CSS=`
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font:11px/1.55 'Tajawal',system-ui,Tahoma,sans-serif;color:#1a2b38;padding:11mm 10mm;background:#fff}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  background:linear-gradient(90deg,#0e6c7d,#12889d);color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:13px}
+.hd h1{font-size:17px;letter-spacing:.4px;font-weight:800}
+.hd .sub{font-size:11px;opacity:.88;margin-top:3px}
+.hd .iss{text-align:left;font-size:10px;opacity:.9;line-height:1.7;border-inline-start:1px solid rgba(255,255,255,.35);padding-inline-start:12px}
+.hd .iss b{font-size:13px}
+.tiles{display:flex;gap:7px;margin-bottom:13px}
+.tile{flex:1;border:1px solid #dbe7ee;border-top:3px solid #0e6c7d;border-radius:8px;padding:8px 6px;background:#fbfdfe;text-align:center}
+.tile .v{font-size:17px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+.tile .l{font-size:9.5px;color:#607a8b;margin-top:2px}
+h2{font-size:12px;color:#0e6c7d;font-weight:800;margin:13px 0 6px;padding-bottom:3px;border-bottom:2px solid #cfe3ea}
+table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:2px}
+th{background:#0e6c7d;color:#fff;padding:6px 5px;text-align:center;font-weight:700;white-space:nowrap;font-size:9.5px;letter-spacing:.2px}
+td{padding:5px;border-bottom:1px solid #eaf1f5;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+td.r{text-align:right;white-space:normal}
+tbody tr:nth-child(even) td,tr:nth-child(even) td{background:#f6fafc}
+tr.walk td{background:#fdf6e3}
+tr.cx td{color:#9aa7b1;background:#f4f6f7!important}
+tr.sub td{background:#edf6f9;font-size:9.5px;color:#2f5568}
+tr.tot th{background:#123f4a}
+.gp{display:inline-block;color:#fff;border-radius:4px;padding:1px 7px;font-weight:700;font-size:9px;white-space:nowrap}
+.bad{color:#c22e3c;font-weight:800}.ok{color:#127a48;font-weight:700}.warn{color:#a4780c;font-weight:700}
+.mut{color:#6b8394;font-size:9px}
+.two{display:flex;gap:11px;align-items:flex-start}.two>div{flex:1}
+.ft{margin-top:14px;border-top:1px solid #dbe7ee;padding-top:6px;font-size:9px;color:#7089999;display:flex;justify-content:space-between;color:#708999}
+table,tr,.tile{page-break-inside:avoid}
+@page{size:A4;margin:0}
+`;
+function repHead(title,sub){
+  return `<div class="hd">
+    <div><h1>EVA MARASSI — ${title}</h1><div class="sub">${sub}</div></div>
+    <div class="iss">صدر في<br><b>${fmtT(Date.now())}</b> · ${opDay()}${USER?'<br>بواسطة '+USER:''}</div>
+  </div>`;
+}
+function printDoc(title,body,preview){
+  const html=`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<title>${title} — ${DAY}</title><style>${REP_CSS}</style></head><body>${body}
+<div class="ft"><span>EM · نظام مراسي v4.0 — الأرقام من إيفا مباشرة</span><span>${DAY}</span></div>
+</body></html>`;
+  if(preview)return html;
+  const f=document.createElement('iframe');
+  f.style.cssText='position:fixed;inset:0;width:0;height:0;border:0;opacity:0';
+  document.body.appendChild(f);
+  f.contentDocument.open();f.contentDocument.write(html);f.contentDocument.close();
+  setTimeout(()=>{f.contentWindow.focus();f.contentWindow.print();setTimeout(()=>f.remove(),1500)},350);
+}
+
+/* ── تقرير التشغيل: حجوزات · أوقات · تأخير · خرائط (بلا أرقام مالية) ── */
+function printOps(preview){
+  const act=S.slots.filter(s=>!s._cancelled);
+  const played=act.filter(s=>s._rounds);
+  const late=played.filter(s=>s._setup>0);
+  const short=played.filter(s=>s._deficit>0);
+  const noShow=act.filter(s=>s._swallowed&&Date.now()>s._endT);
+  const cancelled=S.slots.filter(s=>s._cancelled);
+  const totDef=short.reduce((a,s)=>a+s._deficit,0);
+  const totSetup=late.reduce((a,s)=>a+s._setup,0);
+  const rounds=played.reduce((a,s)=>a+s._rounds,0);
+  const players=played.reduce((a,s)=>a+(s.actual_players??s._actual??0),0);
+  const playMin=Math.round(played.reduce((a,s)=>a+s._netSec,0)/60);
+  const gmLine=S.gms.length?S.gms.map(g=>g.name+(g.break_start?` (بريك ${g.break_start}${g.break_end?'–'+g.break_end:''})`:'')).join(' · '):'—';
+  const rows=timeline().map(it=>{
+    if(it.walkin){const w=it.walkin;
+      return `<tr class="walk"><td>${fmtT(w.start)}–${fmtT(w.end)}</td><td class="r">لعب بدون حجز</td>
+        <td>—</td><td>${w.players}</td><td>${fmtT(w.start)}</td><td>${w.net}د</td><td>—</td><td>—</td><td>${w.games.length}</td>
+        <td class="r mut">${[...new Set(w.games.map(g=>g.map).filter(Boolean))].join('، ')||'—'}</td>
+        <td class="r mut">${w.overCancelled?'بعد حجز ملغى — تحقّق':'—'}</td></tr>`}
+    const s=it.slot;
+    if(s._cancelled)return `<tr class="cx"><td>${fmtT(s._t)}</td><td class="r">${s.account_name||'—'}</td>
+      <td>${shortGame(s.game)}</td><td>${s.booked_players||0}</td><td colspan="7">أُلغي من إيفا</td></tr>`;
+    const maps=[...new Set(s._games.map(g=>g.map).filter(Boolean))].join('، ');
+    return `<tr>
+      <td>${fmtT(s._t)}</td>
+      <td class="r">${s.account_name||'—'}${staffBooked(s)?' <span class="mut">(حجز موظف)</span>':''}</td>
+      <td><span class="gp" style="background:${gameColor(s.game)}">${shortGame(s.game)}</span></td>
+      <td>${s._rounds?`${s._actual}/${s.booked_players}`:(s.booked_players||0)}</td>
+      <td>${s._rounds?fmtT(s._firstStart):(s._swallowed?'<b class="bad">لم يحضر</b>':'—')}</td>
+      <td>${s._rounds?`${s._net}د`:'—'}</td>
+      <td class="${s._setup?'warn':''}">${s._rounds?(s._setup?'+'+s._setup+'د':'✓'):'—'}</td>
+      <td class="${s._deficit?'bad':'ok'}">${s._rounds?(s._deficit?'−'+s._deficit+'د':'سليم'):'—'}</td>
+      <td>${s._rounds||'—'}</td>
+      <td class="r mut">${maps||'—'}</td>
+      <td class="r mut">${[s.heard_from?'عرفونا: '+s.heard_from:'',s.sale_note||'',staffBooked(s)?'حجز موظف':'',s._mismatch?'لاعبون غير مطابقين':''].filter(Boolean).join(' · ')||'—'}</td></tr>`;
+  }).join('');
+  const body=repHead('تقرير التشغيل اليومي',`${DAY}${isSunday(DAY)?' · الأحد':''} · الطاقم: ${gmLine}`)
+  +`<div class="tiles">
+    <div class="tile"><div class="v">${act.length}</div><div class="l">حجوزات</div></div>
+    <div class="tile"><div class="v" style="color:#127a48">${played.length}</div><div class="l">لُعبت</div></div>
+    <div class="tile"><div class="v" style="color:${noShow.length?'#c22e3c':'#5a7183'}">${noShow.length}</div><div class="l">لم يحضر</div></div>
+    <div class="tile"><div class="v" style="color:${cancelled.length?'#a97b0a':'#5a7183'}">${cancelled.length}</div><div class="l">أُلغيت</div></div>
+    <div class="tile"><div class="v" style="color:${totDef?'#c22e3c':'#127a48'}">${totDef}د</div><div class="l">إجمالي النقص</div></div>
+    <div class="tile"><div class="v" style="color:${totSetup?'#a97b0a':'#127a48'}">${totSetup}د</div><div class="l">تأخير التجهيز</div></div>
+    <div class="tile"><div class="v">${rounds}</div><div class="l">جولات · ${playMin}د لعب</div></div>
+    <div class="tile"><div class="v">${players}</div><div class="l">لاعبون</div></div>
+  </div>
+  <h2>حجوزات اليوم</h2>
+  <table><tr><th>الوقت</th><th>الحساب</th><th>اللعبة</th><th>لعبوا/محجوز</th><th>بدء اللعب</th><th>صافي اللعب</th><th>التجهيز</th><th>النقص</th><th>جولات</th><th>الخرائط</th><th>ملاحظات</th></tr>${rows}</table>
+  <div class="two">
+    <div><h2>مسؤولية التأخير</h2>
+      <table><tr><th>الوقت</th><th>الحساب</th><th>التأخير</th><th>السبب</th></tr>
+      ${late.length?late.map(s=>`<tr><td>${fmtT(s._t)}</td><td class="r">${s.account_name||'—'}</td>
+        <td class="warn">+${s._setup}د</td>
+        <td>${s._fault==='staff'?'<b class="bad">تشغيلي</b>':s._fault==='client'?'العميل':'بلا أختام'}${s._breaks&&s._breaks.length?' · بريك '+s._breaks.join('، '):''}</td></tr>`).join('')
+        :'<tr><td colspan="4">لا تأخير ✓</td></tr>'}</table></div>
+    <div><h2>How you Know about EVA</h2>
+      <table><tr><th>المصدر</th><th>عدد</th></tr>
+      ${(()=>{const c=new Map();for(const s of act)if(s.heard_from)c.set(s.heard_from,(c.get(s.heard_from)||0)+1);
+        const miss=act.filter(s=>!s.heard_from).length;
+        return ([...c].sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td class="r">${k}</td><td>${v}</td></tr>`).join('')||'<tr><td colspan="2">لم يُسأل أحد</td></tr>')
+          +(miss?`<tr><td class="r mut">لم يُسأل</td><td class="mut">${miss}</td></tr>`:'')})()}
+      </table>
+      <h2>ملاحظات اليوم</h2>
+      <table><tr><th>البند</th><th>التفصيل</th></tr>
+      <tr><td>لم يحضر</td><td class="r">${noShow.map(s=>fmtT(s._t)+' '+(s.account_name||'')).join('، ')||'—'}</td></tr>
+      <tr><td>تجاوز وقت الحجز</td><td class="r">${played.filter(s=>s._over).map(s=>fmtT(s._t)+' +'+s._over+'د'+(s._delaysNext?' (أخّر التالي)':'')).join('، ')||'—'}</td></tr>
+      <tr><td>تأخير في بدء الحجز</td><td class="r">${act.filter(s=>s._delayedBy).map(s=>fmtT(s._t)+' +'+s._delayedBy+'د'+(s.account_name?' ('+s.account_name+')':'')).join('، ')||'—'}</td></tr>
+      <tr><td>لعب بدون حجز</td><td class="r">${S.walkins.map(w=>fmtT(w.start)+'–'+fmtT(w.end)).join('، ')||'—'}</td></tr>
+      <tr><td>تسجيلات لم تُرسل</td><td class="r">${played.filter(s=>!s.sent_at&&s.rec_status!=='declined').map(s=>fmtT(s._t)).join('، ')||'كلها أُرسلت ✓'}</td></tr>
+      <tr><td>لا يريدون التسجيل</td><td class="r">${played.filter(s=>s.rec_status==='declined').map(s=>fmtT(s._t)).join('، ')||'—'}</td></tr>
+      </table></div>
+  </div>`;
+  return printDoc('تقرير التشغيل',body,preview);
+}
+
+/* ── تقرير المبيعات: أرقام مالية فقط ── */
+function printSales(preview){
+  const act=S.slots.filter(s=>!s._cancelled);
+  const payT=new Map(PAYMENTS.map(p=>[p,0])),payN=new Map(PAYMENTS.map(p=>[p,0]));
+  let unset=0,gross=0,disc=0,idx=0,rows='';
+  for(const it of timeline()){
+    if(it.walkin){const w=it.walkin;const rate=rateFor(new Date(w.start).toISOString(),DAY);const amt=w.players*rate;
+      rows+=`<tr class="walk"><td>—</td><td>${fmtT(w.start)}</td><td>—</td><td class="r">لعب بدون حجز</td><td>—</td>
+        <td>${w.players}</td><td>${rate.toFixed(2)}</td><td>${amt.toFixed(2)}</td><td>—</td><td>${amt.toFixed(2)}</td><td class="mut">تقديري</td><td class="r mut">—</td></tr>`;
+      continue}
+    const s=it.slot;
+    if(s._cancelled){rows+=`<tr class="cx"><td>—</td><td>${fmtT(s._t)}</td><td>—</td><td class="r">${s.account_name||''}</td>
+      <td>${shortGame(s.game)}</td><td colspan="7">أُلغي من إيفا — لا يُحصَّل</td></tr>`;continue}
+    if(s._swallowed&&Date.now()>s._endT&&!s.pay_method){rows+=`<tr class="cx"><td>—</td><td>${fmtT(s._t)}</td><td>—</td>
+      <td class="r">${s.account_name||''}</td><td>${shortGame(s.game)}</td><td colspan="7">لم يحضر — لا يُحصَّل</td></tr>`;continue}
+    idx++;
+    const c=saleCalc(s);gross+=c.amt;disc+=c.disc;
+    const d0=DISCOUNTS.find(x=>x.code===discCode(s));
+    rows+=`<tr><td>${idx}</td><td>${fmtT(s._t)}</td><td>${s.order_no||'—'}</td><td class="r">${s.account_name||'—'}</td>
+      <td><span class="gp" style="background:${gameColor(s.game)}">${shortGame(s.game)}</span></td>
+      <td>${(s.actual_players??s._actual??s.booked_players??0)}/${s.booked_players||0}</td>
+      <td>${c.rate.toFixed(2)}</td><td>${c.amt.toFixed(2)}</td>
+      <td>${c.disc?'−'+c.disc.toFixed(2):''}${d0&&d0.code?' <span class="mut">'+d0.label+'</span>':''}</td>
+      <td><b>${c.net.toFixed(2)}</b></td>
+      <td>${c.multi?'<span class="mut">مقسّم ↓</span>':(s.pay_method||'<b class="bad">بلا دفع</b>')}</td>
+      <td class="r mut">${s.sale_note||'—'}</td></tr>`;
+    for(const p of c.parts){
+      if(!p.n)continue;
+      if(p.pay&&payT.has(p.pay)){payT.set(p.pay,payT.get(p.pay)+p.net);payN.set(p.pay,payN.get(p.pay)+p.n)}
+      else if(!p.pay)unset+=p.net;
+      if(c.multi){
+        const dd=DISCOUNTS.find(x=>x.code===p.code);
+        rows+=`<tr class="sub"><td></td><td colspan="4" class="r">↳ ${p.name?'<b>'+p.name+'</b> · ':''}${p.n} لاعب · ${p.pay||'بلا طريقة دفع'}${dd&&dd.code?' · '+dd.label:''}</td>
+          <td>${p.n}</td><td>${c.rate.toFixed(2)}</td><td>${p.amt.toFixed(2)}</td><td>${p.disc?'−'+p.disc.toFixed(2):''}</td>
+          <td>${p.net.toFixed(2)}</td><td>${p.pay||'—'}</td><td></td></tr>`;
+      }
+    }
+  }
+  for(const x of (S.extras||[])){
+    const a=+x.amount||0,d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
+    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0;
+    gross+=a;disc+=dv;const v=a-dv;
+    if(x.pay_method&&payT.has(x.pay_method)){payT.set(x.pay_method,payT.get(x.pay_method)+v);payN.set(x.pay_method,payN.get(x.pay_method)+1)}
+    else unset+=v;
+    rows+=`<tr class="walk"><td>ك</td><td>${x.at_time||''}</td><td>—</td><td class="r">café</td><td>—</td><td>1</td>
+      <td>—</td><td>${a.toFixed(2)}</td><td>${dv?'−'+dv.toFixed(2):''}${d&&d.code?' <span class="mut">'+d.label+'</span>':''}</td>
+      <td><b>${v.toFixed(2)}</b></td><td>${x.pay_method||'<b class="bad">بلا دفع</b>'}</td><td class="r mut">${x.note||'—'}</td></tr>`;
+  }
+  const net=gross-disc;
+  const body=repHead('تقرير المبيعات اليومي',`${DAY}${isSunday(DAY)?' · الأحد':''} · التسعيرة: ${isSunday(DAY)?'٩٫٥٠ لليوم كامل':'٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)'}`)
+  +`<div class="tiles">
+    <div class="tile"><div class="v">${gross.toFixed(2)}</div><div class="l">الإجمالي (BD)</div></div>
+    <div class="tile"><div class="v" style="color:#a97b0a">−${disc.toFixed(2)}</div><div class="l">الخصومات</div></div>
+    <div class="tile"><div class="v" style="color:#127a48">${net.toFixed(2)}</div><div class="l">الصافي (BD)</div></div>
+    <div class="tile"><div class="v" style="color:${unset?'#c22e3c':'#127a48'}">${unset.toFixed(2)}</div><div class="l">غير محدد الدفع</div></div>
+    <div class="tile"><div class="v">${idx}</div><div class="l">فواتير</div></div>
+  </div>
+  <h2>تفصيل المبيعات</h2>
+  <table><tr><th>#</th><th>الوقت</th><th>رقم الطلب</th><th>الحساب</th><th>اللعبة</th><th>لعبوا/محجوز</th><th>الفرد</th><th>المبلغ</th><th>الخصم</th><th>الصافي</th><th>الدفع</th><th>ملاحظات</th></tr>
+  ${rows}
+  <tr class="tot"><th colspan="7">المجموع</th><th>${gross.toFixed(2)}</th><th>−${disc.toFixed(2)}</th><th>${net.toFixed(2)}</th><th colspan="2"></th></tr></table>
+  <h2>مجموع الدفع</h2>
+  <table><tr><th>الطريقة</th><th>عدد</th><th>المبلغ (BD)</th></tr>
+  ${PAYMENTS.filter(p=>payN.get(p)>0).map(p=>`<tr><td class="r">${p}</td><td>${payN.get(p)}</td><td><b>${payT.get(p).toFixed(2)}</b></td></tr>`).join('')||'<tr><td colspan="3">—</td></tr>'}
+  ${unset?`<tr><td class="r bad">غير محدد الدفع</td><td>—</td><td class="bad">${unset.toFixed(2)}</td></tr>`:''}
+  <tr><th class="r">المجموع</th><th></th><th>${net.toFixed(2)}</th></tr></table>`;
+  return printDoc('تقرير المبيعات',body,preview);
+}
+
+/* ═════════ القيم ماستر ═════════ */
+function renderGm(){
+  const el=document.getElementById('tab-gm');
+  if(S.gmMissing){el.innerHTML='<div class="empty">⚠ جدول المناوبات غير موجود بعد — شغّل ملف <b>eva_v4.sql</b> في Supabase مرة واحدة ثم حدّث الصفحة</div>';return}
+  const staff=S.staff;
+  const byName=new Map(S.gms.map(g=>[g.name,g]));
+  const now=Date.now();
+  const onBreak=S.gms.filter(g=>{const a=hmToTs(g.break_start),b=hmToTs(g.break_end);return a!=null&&b!=null&&a<=now&&now<b}).map(g=>g.name);
+  const inside=S.gms.map(g=>g.name).filter(n=>onBreak.indexOf(n)<0);
+  const dow=new Date(DAY+'T00:00:00Z').getUTCDay();
+  const roleChip=r=>'<span class="rolechip '+(ROLES[r]?('r-'+r):'')+'">'+(ROLES[r]||'بلا وظيفة')+'</span>';
+
+  let h='<div class="hero"><div class="row">'
+    +'<div class="grow"><div class="big">👥 داخل الملعب الآن: <span style="color:var(--teal)">'
+      +(DAY===opDay()?(inside.join('، ')||'—'):'—')+'</span></div>'
+    +(onBreak.length&&DAY===opDay()?'<div class="sm" style="color:var(--amber);margin-top:4px">☕ في بريك: '+onBreak.join('، ')+'</div>':'')
+    +'<div class="dim sm" style="margin-top:6px">علّم مناوبي اليوم وبريك كلٍّ منهم — يُستخدم آلياً في «التفاصيل» لمعرفة إن وقع تأخير التجهيز أثناء بريك موظف</div></div>'
+    +'<button class="btn" onclick="gmCopyYesterday()">📋 انسخ طاقم أمس</button>'
+  +'</div></div>';
+
+  h+='<h2>طاقم يوم '+DAY+' · '+DAYS[dow]+'</h2>';
+  if(!staff.length) h+='<div class="empty">القائمة فارغة — أضف الموظفين أدناه</div>';
+  else h+='<div class="stafflist">'+staff.map(p=>{
+    const g=byName.get(p.name), on=!!g;
+    const days=(p.days||'').split(',').filter(Boolean);
+    const scheduled=days.indexOf(String(dow))>-1;
+    return '<div class="staffrow '+(on?'on':'')+'">'
+      +'<label class="row" style="cursor:pointer;gap:8px;min-width:190px">'
+        +'<input type="checkbox" '+(on?'checked':'')+' onchange="gmToggle(\''+esc(p.name)+'\',this.checked)">'
+        +'<b style="font-size:15px">'+p.name+'</b>'+roleChip(p.role)
+      +'</label>'
+      +'<span class="grow"></span>'
+      +(scheduled?'<span class="chip ok sm">مجدول اليوم</span>':(days.length?'<span class="chip sm">إجازة اليوم</span>':''))
+      +(on?'<span class="dim sm">☕ بريك</span>'
+          +'<input type="time" value="'+(g.break_start||'')+'" onchange="gmBreak(\''+esc(p.name)+'\',\'break_start\',this.value)">'
+          +'<span class="dim">→</span>'
+          +'<input type="time" value="'+(g.break_end||'')+'" onchange="gmBreak(\''+esc(p.name)+'\',\'break_end\',this.value)">'
+        :'<span class="dim sm">غير مناوب</span>')
+    +'</div>';
+  }).join('')+'</div>';
+
+  /* جدول العمل الأسبوعي + الوظائف */
+  h+='<h2>الموظفون · الوظيفة وجدول العمل الأسبوعي</h2>'
+   +'<div class="tblwrap"><table><tr><th>الاسم</th><th>الوظيفة</th>'
+   +DAYS.map((d,i)=>'<th'+(i===dow?' style="background:#0e8ea6"':'')+'>'+d+'</th>').join('')
+   +'<th>الدوام</th><th></th></tr>'
+   +(staff.length?staff.map(p=>{
+      const days=(p.days||'').split(',').filter(Boolean);
+      return '<tr><td class="r"><b>'+p.name+'</b></td>'
+        +'<td><select class="disc-sel" onchange="staffSet(\''+p.id+'\',\'role\',this.value)">'
+          +'<option value="">— الوظيفة —</option>'
+          +Object.keys(ROLES).map(k=>'<option value="'+k+'" '+(p.role===k?'selected':'')+'>'+ROLES[k]+'</option>').join('')
+        +'</select></td>'
+        +DAYS.map((d,i)=>'<td><input type="checkbox" '+(days.indexOf(String(i))>-1?'checked':'')
+            +' onchange="staffDay(\''+p.id+'\','+i+',this.checked)"></td>').join('')
+        +'<td><div class="row" style="gap:3px;flex-wrap:nowrap">'
+          +'<input type="time" value="'+(p.shift_start||'')+'" onchange="staffSet(\''+p.id+'\',\'shift_start\',this.value)">'
+          +'<input type="time" value="'+(p.shift_end||'')+'" onchange="staffSet(\''+p.id+'\',\'shift_end\',this.value)">'
+        +'</div></td>'
+        +'<td><button class="btn ghost" style="color:var(--red)" onclick="gmDelStaff(\''+p.id+'\',\''+esc(p.name)+'\')">✕</button></td></tr>';
+    }).join('')
+    :'<tr><td colspan="'+(DAYS.length+4)+'" class="dim">لا موظفين بعد</td></tr>')
+   +'</table></div>'
+   +'<div class="card" style="margin-top:10px"><div class="row">'
+     +'<input class="xmail" id="gmNewName" placeholder="اسم الموظف…" style="direction:rtl;width:200px">'
+     +'<select class="disc-sel" id="gmNewRole"><option value="">— الوظيفة —</option>'
+       +Object.keys(ROLES).map(k=>'<option value="'+k+'">'+ROLES[k]+'</option>').join('')+'</select>'
+     +'<button class="btn primary" onclick="gmAddStaff()">+ إضافة موظف</button>'
+     +'<span class="dim sm">الوظيفة وجدول الأسبوع يُحفظان تلقائياً</span>'
+   +'</div></div>';
+  el.innerHTML=h;
+}
+async function staffSet(id,field,v){
+  try{await sbPatch('gm_staff',id,{[field]:v||null});const p=S.staff.find(x=>x.id===id);if(p)p[field]=v||null;renderGm();status('✓ حُفظ')}
+  catch(e){status(/role|days|shift/.test(e.message)?'⚠ شغّل ملف eva_v4.sql في Supabase أولاً (أعمدة الموظفين)':'⚠ '+e.message)}
+}
+async function staffDay(id,day,on){
+  const p=S.staff.find(x=>x.id===id);if(!p)return;
+  const set=new Set((p.days||'').split(',').filter(Boolean));
+  on?set.add(String(day)):set.delete(String(day));
+  const days=[...set].sort().join(',');
+  try{await sbPatch('gm_staff',id,{days:days||null});p.days=days;renderGm();status('✓ حُفظ جدول العمل')}
+  catch(e){status(/days|column/.test(e.message)?'⚠ شغّل ملف eva_v4.sql في Supabase أولاً':'⚠ '+e.message)}
+}
+async function gmToggle(name,on){
+  try{
+    if(on)await sbUpsert('gm_shifts',{day:DAY,name},'day,name');
+    else await sbDelete('gm_shifts',`day=eq.${DAY}&name=eq.${encodeURIComponent(name)}`);
+    await reloadGms();status('✓ حُدّث طاقم اليوم');
+  }catch(e){status('⚠ '+e.message)}
+}
+async function gmBreak(name,field,v){
+  try{
+    const cur=S.gms.find(g=>g.name===name)||{};
+    await sbUpsert('gm_shifts',{day:DAY,name,break_start:field==='break_start'?(v||null):cur.break_start,break_end:field==='break_end'?(v||null):cur.break_end},'day,name');
+    await reloadGms();status('✓ حُفظ البريك');
+  }catch(e){status('⚠ '+e.message)}
+}
+async function gmCopyYesterday(){
+  try{
+    const d=new Date(DAY+'T00:00:00Z');d.setUTCDate(d.getUTCDate()-1);
+    const y=d.toISOString().slice(0,10);
+    const prev=await sbGet(`gm_shifts?day=eq.${y}&select=name,break_start,break_end`);
+    if(!prev.length){status('لا طاقم مسجّل أمس');return}
+    await sbUpsert('gm_shifts',prev.map(p=>({day:DAY,...p})),'day,name');
+    await reloadGms();status(`✓ نُسخ طاقم أمس (${prev.length})`);
+  }catch(e){status('⚠ '+e.message)}
+}
+async function gmAddStaff(){
+  const inp=document.getElementById('gmNewName');
+  const name=(inp.value||'').trim();
+  if(!name)return;
+  const role=(document.getElementById('gmNewRole')||{}).value||null;
+  try{await sbInsert('gm_staff',{name,role});
+    S.staff=await sbGet(`gm_staff?select=*&order=name`);renderGm();status('✓ أُضيف '+name)}
+  catch(e){status(/gm_staff/.test(e.message)?'⚠ شغّل eva_v3.sql في Supabase أولاً':'⚠ '+e.message)}
+}
+async function gmDelStaff(id,name){
+  try{await sbDelete('gm_staff',`id=eq.${id}`);
+    await sbDelete('gm_shifts',`day=eq.${DAY}&name=eq.${encodeURIComponent(name)}`).catch(()=>{});
+    S.staff=S.staff.filter(p=>p.id!==id);await reloadGms();status('✓ حُذف '+name)}
+  catch(e){status('⚠ '+e.message)}
+}
+async function reloadGms(){
+  S.gms=await sbGet(`gm_shifts?day=eq.${DAY}&select=*`).catch(()=>[]);
+  compute();renderAll();
+}
+
+/* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
+const EN={
+ 'الحجوزات':'Bookings','التشغيل':'Operations','الاستقبال':'Reception','التفاصيل':'Details','المبيعات':'Sales','التسجيلات':'Recordings','القيم ماستر':'Game Masters',
+ 'اليوم':'Today','اليوم — حجوزات ولعب':'Today — bookings & play','المجموع':'Total','مجموع الدفع':'Payment totals','الطريقة':'Method',
+ 'الوقت':'Time','رقم الطلب':'Order no.','الحساب':'Account','اللعبة':'Game','محجوز':'Booked','لعبوا':'Played','الفرد':'Rate','المبلغ':'Amount',
+ 'الخصم':'Discount','الصافي':'Net','الدفع':'Payment','ملاحظة':'Note','بلا خصم':'No discount','مبلغ يدوي…':'Manual amount…','بيك':'Peak','عادي':'Std',
+ 'خصومات':'Discounts','الإجمالي (BD)':'Gross (BD)','الصافي (BD)':'Net (BD)','⬇ تصدير Excel':'⬇ Export Excel','🖨 PDF / طباعة':'🖨 PDF / Print',
+ '— اختر —':'— select —','غير محدد الدفع':'Payment not set','تقديري':'estimate','غير محصّل؟':'Uncollected?','أُلغي من إيفا — لا يُحصَّل':'Cancelled in EVA — no charge',
+ 'صافي اللعب':'Net play','التجهيز أخذ':'Setup took','نقص عن المستحق':'Short of entitled','سليم':'OK','لعب/محجوز':'Played/Booked','النقص':'Deficit',
+ 'أُلغي من إيفا':'Cancelled in EVA','أُلغي من إيفا — خارج الحسابات':'Cancelled in EVA — excluded','جارٍ الآن':'Live now','جارٍ':'Live','انتهى':'Done',
+ 'لم يُرصد لعب':'No play recorded','لم يبدأ بعد':'Not started yet','لم يُرصد أي لعب لهذا الحجز (تأكد من تشغيل المزامنة)':'No play recorded for this booking (check sync)',
+ '⚠ لعب بدون حجز':'⚠ Play without booking','بدون حجز':'No booking','الخرائط:':'Maps:','الجولات':'Rounds','جولات':'Rounds','جولة':'rounds','اللاعبون':'Players',
+ 'النتيجة':'Score','حجز ثانٍ متّصل — بلا تجهيز':'2nd consecutive — no setup','حجز ثانٍ متّصل (مستحق ٤٠د)':'2nd consecutive (40m entitled)',
+ 'وصل ✓':'Arrived ✓','→ دخل البريفنق':'→ Entered briefing','⇥ دخل الملعب':'⇥ Entered arena','دخل الملعب':'Entered arena',
+ 'وصل':'Arrived','دخل البريفنق':'Entered briefing','بدأ اللعب':'Play started','لم يبدأ':'not started','دخل البريفنق/الملعب':'Entered briefing/arena',
+ '❓ How you Know about EVA':'❓ How you Know about EVA','— اسأل العميل —':'— ask the client —','اكتب المصدر…':'Write the source…',
+ 'How you Know about EVA — كيف عرفوا إيفا':'How you Know about EVA','المصدر':'Source','لم يُسأل أحد':'Nobody asked','لم يُسأل':'Not asked',
+ 'صديق أو معرفة':'Friend/word of mouth','مررنا بالمكان':'Walked by','إعلان':'Advertisement','مؤثّر':'Influencer','زيارة سابقة':'Previous visit','أخرى':'Other',
+ 'لم يُسأل أحد اليوم — السؤال في تبويب «الاستقبال» لكل حجز':'Nobody was asked today — the question is in the Reception tab for each booking',
+ 'سبب التأخير: العميل (تأخّر في الوصول/البريفنق/دخول الملعب)':'Delay cause: client (late arrival/briefing/arena entry)','اكتمل العدد':'Full count','غير مكتمل':'Incomplete','مكتمل':'Complete','العدد':'Count',
+ 'أرسل الفيديوهات للإيميل (والإضافي إن وُجد) ثم اضغط الزر الأحمر':'Send the videos to the email(s) then press the red button',
+ 'الإيميل (من إيفا)':'Email (EVA)','إيميل إضافي (يدوي)':'Extra email (manual)','إيميل إضافي…':'Extra email…','الإرسال':'Send','تراجع':'Undo',
+ 'لم يُرسَل — علّم أُرسل':'Not sent — mark sent','لا إيميل!':'No email!','يدويّ':'manual','كل تسجيلات اليوم المرصودة أُرسلت ✓':'All recorded sessions sent ✓',
+ 'لا جلسات ملعوبة بعد — تظهر هنا فور انتهاء اللعب':'No played sessions yet — they appear here once play ends',
+ 'لا حجوزات في هذا اليوم':'No bookings this day','لا حجوزات ولا لعب مرصود في هذا اليوم':'No bookings or recorded play this day','لا بيانات':'No data',
+ 'لا حجوزات قادمة':'No upcoming bookings','الملعب فاضٍ — لا حجوزات قادمة اليوم':'Field empty — no upcoming bookings today',
+ 'يوم سابق — راجع «التفاصيل»':'Past day — see “Details”','لا نقص مرصود اليوم ✓':'No deficit recorded today ✓',
+ 'المستحق':'Entitled','المسموح':'Allowed','زائد':'over','لعب':'play','توقف':'pauses','البدء':'Start','النهاية':'End','البلوك':'Block','الحجز':'Booking','بدء اللعب':'Play start',
+ 'سبب التأخير: العميل (دخل البريفنق/وصل متأخراً)':'Delay cause: client (late to briefing/arrival)',
+ 'سبب التأخير: تشغيلي — العميل كان جاهزاً في وقته':'Delay cause: operational — client was ready on time',
+ 'سبب التأخير غير معروف (لا أختام استقبال)':'Delay cause unknown (no reception stamps)',
+ '⚠ أُسند بالوقت — اللاعبون لا يطابقون قائمة الحجز':'⚠ Time-assigned — players don’t match booking list','⚠ لاعبون غير مطابقين':'⚠ Players mismatch',
+ 'لاعبون غير مطابقين للقائمة':'Players mismatch','📼 التسجيل لم يُرسَل':'📼 Recording not sent','📼 أُرسل':'📼 Sent','الوصول':'Arrival','البريفنق':'Briefing',
+ 'بلا بريفنق — سبق لعبوا':'No briefing — returning players','طاقم يوم':'Crew of','إدارة القائمة':'Manage list','+ إضافة':'+ Add','اسم القيم ماستر…':'Game master name…',
+ '📋 انسخ طاقم أمس':'📋 Copy yesterday’s crew','غير مناوب اليوم':'Off today','☕ بريك':'☕ Break','👥 داخل الملعب الآن:':'👥 Inside the arena now:',
+ 'وقع في وقت حجز أُلغي من إيفا — غالباً لعبوا بلا حجز بعد الإلغاء، تحقّق من التحصيل':'During a cancelled booking’s time — likely played unpaid, verify collection',
+ 'بعد حجز ملغى — تحقّق من التحصيل':'After a cancelled booking — verify collection','Paid':'Paid',
+ 'استُهلك وقته بتجاوز السابق — لم يحضر؟':'Time consumed by previous overrun — no-show?',
+ '⚠ وقت هذا الحجز استهلكه تجاوز الحجز السابق (نفس المجموعة واصلت اللعب) — العميل لم يحضر على الأرجح':'⚠ This booking’s time was consumed by the previous booking’s overrun (same group kept playing) — client likely a no-show',
+ 'لعب مرصود':'Recorded play','— اختر —':'— select —','رقم الطلب':'Order no.','ملاحظة':'Note',
+ 'لم يحضر — لا يُحصَّل':'No-show — no charge','لم يحضر':'No-show',
+ 'التقرير':'Report','مسؤولية التأخير':'Delay responsibility','أكبر حالات النقص':'Biggest deficits','ملخّص اليوم':'Day summary',
+ 'حجوزات اليوم':'Bookings today','إجمالي النقص':'Total deficit','حجوزات تأخّر تجهيزها':'Late-setup bookings','لاعبون لعبوا':'Players played',
+ 'جولات':'Rounds','صافي المبيعات':'Net sales','البند':'Item','العدد':'Count','تفصيل':'Detail','حجوزات لُعبت':'Bookings played',
+ 'لم يُرصد لعب':'No play recorded','أُلغيت في إيفا':'Cancelled in EVA','لعب بدون حجز':'Play without booking','تجاوز البلوك':'Block overrun',
+ 'حجوزات باسم موظف':'Staff-name bookings','تسجيلات لم تُرسَل':'Recordings not sent','الألعاب':'Games','طاقم اليوم':'Today’s crew',
+ '🖨 طباعة التقرير':'🖨 Print report','تشغيلي':'Operational','العميل':'Client','بلا أختام':'no stamps','كلها محصّلة':'all collected',
+ 'لا تأخير تجهيز اليوم ✓':'No setup delays today ✓','لا نقص اليوم ✓':'No deficit today ✓','لا بيانات لهذا اليوم':'No data for this day',
+ 'لم يُسجَّل طاقم اليوم':'No crew logged today','كلها أُرسلت ✓':'All sent ✓','راجع تبويب التسجيلات':'See Recordings tab','الأحد':'Sunday',
+ '👤 حجز موظف — اسأل العميل':'👤 Staff booking — ask the client',
+ '👤 حجز موظف — اسأل العميل في البريفنق':'👤 Staff booking — ask client at briefing',
+ '👤 حجز موظف — اسأل العميل عن اسمه وبياناته':'👤 Staff booking — ask client for name & details',
+ 'مبيعات إضافية (كافيه وغيرها)':'Extra sales (cafe & other)','البند (مثل: قهوة، ماء، سناك)':'Item (coffee, water, snack…)',
+ '— الدفع —':'— payment —','+ إضافة سطر':'+ Add row','البند':'Item','الكمية':'Qty','المبلغ':'Amount',
+ 'لا مبيعات إضافية اليوم — أضف أعلاه وستدخل مجاميع الدفع والمبيعات تلقائياً':'No extra sales today — add above and they join the payment totals automatically',
+ 'مبيعات إضافية (كافيه…) — تُدار من تبويب التقرير':'Extra sales (cafe…) — managed in the Report tab',
+ '↳ تقسيم دفع':'↳ payment split','تقسيم الدفع بين الأشخاص':'Split payment between people',
+ 'تجاوز وقت الحجز':'Booking time overrun','نهاية الحجز':'Booking end','تأخير في بدء الحجز':'Delayed booking start',
+ 'حجز ثانٍ متّصل — بلا بريفنق ولا تجهيز':'2nd consecutive — no briefing/setup',
+ 'حجز ثانٍ متّصل — لا يحتاج بريفنق ولا تجهيز':'2nd consecutive — no briefing or setup needed',
+ 'حجوزات متعددة':'Multiple bookings','افتح الكل':'Expand all','اطوِ الكل':'Collapse all','المشاكل فقط':'Issues only',
+ 'اضغط على رأس أي حجز لفتحه':'Click a booking header to expand','دبل':'Double','👤 موظف':'👤 Staff','لم يحضر':'No-show','لا يوجد أشخاص متبقّون للتقسيم':'No remaining people to split',
+ 'اكتب البند والمبلغ':'Enter item and amount','مبيعات إضافية':'Extra sales',
+ '☕ كافيه:':'☕ Café:','المبلغ':'Amount','— طريقة الدفع —':'— payment —','+ إضافة':'+ Add','اكتب المبلغ':'Enter amount',
+ 'يدخل المجاميع وطرق الدفع والتصدير تلقائياً':'Joins totals, payment methods and export automatically',
+ 'اختر حسابك وأدخل الرمز':'Choose your account and enter the code','دخول':'Sign in','الرمز':'Code',
+ 'الرمز غير صحيح':'Wrong code','اختر حسابك أولاً':'Choose your account first',
+};
+const EN_RX=[
+ [/^بعد (\d+)د$/,'in $1m'],[/^نقص (\d+)د$/,'Short $1m'],[/^لُعب (\d+)د من (\d+)$/,'Played $1m of $2'],
+ [/^إجمالي النقص اليوم: (\d+) دقيقة$/,'Total deficit today: $1 minutes'],
+ [/^(\d+) جلسة ملعوبة من (\d+) حجز(.*)$/,'$1 played of $2 bookings$3'],
+ [/^⏰ (\d+) تسجيل لم يُرسَل بعد$/,'⏰ $1 recording(s) not sent yet'],
+ [/^أُرسل (.+)$/,'Sent $1'],[/^وصل (.+)$/,'Arrived $1'],[/^البريفنق (.+)$/,'Briefing $1'],
+ [/^آخر تحديث (.+) · (\d+) حجز · (\d+) جولة$/,'Updated $1 · $2 bookings · $3 rounds'],
+ [/^🛠 تجهيز — حجز (.+)$/,'🛠 Setup — booking $1'],
+ [/^🎮 يلعب الآن — (.+) · (\d+) جولة حتى الآن$/,'🎮 Playing now — $1 · $2 rounds so far'],
+ [/^⏸ داخل الملعب \(بين الخرائط\) — آخر جولة انتهت (.+)$/,'⏸ In arena (between maps) — last round ended $1'],
+ [/^⏳ لم يُرصد بدء اللعب بعد — حجز (.+) متأخّر (\d+)د عن المسموح$/,'⏳ Play not detected — booking $1 is $2m past allowance'],
+ [/^الملعب فاضٍ — القادم (.+) بعد (\d+)د$/,'Field empty — next $1 in $2m'],
+ [/^⏳ بدأ متأخراً (\d+)د \(تجاوز سابق\)$/,'⏳ Started $1m late (previous overrun)'],
+ [/^الملعب فَضا له متأخراً (\d+)د بسبب تجاوز السابق(.*)$/,'Field freed $1m late (previous overrun)$2'],
+ [/^تجاوز البلوك (\d+)د(.*)$/,'Overran block by $1m$2'],[/^لعب زيادة \+(\d+)د$/,'Extra play +$1m'],
+ [/^🎙 بريفنق مقترح · (\d+) جديد$/,'🎙 Briefing suggested · $1 new'],
+ [/^🎙 البريفنق قبل (.+)$/,'🎙 Briefing before $1'],
+ [/^⏰ القادم: (.+) — أدخلهم البريفنق قبل (.+)$/,'⏰ Next: $1 — briefing before $2'],
+ [/^☕ أثناء بريك: (.+)$/,'☕ During break: $1'],[/^☕ في بريك الآن: (.+)$/,'☕ On break now: $1'],
+ [/^تجهيز زائد (\d+)د$/,'Setup +$1m over'],[/^تجاوز \+(\d+)د$/,'Overrun +$1m'],
+ [/^تجاوز وقت الحجز (\d+)د(.*)$/,'Overran booking time by $1m$2'],
+ [/^⏳ تأخير في بدء الحجز (\d+)د(.*)$/,'⏳ Booking start delayed $1m$2'],
+ [/^من جهوزيّته إلى بدء اللعب: $/,'From ready to play start: '],
+ [/^أُجيب عن (\d+) من (\d+) حجز(.*)$/,'Answered for $1 of $2 bookings$3'],[/^نهاية الحجز (.+)$/,'Booking end $1'],
+ [/^إضافية ([\d.]+) · $/,'Extra $1 · '],[/^(\d+) من (\d+)$/,'$1 of $2'],
+ [/^📋 تقرير يوم (.+)$/,'📋 Report for $1'],[/^في (\d+) حجز$/,'in $1 bookings'],[/^مجموع التأخير (\d+)د$/,'Total delay $1m'],
+ [/^من (\d+) محجوز$/,'of $1 booked'],[/^(\d+) دقيقة لعب$/,'$1 minutes of play'],[/^تشغيلي: (\d+)$/,'Operational: $1'],
+ [/^من العميل: (\d+)$/,'Client: $1'],[/^غير معروف \(بلا أختام استقبال\): (\d+)$/,'Unknown (no reception stamps): $1'],
+ [/^إجمالي (\d+) دقيقة تجهيز زائد$/,'$1 minutes of excess setup total'],[/^خصم ([\d.]+) · $/,'Discount $1 · '],
+ [/^([\d.]+) بلا دفع$/,'$1 unpaid'],[/^لعب (\d+)د من (\d+)$/,'played $1m of $2'],
+ [/^(\d+) لُعبت · (\d+) لم يحضر(.*)$/,'$1 played · $2 no-show$3'],[/^ · (\d+) أُلغي$/,' · $1 cancelled'],
+ [/^(\d+)👤(.*)$/,'$1👤$2'],
+];
+let LANG=localStorage.getItem('em_lang')||'ar';
+function toggleLang(){LANG=LANG==='ar'?'en':'ar';localStorage.setItem('em_lang',LANG);applyLang()}
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
+  const b=document.getElementById('langBtn');if(b)b.textContent=LANG==='ar'?'EN':'ع';
+  if(loadedOnce)renderAll();
+}
+function trText(s){
+  if(LANG!=='en')return s;
+  if(EN[s]!=null)return EN[s];
+  for(const[rx,rep]of EN_RX){if(rx.test(s))return s.replace(rx,rep)}
+  return s;
+}
+function sweep(root){
+  if(LANG!=='en'||!root)return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  let n;
+  while(n=w.nextNode()){
+    const s=n.nodeValue.trim();
+    if(!s||!/[؀-ۿ]/.test(s))continue;
+    const t=trText(s);
+    if(t!==s)n.nodeValue=n.nodeValue.replace(s,t);
+  }
+  root.querySelectorAll('[placeholder]').forEach(i=>{const p=i.getAttribute('placeholder');if(EN[p])i.setAttribute('placeholder',EN[p])});
+  root.querySelectorAll('option').forEach(o=>{const s=o.textContent.trim();if(EN[s])o.textContent=EN[s]});
+}
+
+/* ═════════ التبويبات ═════════ */
+const TABS=[['ops','التشغيل'],['rcp','الاستقبال'],['ana','التفاصيل'],['sales','المبيعات'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون']];
+function buildTabs(){
+  document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>
+    `<button id="tb-${k}" class="${k===TAB?'on':''}" onclick="switchTab('${k}')">${n}${k==='rec'?' <span class="badge" id="recBadge" style="display:none"></span>':''}</button>`).join('');
+}
+function switchTab(k){TAB=k;
+  for(const [t] of TABS){document.getElementById('tb-'+t).classList.toggle('on',t===k);document.getElementById('tab-'+t).classList.toggle('on',t===k)}
+  document.body.classList.toggle('wide',k==='sales'||k==='rep');   // الجداول تأخذ عرض الشاشة
+}
+function renderAll(){renderOps();renderRcp();renderAna();renderSales();renderRec();renderRep();renderGm();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
+function setDay(d){if(!d)return;DAY=d;ANA_INIT=false;RCP_INIT=false;document.getElementById('datePick').value=d;load(true)}
+function shiftDay(n){const d=new Date(DAY+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);setDay(d.toISOString().slice(0,10))}
+function status(t){document.getElementById('fStatus').textContent=trText(t)}
+
+/* ═════════ تشغيل ═════════ */
+buildTabs();
+applyLang();
+document.getElementById('datePick').value=DAY;
+if(USER&&PINS[USER]){PICK=USER;openApp();}          // جلسة محفوظة
+else{document.body.classList.add('locked');buildGate();}
+setInterval(()=>load(false),60000);
+setInterval(()=>{
+  document.getElementById('fClock').textContent='🕐 '+fmtTS(Date.now())+(LANG==='ar'?' (البحرين)':' (Bahrain)');
+},1000);
+</script>
+</body>
+</html>
