@@ -341,6 +341,36 @@ tr.cancelled td{opacity:.5}
   .tblwrap,.card,.hero{box-shadow:none;border:1px solid #ccc}
   select,input{border:none!important;background:none!important}
 }
+/* ═══ بطاقات النتائج (نمط EVA) ═══ */
+.rwrap{max-width:1120px;margin:0 auto}
+.rcard{background:#fff;color:#16202b;border-radius:16px;overflow:hidden;margin-bottom:18px;box-shadow:0 10px 34px rgba(0,0,0,.4)}
+.rhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 22px;background:linear-gradient(100deg,#0a1b33,#164074);color:#fff}
+.rhead .rgame{font-size:11px;font-weight:800;letter-spacing:2.5px;opacity:.8}
+.rhead .rmap{font-size:23px;font-weight:900;letter-spacing:1px;line-height:1.12;margin-top:2px}
+.rhead .rmeta{text-align:right;font-weight:900;font-size:17px;line-height:1.25;white-space:nowrap}
+.rhead .rmeta .dim{opacity:.75;font-weight:700;font-size:14px}
+.rscore{display:flex;align-items:center;justify-content:center;gap:26px;padding:16px 22px;background:#f3f7fb;border-bottom:1px solid #e7eef4}
+.rscore .tm{display:flex;align-items:center;gap:14px;font-weight:900}
+.rscore .tm.b{flex-direction:row}
+.rscore .nm{font-size:16px;letter-spacing:1px}
+.rscore .tm.a .nm{color:#c0810c}.rscore .tm.b .nm{color:#2b8fd0}
+.rscore .big{font-size:36px;font-weight:900;font-variant-numeric:tabular-nums;color:#8494a2}
+.rscore .tm.a.win .big{color:#d99413}.rscore .tm.b.win .big{color:#2b8fd0}
+.rscore .vs{font-size:13px;font-weight:900;color:#9aa7b3;letter-spacing:1px}
+.rbody{display:grid;grid-template-columns:1fr 1fr}
+.rteam{padding:10px 16px 14px}
+.rteam.a{border-inline-end:1px solid #eef2f5}
+.rteam .cap{display:grid;grid-template-columns:1fr auto 58px;gap:10px;font-size:10.5px;font-weight:800;color:#8a99a7;letter-spacing:1px;padding:2px 6px 8px;border-bottom:2px solid #eef2f5;margin-bottom:2px}
+.rteam .cap span:last-child{text-align:right}
+.rteam.a .cap{color:#c0810c}.rteam.b .cap{color:#2b8fd0}
+.rrow{display:grid;grid-template-columns:1fr auto 58px;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid #f2f6f9;font-variant-numeric:tabular-nums}
+.rrow .rn{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px;min-width:0}
+.rrow .rn>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rrow .kda{color:#5b6b78;font-weight:700;font-size:14px;letter-spacing:.5px}
+.rrow .sc{text-align:right;font-weight:900;font-size:16px}
+.rteam.a .sc{color:#c0810c}.rteam.b .sc{color:#2b8fd0}
+.crown{flex:none;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-size:9.5px;font-weight:900;padding:2px 6px;border-radius:5px;letter-spacing:.5px}
+@media(max-width:640px){.rbody{grid-template-columns:1fr}.rteam.a{border-inline-end:none;border-bottom:1px solid #eef2f5}.rhead .rmap{font-size:18px}.rscore{gap:14px}.rscore .big{font-size:28px}.rscore .nm{font-size:14px}}
 </style>
 </head>
 <body>
@@ -380,6 +410,7 @@ tr.cancelled td{opacity:.5}
   <section id="tab-rec"   class="tab"></section>
   <section id="tab-gm"    class="tab"></section>
   <section id="tab-rep"   class="tab"></section>
+  <section id="tab-res"   class="tab"></section>
 </main>
 <footer><span id="fStatus">…</span><span id="fClock" style="margin-inline-start:auto"></span></footer>
 
@@ -567,6 +598,7 @@ function compute(){
       const players=((r.raw&&r.raw.players)||[]).map(p=>({
         id:p.userId, name:(p.data&&p.data.niceName)||p.name||'ضيف', email:p.email||null,
         score:(p.data&&p.data.score)||0, kills:(p.data&&p.data.kills)||0,
+        team:(p.data&&p.data.team!=null)?p.data.team:(p.team!=null?p.team:null),
         deaths:(p.data&&p.data.deaths)||0, assists:(p.data&&p.data.assists)||0, mvp:!!p.isMvp}));
       return {...r,end,start:end-dur,players,cc:String(r.id).startsWith('cc-')};
     }).sort((a,b)=>a.start-b.start);
@@ -2296,7 +2328,8 @@ const EN={
  'الرمز غير صحيح':'Wrong code','اختر حسابك أولاً':'Choose your account first',
  'EM · نظام مراسي':'EM · Marassi System',
  // — التبويبات الناقصة —
- 'الكافيه':'Café','الموظفون':'Staff',
+ 'الكافيه':'Café','الموظفون':'Staff','النتائج':'Results',
+ '🏆 نتائج آخر المباريات':'🏆 Results of the last games','لا نتائج مرصودة اليوم بعد':'No results recorded today yet',
  // — إيفا نايت / إيفنت —
  'إيفا نايت':'EVA Night','إيفنت':'Event','🌙 إيفا نايت / إيفنت':'🌙 EVA Night / Event',
  '🌙 + إيفا نايت ١٥':'🌙 + EVA Night 15','🎉 + إيفنت':'🎉 + Event','السعر':'Price',
@@ -2421,6 +2454,7 @@ const EN_RX=[
  [/^🗺 الخرائط — (\d+) جولة$/,'🗺 Maps — $1 rounds'],
  [/^🏅 النقاط — (\d+) لاعب$/,'🏅 Points — $1 players'],
  [/^النتيجة (.+)$/,'Score $1'],
+ [/^(\d+) مباراة · (.+)$/,'$1 games · $2'],
  [/^⏸ توقف (.+)$/,'⏸ Pause $1'],
  [/^(.+) — تجاوز (\d+)د وأخّر الحجز التالي$/,'$1 — overran $2m and delayed the next booking'],
 ];
@@ -2453,17 +2487,56 @@ function sweep(root){
   root.querySelectorAll('option').forEach(o=>{const s=o.textContent.trim();if(EN[s])o.textContent=EN[s]});
 }
 
+/* ═════════ النتائج (بطاقات بأسلوب EVA) ═════════ */
+function rEsc(s){return String(s==null?'':s).replace(/[<>&]/g,c=>c==='<'?'&lt;':c==='>'?'&gt;':'&amp;')}
+function renderResults(){
+  const el=document.getElementById('tab-res'); if(!el)return;
+  const games=[...(S.dayRounds||[])].sort((a,b)=>b.end-a.end);
+  if(!games.length){el.innerHTML='<div class="empty">لا نتائج مرصودة اليوم بعد</div>';return}
+  el.innerHTML='<div class="rwrap"><div class="row" style="margin-bottom:14px">'
+    +'<h2 style="margin:0">🏆 نتائج آخر المباريات</h2><span class="grow"></span>'
+    +'<span class="dim sm">'+games.length+' مباراة · '+DAY+'</span></div>'
+    +games.map(resultCard).join('')+'</div>';
+}
+function resultCard(g){
+  const ps=g.players||[];
+  const teams=[...new Set(ps.map(p=>p.team).filter(x=>x!=null))];
+  const k1=g.team_one!=null?g.team_one:teams[0];
+  const k2=g.team_two!=null?g.team_two:teams[1];
+  let A=ps.filter(p=>p.team===k1), B=ps.filter(p=>p.team===k2);
+  if(!A.length&&!B.length){const h=Math.ceil(ps.length/2);A=ps.slice(0,h);B=ps.slice(h)}
+  const s1=g.team_one_score, s2=g.team_two_score;
+  const n1=(k1!=null?k1:'ALLIANCE'), n2=(k2!=null?k2:'REBELS');
+  const col=(list,cls)=>{
+    const rows=list.slice().sort((a,b)=>b.score-a.score).map(p=>
+      '<div class="rrow"><span class="rn">'+(p.mvp?'<span class="crown">MVP</span>':'')+'<span>'+rEsc(p.name)+'</span></span>'
+      +'<span class="kda">'+p.kills+' / '+p.deaths+' / '+p.assists+'</span>'
+      +'<span class="sc">'+p.score+'</span></div>').join('')||'<div class="dim sm" style="padding:10px 4px">—</div>';
+    return '<div class="rteam '+cls+'"><div class="cap"><span>PLAYER</span><span>K / D / A</span><span>SCORE</span></div>'+rows+'</div>';
+  };
+  const gname=g.cc?'COLOR CHAOS':'BATTLE ARENA';
+  return '<div class="rcard"><div class="rhead">'
+    +'<div><div class="rgame">AFTER·H '+gname+'</div><div class="rmap">'+rEsc((g.map||'—')).toUpperCase()+'</div></div>'
+    +'<div class="rmeta"><div>'+fmtT(g.end)+'</div><div class="dim">'+mmss(g.duration_sec||0)+'</div></div></div>'
+    +'<div class="rscore">'
+      +'<div class="tm a'+(s1>s2?' win':'')+'"><span class="nm">'+rEsc(n1)+'</span><span class="big">'+(s1!=null?s1:'-')+'</span></div>'
+      +'<span class="vs">VS</span>'
+      +'<div class="tm b'+(s2>s1?' win':'')+'"><span class="big">'+(s2!=null?s2:'-')+'</span><span class="nm">'+rEsc(n2)+'</span></div>'
+    +'</div>'
+    +'<div class="rbody">'+col(A,'a')+col(B,'b')+'</div></div>';
+}
+
 /* ═════════ التبويبات ═════════ */
-const TABS=[['rcp','الاستقبال'],['ana','التشغيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون']];
+const TABS=[['rcp','الاستقبال'],['ana','التشغيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون'],['res','النتائج']];
 function buildTabs(){
   document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>
     `<button id="tb-${k}" class="${k===TAB?'on':''}" onclick="switchTab('${k}')">${n}${k==='rec'?' <span class="badge" id="recBadge" style="display:none"></span>':''}</button>`).join('');
 }
 function switchTab(k){TAB=k;
   for(const [t] of TABS){document.getElementById('tb-'+t).classList.toggle('on',t===k);document.getElementById('tab-'+t).classList.toggle('on',t===k)}
-  document.body.classList.toggle('wide',k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe');   // الجداول تأخذ عرض الشاشة
+  document.body.classList.toggle('wide',k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res');   // الجداول تأخذ عرض الشاشة
 }
-function renderAll(){renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
+function renderAll(){renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
 function setDay(d){if(!d)return;DAY=d;ANA_INIT=false;RCP_INIT=false;document.getElementById('datePick').value=d;load(true)}
 function shiftDay(n){const d=new Date(DAY+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);setDay(d.toISOString().slice(0,10))}
 function status(t){document.getElementById('fStatus').textContent=trText(t)}
