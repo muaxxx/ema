@@ -478,7 +478,7 @@ function rateFor(startAt,day){
 
 /* ═════════ الدخول — أربعة حسابات فقط ═════════
    لتغيير رمز أي حساب: بدّل الرقم في PINS ثم أعد النشر. */
-const PINS={'ميري':'1111','أنور':'2222','محمد':'3333','مهند':'4444'};
+const PINS={'Mariy':'1111','Anwar':'2222','Mah':'3333','Mohaned':'4444'};
 const USERS=Object.keys(PINS);
 let USER=localStorage.getItem('em_user')||'', PICK='';
 function buildGate(){
@@ -489,8 +489,8 @@ function pickUser(u){PICK=u;buildGate();document.getElementById('pin').focus()}
 function doLogin(){
   const pin=document.getElementById('pin').value.trim();
   const msg=document.getElementById('gateMsg');
-  if(!PICK){msg.textContent='اختر حسابك أولاً';return}
-  if(PINS[PICK]!==pin){msg.textContent='الرمز غير صحيح';document.getElementById('pin').value='';return}
+  if(!PICK){msg.textContent=trText('اختر حسابك أولاً');return}
+  if(PINS[PICK]!==pin){msg.textContent=trText('الرمز غير صحيح');document.getElementById('pin').value='';return}
   USER=PICK;localStorage.setItem('em_user',USER);
   openApp();
 }
@@ -2294,6 +2294,7 @@ const EN={
  'يدخل المجاميع وطرق الدفع والتصدير تلقائياً':'Joins totals, payment methods and export automatically',
  'اختر حسابك وأدخل الرمز':'Choose your account and enter the code','دخول':'Sign in','الرمز':'Code',
  'الرمز غير صحيح':'Wrong code','اختر حسابك أولاً':'Choose your account first',
+ 'EM · نظام مراسي':'EM · Marassi System',
  // — التبويبات الناقصة —
  'الكافيه':'Café','الموظفون':'Staff',
  // — إيفا نايت / إيفنت —
@@ -2353,6 +2354,7 @@ const EN_RX=[
  [/^طلبات اليوم \((\d+)\)$/,'Today’s orders ($1)'],
  [/^طلب #(.+)$/,'Order #$1'],
  [/^✓ أُضيف سطر (.+)$/,'✓ Added line: $1'],
+ [/^v5\.5 · بناء (.+)$/,'v5.5 · build $1'],
 ];
 let LANG=localStorage.getItem('em_lang')||'ar';
 function toggleLang(){LANG=LANG==='ar'?'en':'ar';localStorage.setItem('em_lang',LANG);applyLang()}
@@ -2361,6 +2363,7 @@ function applyLang(){
   document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
   const b=document.getElementById('langBtn');if(b)b.textContent=LANG==='ar'?'EN':'ع';
   if(loadedOnce)renderAll();
+  sweep(document.body);   // يشمل شاشة الدخول والهيدر (خارج main)
 }
 function trText(s){
   if(LANG!=='en')return s;
