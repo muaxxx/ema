@@ -342,44 +342,55 @@ tr.cancelled td{opacity:.5}
   select,input{border:none!important;background:none!important}
 }
 /* ═══ بطاقات النتائج (نمط EVA) ═══ */
-.rwrap{max-width:1200px;margin:0 auto}
-.rcard{background:#fff;color:#1a2733;border-radius:14px;overflow:hidden;margin-bottom:22px;box-shadow:0 14px 42px rgba(0,0,0,.5);border-bottom:4px solid #7b3ff2}
-.rhead{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:16px 26px;color:#fff;background:linear-gradient(103deg,#081627 0%,#123a6d 52%,#0b2244 100%)}
-.rhead::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(118deg,rgba(255,255,255,.045) 0 2px,transparent 2px 30px);pointer-events:none}
+.rwrap{max-width:1200px;margin:0 auto;direction:ltr}
+.rtoptitle{margin-bottom:18px;direction:ltr}
+.rtoptitle h1{margin:0;font-size:30px;font-weight:900;letter-spacing:.5px;color:#f4f7fb;line-height:1}
+.rtoptitle .loc{color:#a78bfa;font-weight:900;font-size:15px;letter-spacing:3px;margin-top:5px}
+.rcard{position:relative;background:#fff;color:#1a2733;border-radius:16px;overflow:hidden;margin-bottom:24px;box-shadow:0 18px 48px rgba(0,0,0,.55);border-bottom:5px solid #7b3ff2;direction:ltr}
+.rhead{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:18px 26px;color:#fff;background:linear-gradient(103deg,#071528 0%,#123a6d 50%,#0a2144 100%)}
+.rhead::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(118deg,rgba(255,255,255,.05) 0 2px,transparent 2px 30px);pointer-events:none}
+.rhead::before{content:"";position:absolute;left:-30px;top:-50px;width:240px;height:240px;background:radial-gradient(circle,rgba(57,182,255,.24),transparent 68%);pointer-events:none}
 .rhead>*{position:relative;z-index:1}
-.glogo{font-size:10.5px;font-weight:800;letter-spacing:2px;line-height:1.15;opacity:.9}
-.glogo b{display:block;font-size:20px;letter-spacing:3px;font-weight:900}
+.glogo{font-size:10px;font-weight:800;letter-spacing:2px;line-height:1.2;opacity:.9;text-align:left}
+.glogo b{display:block;font-size:21px;letter-spacing:3px;font-weight:900}
 .glogo b i{color:#39b6ff;font-style:normal}
 .rtitle{text-align:center}
 .rtitle .sub{font-size:11px;font-weight:800;letter-spacing:4px;opacity:.72}
-.rtitle .mode{font-size:27px;font-weight:900;letter-spacing:2px;line-height:1.04}
+.rtitle .mode{font-size:29px;font-weight:900;letter-spacing:2px;line-height:1.02;text-shadow:0 2px 14px rgba(0,0,0,.35)}
 .rdt{text-align:right;font-size:20px;font-weight:900;line-height:1.18;white-space:nowrap}
-.rscore{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 28px;background:#eef3f8;border-bottom:1px solid #dce6ee}
-.rgrp{grid-column:2;display:flex;align-items:center;gap:26px;justify-self:center}
-.rside{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:104px}
-.rside .logo{width:54px;height:54px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18))}
+.rdl{position:absolute;top:12px;right:14px;z-index:6;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);color:#fff;font-size:12px;font-weight:800;padding:5px 11px;border-radius:9px;cursor:pointer;letter-spacing:.5px}
+.rdl:hover{background:rgba(255,255,255,.3)}
+.rscore{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:18px 30px;background:linear-gradient(#eef3f8,#e2eaf3);border-bottom:1px solid #d6e0e9}
+.rgrp{grid-column:2;display:flex;align-items:center;gap:30px;justify-self:center}
+.rside{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:112px}
+.rside .logo{width:60px;height:60px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.22))}
+.rside.a.win .logo{filter:drop-shadow(0 0 13px rgba(224,152,15,.6)) drop-shadow(0 4px 8px rgba(0,0,0,.2))}
+.rside.b.win .logo{filter:drop-shadow(0 0 13px rgba(36,135,201,.6)) drop-shadow(0 4px 8px rgba(0,0,0,.2))}
 .rside .nm{font-size:14px;font-weight:900;letter-spacing:1.5px}
 .rside.a .nm{color:#c8890d}.rside.b .nm{color:#2487c9}
-.rscore .big{font-size:42px;font-weight:900;font-variant-numeric:tabular-nums;color:#8a99a7;min-width:66px;text-align:center;line-height:1}
-.rscore .big.wa{color:#e0980f}.rscore .big.wb{color:#2487c9}
-.rscore .vs{font-size:15px;font-weight:900;color:#9aa7b3;letter-spacing:1px}
+.rscore .big{font-size:48px;font-weight:900;font-variant-numeric:tabular-nums;color:#9aa7b5;min-width:76px;text-align:center;line-height:1}
+.rscore .big.wa{color:#e0980f;text-shadow:0 3px 18px rgba(224,152,15,.4)}
+.rscore .big.wb{color:#2487c9;text-shadow:0 3px 18px rgba(36,135,201,.4)}
+.rscore .vs{font-size:16px;font-weight:900;color:#9aa7b3;letter-spacing:1px}
 .rdur{grid-column:3;justify-self:end;text-align:right;color:#2f4457}
 .rdur .dl{font-size:13px;font-weight:800;letter-spacing:2.5px;color:#7a8ca0}
-.rdur .dv{font-size:27px;font-weight:900;letter-spacing:1px;line-height:1.05}
-.rbody{display:grid;grid-template-columns:1fr 1fr}
-.rteam{padding:6px 18px 16px}
-.rteam.a{border-inline-end:1px solid #edf1f5}
-.rcap{display:grid;grid-template-columns:1fr auto 64px;gap:10px;font-size:11px;font-weight:800;color:#95a3b1;letter-spacing:1px;padding:12px 10px 9px;border-bottom:2px solid #eef2f5}
+.rdur .dv{font-size:29px;font-weight:900;letter-spacing:1px;line-height:1.05}
+.rbody{position:relative;display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+.rbody::before{content:"A";position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);font:900 320px/1 Arial,Helvetica,sans-serif;color:#f1f6fb;z-index:0;pointer-events:none;letter-spacing:-12px}
+.rteam{position:relative;z-index:1;padding:6px 20px 16px}
+.rteam.a{border-right:1px solid #edf1f5}
+.rcap{display:grid;grid-template-columns:1fr auto 66px;gap:12px;font-size:11px;font-weight:800;color:#95a3b1;letter-spacing:1px;padding:12px 10px 9px;border-bottom:2px solid #eef2f5}
 .rcap span:last-child{text-align:right}
 .rrows{padding-top:2px}
-.rrow{display:grid;grid-template-columns:1fr auto 64px;align-items:center;gap:10px;padding:11px 10px;font-variant-numeric:tabular-nums;border-radius:8px}
-.rrow:nth-child(even){background:#f6f9fb}
+.rrow{display:grid;grid-template-columns:1fr auto 66px;align-items:center;gap:12px;padding:12px 10px;font-variant-numeric:tabular-nums;border-radius:9px}
+.rrow:nth-child(even){background:#f5f8fb}
 .rrow .rn{font-weight:800;font-size:16px;display:flex;align-items:center;gap:9px;min-width:0}
 .rrow .rn>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rrow .kda{color:#59697a;font-weight:700;font-size:15px;letter-spacing:1px}
-.rrow .sc{text-align:right;font-weight:900;font-size:17px;color:#26333f}
-.crown{flex:none;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-size:10px;font-weight:900;padding:3px 7px;border-radius:6px;letter-spacing:.5px;box-shadow:0 2px 5px rgba(109,40,217,.4)}
-@media(max-width:680px){.rhead{grid-template-columns:1fr;justify-items:center;text-align:center;gap:8px}.rdt,.glogo{text-align:center}.rscore{grid-template-columns:1fr;gap:14px;justify-items:center}.rgrp{grid-column:1;gap:16px}.rdur{grid-column:1;justify-self:center;text-align:center}.rbody{grid-template-columns:1fr}.rteam.a{border-inline-end:none;border-bottom:1px solid #edf1f5}.rtitle .mode{font-size:21px}.rscore .big{font-size:32px}}
+.rrow .sc{text-align:right;font-weight:900;font-size:18px;color:#26333f}
+.rteam.a .sc{color:#c8890d}.rteam.b .sc{color:#2487c9}
+.crown{flex:none;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-size:10px;font-weight:900;padding:3px 8px;border-radius:6px;letter-spacing:.5px;box-shadow:0 2px 6px rgba(109,40,217,.45)}
+@media(max-width:680px){.rhead{grid-template-columns:1fr;justify-items:center;text-align:center;gap:8px}.rdt,.glogo{text-align:center}.rscore{grid-template-columns:1fr;gap:14px;justify-items:center}.rgrp{grid-column:1;gap:18px}.rdur{grid-column:1;justify-self:center;text-align:center}.rbody{grid-template-columns:1fr}.rteam.a{border-right:none;border-bottom:1px solid #edf1f5}.rtitle .mode{font-size:22px}.rscore .big{font-size:34px}}
 </style>
 </head>
 <body>
@@ -2500,21 +2511,25 @@ function sweep(root){
 function rEsc(s){return String(s==null?'':s).replace(/[<>&]/g,c=>c==='<'?'&lt;':c==='>'?'&gt;':'&amp;')}
 function rH12(t){let[H,M]=String(t).split(':').map(Number);const ap=H<12?'AM':'PM';H=H%12||12;return H+':'+String(M||0).padStart(2,'0')+' '+ap}
 function rDur(sec){sec=Math.max(0,Math.round(+sec||0));const m=Math.floor(sec/60),s=sec%60;return m+'M'+String(s).padStart(2,'0')+'S'}
-function rEmblem(grad){return '<svg class="logo" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" fill="url(#'+grad+')"/><path d="M17 46 C21 22 42 14 50 20 C36 22 29 32 27 48 Z" fill="#fff" opacity=".95"/><circle cx="46" cy="20" r="5" fill="#fff"/></svg>'}
+function rEmblem(kind){
+  const id='em_'+kind;
+  const stops=kind==='gold'?'<stop offset="0" stop-color="#ffcf5c"/><stop offset="1" stop-color="#df8500"/>':'<stop offset="0" stop-color="#74d2f9"/><stop offset="1" stop-color="#1c7ec0"/>';
+  return '<svg class="logo" viewBox="0 0 72 72"><defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1">'+stops+'</linearGradient></defs>'
+    +'<circle cx="36" cy="36" r="33" fill="url(#'+id+')"/>'
+    +'<path d="M36 11 A25 25 0 1 0 61 36" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" opacity=".96"/>'
+    +'<circle cx="36" cy="11" r="6.5" fill="#fff"/><circle cx="36" cy="36" r="4.5" fill="#fff" opacity=".92"/></svg>';
+}
 function renderResults(){
   const el=document.getElementById('tab-res'); if(!el)return;
   const games=[...(S.dayRounds||[])].sort((a,b)=>b.end-a.end);
   if(!games.length){el.innerHTML='<div class="empty">لا نتائج مرصودة اليوم بعد</div>';return}
-  const defs='<svg width="0" height="0" style="position:absolute"><defs>'
-    +'<linearGradient id="emGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffcf5c"/><stop offset="1" stop-color="#df8500"/></linearGradient>'
-    +'<linearGradient id="emBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#74d2f9"/><stop offset="1" stop-color="#1c7ec0"/></linearGradient>'
-    +'</defs></svg>';
-  el.innerHTML=defs+'<div class="rwrap"><div class="row" style="margin-bottom:16px">'
-    +'<h2 style="margin:0">🏆 نتائج آخر المباريات</h2><span class="grow"></span>'
-    +'<span class="dim sm">'+games.length+' مباراة · '+DAY+'</span></div>'
-    +games.map(resultCard).join('')+'</div>';
+  el.innerHTML='<div class="rwrap">'
+    +'<div class="row" style="align-items:flex-end;margin-bottom:18px">'
+      +'<div class="rtoptitle"><h1>🏆 نتائج آخر المباريات</h1><div class="loc">EVA MARASSI · 1</div></div>'
+      +'<span class="grow"></span><span class="dim sm">'+games.length+' مباراة · '+DAY+'</span></div>'
+    +games.map((g,i)=>resultCard(g,i)).join('')+'</div>';
 }
-function resultCard(g){
+function resultCard(g,i){
   const ps=g.players||[];
   const teams=[...new Set(ps.map(p=>p.team).filter(x=>x!=null))];
   const k1=g.team_one!=null?g.team_one:teams[0];
@@ -2535,6 +2550,7 @@ function resultCard(g){
   const mapU=rEsc((g.map||'—')).toUpperCase();
   const d=String(DAY).split('-'); const dstr=(+d[1])+'/'+(+d[2])+'/'+String(d[0]).slice(2);
   return '<div class="rcard">'
+   +'<button class="rdl" onclick="rDownload('+i+')">⬇ PNG</button>'
    +'<div class="rhead">'
      +'<div class="glogo">AFTER·H<b>BATTLE<i> </i>ARENA</b></div>'
      +'<div class="rtitle"><div class="sub">'+gname+' · EVA</div><div class="mode">'+mapU+'</div></div>'
@@ -2542,15 +2558,45 @@ function resultCard(g){
    +'</div>'
    +'<div class="rscore">'
      +'<div class="rgrp">'
-       +'<div class="rside a">'+rEmblem('emGold')+'<span class="nm">'+n1+'</span></div>'
+       +'<div class="rside a'+(w1?' win':'')+'">'+rEmblem('gold')+'<span class="nm">'+n1+'</span></div>'
        +'<span class="big '+(w1?'wa':'')+'">'+(s1!=null?s1:'-')+'</span>'
        +'<span class="vs">VS</span>'
        +'<span class="big '+(w2?'wb':'')+'">'+(s2!=null?s2:'-')+'</span>'
-       +'<div class="rside b">'+rEmblem('emBlue')+'<span class="nm">'+n2+'</span></div>'
+       +'<div class="rside b'+(w2?' win':'')+'">'+rEmblem('blue')+'<span class="nm">'+n2+'</span></div>'
      +'</div>'
      +'<div class="rdur"><div class="dl">DURATION</div><div class="dv">'+rDur(g.duration_sec)+'</div></div>'
    +'</div>'
    +'<div class="rbody">'+team(A,'a')+team(B,'b')+'</div></div>';
+}
+
+function rCollectCSS(){
+  let out='';
+  for(const sh of document.styleSheets){
+    let rules; try{rules=sh.cssRules||sh.rules}catch(e){continue}
+    if(!rules)continue;
+    for(const r of rules){const t=r.cssText||''; if(/\.(r[a-z]|crown|glogo|dim|row|grow|empty)/.test(t))out+=t+'\n';}
+  }
+  return out;
+}
+function rDownload(idx){
+  try{
+    const card=document.querySelectorAll('#tab-res .rcard')[idx];
+    if(!card){status('⚠ لا توجد بطاقة');return}
+    const w=Math.ceil(card.offsetWidth), h=Math.ceil(card.offsetHeight), sc=2;
+    const clone=card.cloneNode(true); clone.style.margin='0';
+    const dl=clone.querySelector('.rdl'); if(dl)dl.remove();
+    const body='<div xmlns="http://www.w3.org/1999/xhtml" style="direction:ltr;width:'+w+'px"><style>'+rCollectCSS()+'</style>'+new XMLSerializer().serializeToString(clone)+'</div>';
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+(w*sc)+'" height="'+(h*sc)+'" viewBox="0 0 '+w+' '+h+'"><foreignObject x="0" y="0" width="'+w+'" height="'+h+'">'+body+'</foreignObject></svg>';
+    const img=new Image();
+    img.onload=function(){
+      const c=document.createElement('canvas'); c.width=w*sc; c.height=h*sc;
+      c.getContext('2d').drawImage(img,0,0,w*sc,h*sc);
+      c.toBlob(function(b){ if(!b){status('⚠ تعذّر إنشاء الصورة');return}
+        const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='EVA-MARASSI-result.png'; a.click(); status('✓ نُزّلت الصورة'); },'image/png');
+    };
+    img.onerror=function(){ status('⚠ تعذّر توليد الصورة'); };
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  }catch(e){ status('⚠ '+e.message); }
 }
 
 /* ═════════ التبويبات ═════════ */
