@@ -480,10 +480,10 @@ const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء',
 const EN_DAY=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 /* ورديات جاهزة (بالدقائق من منتصف الليل؛ النهاية قد تتجاوز ٢٤ للورديات العابرة لمنتصف الليل) */
 const WEEK_SHIFTS=[
-  {label:'10 AM – 7 PM',s:600,e:1140},{label:'11 AM – 8 PM',s:660,e:1200},{label:'12 PM – 9 PM',s:720,e:1260},
-  {label:'1 PM – 10 PM',s:780,e:1320},{label:'2 PM – 11 PM',s:840,e:1380},{label:'3 PM – 12 AM',s:900,e:1440},
-  {label:'3:30 PM – 12:30 AM',s:930,e:1470},{label:'4 PM – 1 AM',s:960,e:1500},{label:'4 PM – 2 AM',s:960,e:1560},
-  {label:'5 PM – 2 AM',s:1020,e:1560},{label:'6 PM – 3 AM',s:1080,e:1620},
+  {label:'10 AM – 7 PM',s:600,e:1140},
+  {label:'3 PM – 12 AM',s:900,e:1440},
+  {label:'4 PM – 1 AM',s:960,e:1500},
+  {label:'6 PM – 3 AM (Night)',s:1080,e:1620},
 ];
 const shiftByLabel=l=>WEEK_SHIFTS.find(s=>s.label===l);
 function fmtHM12(min){min=((min%1440)+1440)%1440;let h=Math.floor(min/60),m=min%60,ap=h<12?'AM':'PM';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+' '+ap}
@@ -2294,7 +2294,7 @@ function renderGm(){
    +'<th></th></tr>'
    +(staff.length?staff.map(p=>{
       const days=(p.days||'').split(',').filter(Boolean);
-      return '<tr><td class="r"><b>'+p.name+'</b></td>'
+      return '<tr><td class="r"><input class="xmail" value="'+p.name+'" style="width:130px;direction:rtl;font-weight:800" title="عدّل الاسم" onchange="staffRename(\''+p.id+'\',this.value)"></td>'
         +'<td><select class="disc-sel" onchange="staffSet(\''+p.id+'\',\'role\',this.value)">'
           +'<option value="">— الوظيفة —</option>'
           +Object.keys(ROLES).map(k=>'<option value="'+k+'" '+(p.role===k?'selected':'')+'>'+ROLES[k]+'</option>').join('')
@@ -2318,6 +2318,17 @@ function renderGm(){
   sweep(el);
 }
 function staffWeek(p){try{return p&&p.week?JSON.parse(p.week):{}}catch(e){return{}}}
+async function staffRename(id,name){
+  name=(name||'').trim(); const p=S.staff.find(x=>x.id===id);
+  if(!p||!name||p.name===name){renderGm();return}
+  const old=p.name;
+  try{
+    await sbPatch('gm_staff',id,{name});
+    const g=S.gms.find(x=>x.name===old);
+    if(g&&g.id){try{await sbPatch('gm_shifts',g.id,{name});g.name=name;}catch(e){}}
+    p.name=name; renderGm(); status('✓ عُدّل الاسم');
+  }catch(e){status('⚠ '+e.message)}
+}
 async function setWeekShift(id,dow,label){
   const p=S.staff.find(x=>x.id===id); if(!p)return;
   const wk=staffWeek(p); if(label)wk[dow]=label; else delete wk[dow];
@@ -2537,7 +2548,7 @@ const EN={
  'ملاحظات':'Notes','🚫 لا يريد':'🚫 Doesn’t want',
  // — الموظفون —
  'الموظفون · الوظيفة وجدول العمل الأسبوعي':'Staff · role & weekly schedule','🖨 الجدول الأسبوعي':'🖨 Weekly schedule','الوظيفة':'Role','— الوظيفة —':'— role —','بلا وظيفة':'No role',
- 'الدوام':'Schedule','الاسم':'Name','+ إضافة موظف':'+ Add staff','القائمة فارغة — أضف الموظفين أدناه':'List empty — add staff below',
+ 'الدوام':'Schedule','الاسم':'Name','+ إضافة موظف':'+ Add staff','القائمة فارغة — أضف الموظفين أدناه':'List empty — add staff below','✓ عُدّل الاسم':'✓ Name updated',
  'الوظيفة وجدول الأسبوع يُحفظان تلقائياً':'Role & weekly schedule save automatically','مجدول اليوم':'Scheduled today','إجازة اليوم':'Off today',
  'غير مناوب':'Off duty','لا طاقم مسجّل أمس':'No crew logged yesterday',
  'علّم مناوبي اليوم وبريك كلٍّ منهم — يُستخدم آلياً في «التفاصيل» لمعرفة إن وقع تأخير التجهيز أثناء بريك موظف':'Mark today’s on-duty crew and each one’s break — used automatically in “Operations” to detect setup delays during a staff break',
