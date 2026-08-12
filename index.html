@@ -480,10 +480,10 @@ const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء',
 const EN_DAY=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 /* ورديات جاهزة (بالدقائق من منتصف الليل؛ النهاية قد تتجاوز ٢٤ للورديات العابرة لمنتصف الليل) */
 const WEEK_SHIFTS=[
-  {label:'10 AM – 7 PM',s:600,e:1140},
-  {label:'3 PM – 12 AM',s:900,e:1440},
-  {label:'4 PM – 1 AM',s:960,e:1500},
-  {label:'6 PM – 3 AM (Night)',s:1080,e:1620},
+  {label:'10 AM – 7 PM',short:'10a–7p',s:600,e:1140},
+  {label:'3 PM – 12 AM',short:'3p–12a',s:900,e:1440},
+  {label:'4 PM – 1 AM',short:'4p–1a',s:960,e:1500},
+  {label:'6 PM – 3 AM (Night)',short:'6p–3a🌙',s:1080,e:1620},
 ];
 const shiftByLabel=l=>WEEK_SHIFTS.find(s=>s.label===l);
 function fmtHM12(min){min=((min%1440)+1440)%1440;let h=Math.floor(min/60),m=min%60,ap=h<12?'AM':'PM';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+' '+ap}
@@ -2275,7 +2275,7 @@ function renderGm(){
     return '<div class="staffrow '+(on?'on':'')+'">'
       +'<label class="row" style="cursor:pointer;gap:8px;min-width:190px">'
         +'<input type="checkbox" '+(on?'checked':'')+' onchange="gmToggle(\''+esc(p.name)+'\',this.checked)">'
-        +'<b style="font-size:15px">'+p.name+'</b>'+roleChip(p.role)
+        +'<b style="font-size:15px">'+p.name+'</b>'
       +'</label>'
       +'<span class="grow"></span>'
       +(scheduled?'<span class="chip ok sm">مجدول اليوم</span>':(days.length?'<span class="chip sm">إجازة اليوم</span>':''))
@@ -2289,32 +2289,26 @@ function renderGm(){
 
   /* جدول العمل الأسبوعي + الوظائف */
   h+='<h2>الموظفون · الوظيفة وجدول العمل الأسبوعي</h2>'
-   +'<div class="tblwrap"><table><tr><th>الاسم</th><th>الوظيفة</th>'
+   +'<div class="tblwrap"><table><tr><th>الاسم</th>'
    +DAYS.map((d,i)=>'<th'+(i===dow?' style="background:#0e8ea6"':'')+'>'+d+'</th>').join('')
    +'</tr>'
    +(staff.length?staff.map(p=>{
       const days=(p.days||'').split(',').filter(Boolean);
       return '<tr><td class="r"><div class="row" style="gap:5px;flex-wrap:nowrap;justify-content:flex-end">'
         +'<button class="btn ghost" style="color:var(--red);padding:2px 8px;font-weight:800" title="حذف الموظف" onclick="gmDelStaff(\''+p.id+'\',\''+esc(p.name)+'\')">✕</button>'
-        +'<input class="xmail" value="'+p.name+'" style="width:120px;direction:rtl;font-weight:800" title="عدّل الاسم" onchange="staffRename(\''+p.id+'\',this.value)"></div></td>'
-        +'<td><select class="disc-sel" onchange="staffSet(\''+p.id+'\',\'role\',this.value)">'
-          +'<option value="">— الوظيفة —</option>'
-          +Object.keys(ROLES).map(k=>'<option value="'+k+'" '+(p.role===k?'selected':'')+'>'+ROLES[k]+'</option>').join('')
-        +'</select></td>'
-        +DAYS.map((d,i)=>{const wk=staffWeek(p),cur=wk[i]||'';return '<td><select class="disc-sel" style="min-width:118px" onchange="setWeekShift(\''+p.id+'\','+i+',this.value)">'
+        +'<input class="xmail" value="'+p.name+'" style="width:110px;direction:rtl;font-weight:800;font-size:13px" title="عدّل الاسم" onchange="staffRename(\''+p.id+'\',this.value)"></div></td>'
+        +DAYS.map((d,i)=>{const wk=staffWeek(p),cur=wk[i]||'';return '<td style="padding:3px 4px"><select class="disc-sel" style="min-width:66px;width:100%;font-size:12px;padding:4px 2px" onchange="setWeekShift(\''+p.id+'\','+i+',this.value)">'
             +'<option value="">—</option><option value="OFF"'+(cur==='OFF'?' selected':'')+'>OFF</option>'
-            +WEEK_SHIFTS.map(s=>'<option'+(cur===s.label?' selected':'')+'>'+s.label+'</option>').join('')
+            +WEEK_SHIFTS.map(s=>'<option value="'+s.label+'"'+(cur===s.label?' selected':'')+'>'+s.short+'</option>').join('')
           +'</select></td>';}).join('')
         +'</tr>';
     }).join('')
-    :'<tr><td colspan="'+(DAYS.length+2)+'" class="dim">لا موظفين بعد</td></tr>')
+    :'<tr><td colspan="'+(DAYS.length+1)+'" class="dim">لا موظفين بعد</td></tr>')
    +'</table></div>'
    +'<div class="card" style="margin-top:10px"><div class="row">'
      +'<input class="xmail" id="gmNewName" placeholder="اسم الموظف…" style="direction:rtl;width:200px">'
-     +'<select class="disc-sel" id="gmNewRole"><option value="">— الوظيفة —</option>'
-       +Object.keys(ROLES).map(k=>'<option value="'+k+'">'+ROLES[k]+'</option>').join('')+'</select>'
      +'<button class="btn primary" onclick="gmAddStaff()">+ إضافة موظف</button>'
-     +'<span class="dim sm">الوظيفة وجدول الأسبوع يُحفظان تلقائياً</span>'
+     +'<span class="dim sm">جدول الأسبوع يُحفظ تلقائياً</span>'
    +'</div></div>';
   el.innerHTML=h;
   sweep(el);
