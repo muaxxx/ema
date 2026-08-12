@@ -480,10 +480,10 @@ const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء',
 const EN_DAY=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 /* ورديات جاهزة (بالدقائق من منتصف الليل؛ النهاية قد تتجاوز ٢٤ للورديات العابرة لمنتصف الليل) */
 const WEEK_SHIFTS=[
-  {label:'10 AM – 7 PM',short:'10a–7p',s:600,e:1140},
-  {label:'3 PM – 12 AM',short:'3p–12a',s:900,e:1440},
-  {label:'4 PM – 1 AM',short:'4p–1a',s:960,e:1500},
-  {label:'6 PM – 3 AM (Night)',short:'6p–3a🌙',s:1080,e:1620},
+  {label:'10 AM – 7 PM',short:'10:00 Am – 7:00 Pm',s:600,e:1140},
+  {label:'3 PM – 12 AM',short:'3:00 Pm – 12:00 Am',s:900,e:1440},
+  {label:'4 PM – 1 AM',short:'4:00 Pm – 1:00 Am',s:960,e:1500},
+  {label:'6 PM – 3 AM (Night)',short:'6:00 Pm – 3:00 Am 🌙',s:1080,e:1620},
 ];
 const shiftByLabel=l=>WEEK_SHIFTS.find(s=>s.label===l);
 function fmtHM12(min){min=((min%1440)+1440)%1440;let h=Math.floor(min/60),m=min%60,ap=h<12?'AM':'PM';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+' '+ap}
@@ -2297,7 +2297,7 @@ function renderGm(){
       return '<tr><td class="r"><div class="row" style="gap:5px;flex-wrap:nowrap;justify-content:flex-end">'
         +'<button class="btn ghost" style="color:var(--red);padding:2px 8px;font-weight:800" title="حذف الموظف" onclick="gmDelStaff(\''+p.id+'\',\''+esc(p.name)+'\')">✕</button>'
         +'<input class="xmail" value="'+p.name+'" style="width:110px;direction:rtl;font-weight:800;font-size:13px" title="عدّل الاسم" onchange="staffRename(\''+p.id+'\',this.value)"></div></td>'
-        +DAYS.map((d,i)=>{const wk=staffWeek(p),cur=wk[i]||'';return '<td style="padding:3px 4px"><select class="disc-sel" style="min-width:66px;width:100%;font-size:12px;padding:4px 2px" onchange="setWeekShift(\''+p.id+'\','+i+',this.value)">'
+        +DAYS.map((d,i)=>{const wk=staffWeek(p),cur=wk[i]||'';return '<td style="padding:3px 4px"><select class="disc-sel" style="min-width:112px;width:100%;font-size:11.5px;padding:4px 2px" onchange="setWeekShift(\''+p.id+'\','+i+',this.value)">'
             +'<option value="">—</option><option value="OFF"'+(cur==='OFF'?' selected':'')+'>OFF</option>'
             +WEEK_SHIFTS.map(s=>'<option value="'+s.label+'"'+(cur===s.label?' selected':'')+'>'+s.short+'</option>').join('')
           +'</select></td>';}).join('')
