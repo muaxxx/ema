@@ -481,17 +481,26 @@ const EN_DAY=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Satur
 /* ورديات جاهزة (بالدقائق من منتصف الليل؛ النهاية قد تتجاوز ٢٤ للورديات العابرة لمنتصف الليل) */
 const WEEK_SHIFTS=[
   {label:'10 AM – 7 PM',short:'10:00 Am – 7:00 Pm',s:600,e:1140},
+  {label:'12 PM – 9 PM',short:'12:00 Pm – 9:00 Pm',s:720,e:1260},
+  {label:'1 PM – 10 PM',short:'1:00 Pm – 10:00 Pm',s:780,e:1320},
   {label:'3 PM – 12 AM',short:'3:00 Pm – 12:00 Am',s:900,e:1440},
   {label:'4 PM – 1 AM',short:'4:00 Pm – 1:00 Am',s:960,e:1500},
   {label:'6 PM – 3 AM (Night)',short:'6:00 Pm – 3:00 Am 🌙',s:1080,e:1620},
 ];
 const shiftByLabel=l=>WEEK_SHIFTS.find(s=>s.label===l);
+const min2hm=m=>{m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
+const hm2min=hm=>{if(!hm)return null;const a=hm.split(':');return (+a[0])*60+(+a[1]||0)};
 function fmtHM12(min){min=((min%1440)+1440)%1440;let h=Math.floor(min/60),m=min%60,ap=h<12?'AM':'PM';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+' '+ap}
+/* البريك: تلقائي في منتصف الوردية؛ والمثبَّت يدوياً (fixed) يُستخدم كما هو؛ والتلقائي المتداخل يُدفع ساعة */
 function computeDayBreaks(entries){
-  const br=entries.map(x=>{const mid=Math.round((x.s+x.e)/2);return{name:x.name,bs:mid-30,be:mid+30}});
-  br.sort((a,b)=>a.bs-b.bs);
-  for(let i=1;i<br.length;i++){while(br[i].bs<br[i-1].be){br[i].bs+=60;br[i].be+=60}}
-  return br;
+  const out=[],autos=[];
+  for(const x of entries){
+    if(x.fixed!=null)out.push({name:x.name,bs:x.fixed,be:x.fixed+60});
+    else{const mid=Math.round((x.s+x.e)/2);autos.push({name:x.name,bs:mid-30,be:mid+30})}
+  }
+  autos.sort((a,b)=>a.bs-b.bs);
+  for(let i=1;i<autos.length;i++){while(autos[i].bs<autos[i-1].be){autos[i].bs+=60;autos[i].be+=60}}
+  return out.concat(autos);
 }
 const CAFE_CATS={hot:'☕ ساخنة',cold:'🧊 باردة',snack:'🍪 سناكس',extra:'➕ إضافات'};
 const CAFE_MENU=[
@@ -2297,10 +2306,13 @@ function renderGm(){
       return '<tr><td class="r"><div class="row" style="gap:5px;flex-wrap:nowrap;justify-content:flex-end">'
         +'<button class="btn ghost" style="color:var(--red);padding:2px 8px;font-weight:800" title="حذف الموظف" onclick="gmDelStaff(\''+p.id+'\',\''+esc(p.name)+'\')">✕</button>'
         +'<input class="xmail" value="'+p.name+'" style="width:110px;direction:rtl;font-weight:800;font-size:13px" title="عدّل الاسم" onchange="staffRename(\''+p.id+'\',this.value)"></div></td>'
-        +DAYS.map((d,i)=>{const wk=staffWeek(p),cur=wk[i]||'';return '<td style="padding:3px 4px"><select class="disc-sel" style="min-width:112px;width:100%;font-size:11.5px;padding:4px 2px" onchange="setWeekShift(\''+p.id+'\','+i+',this.value)">'
+        +DAYS.map((d,i)=>{const wk=staffWeek(p),cur=wk[i]||'',sh=shiftByLabel(cur),ov=staffBreaks(p)[i]||'';
+          return '<td style="padding:3px 4px;text-align:center"><select class="disc-sel" style="min-width:112px;width:100%;font-size:11.5px;padding:4px 2px" onchange="setWeekShift(\''+p.id+'\','+i+',this.value)">'
             +'<option value="">—</option><option value="OFF"'+(cur==='OFF'?' selected':'')+'>OFF</option>'
             +WEEK_SHIFTS.map(s=>'<option value="'+s.label+'"'+(cur===s.label?' selected':'')+'>'+s.short+'</option>').join('')
-          +'</select></td>';}).join('')
+          +'</select>'
+          +(sh?'<div style="margin-top:3px;display:flex;align-items:center;gap:4px;justify-content:center"><span class="dim" style="font-size:10px">☕</span><input type="time" value="'+ov+'" style="font-size:10px;width:92px;padding:2px" title="بريك مخصّص — فارغ = تلقائي ('+min2hm(Math.round((sh.s+sh.e)/2)-30)+')" onchange="setWeekBreak(\''+p.id+'\','+i+',this.value)"></div>':'')
+          +'</td>';}).join('')
         +'</tr>';
     }).join('')
     :'<tr><td colspan="'+(DAYS.length+1)+'" class="dim">لا موظفين بعد</td></tr>')
@@ -2314,6 +2326,13 @@ function renderGm(){
   sweep(el);
 }
 function staffWeek(p){try{return p&&p.week?JSON.parse(p.week):{}}catch(e){return{}}}
+function staffBreaks(p){try{return p&&p.breaks?JSON.parse(p.breaks):{}}catch(e){return{}}}
+async function setWeekBreak(id,dow,hm){
+  const p=S.staff.find(x=>x.id===id); if(!p)return;
+  const br=staffBreaks(p); if(hm)br[dow]=hm; else delete br[dow];
+  try{await sbPatch('gm_staff',id,{breaks:JSON.stringify(br)});p.breaks=JSON.stringify(br);renderGm();status('✓ حُفظ البريك');}
+  catch(e){status(/breaks|column/.test(e.message)?'⚠ شغّل ملف staff_week.sql في Supabase أولاً':'⚠ '+e.message)}
+}
 async function staffRename(id,name){
   name=(name||'').trim(); const p=S.staff.find(x=>x.id===id);
   if(!p||!name||p.name===name){renderGm();return}
@@ -2353,7 +2372,7 @@ function printWeek(){
   let daysHtml='';
   for(const dow of order){
     const working=[];
-    for(const p of staff){const sh=shiftByLabel(staffWeek(p)[dow]); if(sh)working.push({name:p.name,s:sh.s,e:sh.e});}
+    for(const p of staff){const sh=shiftByLabel(staffWeek(p)[dow]); if(sh){const ov=staffBreaks(p)[dow];working.push({name:p.name,s:sh.s,e:sh.e,fixed:ov?hm2min(ov):null})}}
     const brs=new Map(computeDayBreaks(working).map(b=>[b.name,b]));
     let cards='';
     for(const p of staff){
