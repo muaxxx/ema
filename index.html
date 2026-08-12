@@ -389,13 +389,13 @@ tr.cancelled td{opacity:.5}
 .rrow{position:relative;display:grid;grid-template-columns:1fr 140px 84px;align-items:center;height:56px;padding:0 4px}
 .rrow:nth-child(even){background:rgba(255,255,255,.5)}
 .rrow:nth-child(odd){background:rgba(224,230,240,.5)}
-.rpn{font-size:20px;font-weight:800;color:#20293a;padding-left:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rpn{display:flex;align-items:center;gap:10px;padding-left:12px;min-width:0}
+.rpn .pn{font-size:20px;font-weight:800;color:#20293a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rkda{font-size:18px;font-weight:800;color:#3b4759;text-align:center;letter-spacing:1px;font-variant-numeric:tabular-nums}
 .rscn{font-size:20px;font-weight:900;color:#20293a;text-align:right;padding-right:12px;font-variant-numeric:tabular-nums}
-.rmvpb{position:absolute;left:calc(100% - 246px);top:-6px;width:46px;height:62px;background:linear-gradient(#8b5cf6,#6d28d9);clip-path:polygon(0 0,100% 0,100% 78%,50% 100%,0 78%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 9px rgba(109,40,217,.5);z-index:3}
-.rmvpb .cr{font-size:15px;line-height:1}
-.rmvpb .tx{font-size:10px;font-weight:900;letter-spacing:1px}
-@media(max-width:760px){.rhead{grid-template-columns:1fr;justify-items:center;text-align:center;gap:10px}.rdt{justify-items:center}.rscore{grid-template-columns:1fr;gap:12px;justify-items:center}.rdur{padding-left:0;border-left:none}.rtables{grid-template-columns:1fr}.rtbl.a{border-right:none;border-bottom:1px solid #d9dfe9}.rmid .mode{font-size:24px}.rpct{font-size:44px}.rmvpb{left:calc(100% - 246px)}}
+.rmvpb{flex:none;display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-size:11px;font-weight:900;padding:3px 9px;border-radius:7px;letter-spacing:.5px;box-shadow:0 2px 6px rgba(109,40,217,.45)}
+.rmvpb .cr{font-size:12px;line-height:1}
+@media(max-width:760px){.rhead{grid-template-columns:1fr;justify-items:center;text-align:center;gap:10px}.rdt{justify-items:center}.rscore{grid-template-columns:1fr;gap:12px;justify-items:center}.rdur{padding-left:0;border-left:none}.rtables{grid-template-columns:1fr}.rtbl.a{border-right:none;border-bottom:1px solid #d9dfe9}.rmid .mode{font-size:24px}.rpct{font-size:44px}}
 </style>
 </head>
 <body>
@@ -560,7 +560,7 @@ function logout(){localStorage.removeItem('em_user');location.reload()}
 
 /* ═════════ الحالة ═════════ */
 let DAY=opDay(), TAB='rcp';
-let S={slots:[],rounds:[],dayRounds:[],walkins:[],firstSeen:new Map(),dir:new Map(),gms:[],staff:[],extras:[],gmMissing:false};
+let S={slots:[],rounds:[],dayRounds:[],walkins:[],firstSeen:new Map(),dir:new Map(),gms:[],staff:[],extras:[],stock:[],gmMissing:false};
 let loadedOnce=false;
 
 /* ═════════ الجلب والكتابة ═════════ */
@@ -597,6 +597,7 @@ async function load(manual){
     S.gmMissing=false;
     const gms=await sbGet(`gm_shifts?day=eq.${DAY}&select=*`).catch(()=>{S.gmMissing=true;return[]});
     S.extras=await sbGet(`extra_sales?day=eq.${DAY}&order=created_at&select=*`).catch(()=>[]);
+    S.stock=await sbGet(`cafe_stock?select=item,qty`).catch(()=>[]);
     // فتحات الشبكة غير المحجوزة (0 لاعب) ليست حجوزات — تُخفى تماماً
     S.slots=(slots||[]).filter(s=>(s.booked_players||0)>0);
     S.rounds=rounds||[]; S.staff=staff||[]; S.gms=gms||[];
@@ -1574,8 +1575,22 @@ async function cartSave(){
   try{
     await sbInsert('extra_sales',rows);
     S.extras=await sbGet('extra_sales?day=eq.'+DAY+'&order=created_at&select=*');
+    // خصم المخزون تلقائياً للأصناف المتتبَّعة فقط
+    const upd=CART.filter(x=>stockQty(x.n)!=null).map(x=>({item:x.n,qty:stockQty(x.n)-x.q}));
+    if(upd.length){try{await sbUpsert('cafe_stock',upd,'item');S.stock=await sbGet('cafe_stock?select=item,qty').catch(()=>S.stock);}catch(e){}}
     CART=[];renderCafe();renderSales();renderRep();status('✓ سُجّل طلب الكافيه');
   }catch(e){status(/extra_sales|discount_code|at_time/.test(e.message)?'⚠ شغّل ملف eva_v4.sql في Supabase أولاً':'⚠ '+e.message)}
+}
+function stockQty(item){const r=(S.stock||[]).find(x=>x.item===item);return r?+r.qty:null}
+async function stockAdd(){
+  const item=(document.getElementById('stkItem')||{}).value;
+  const amt=+((document.getElementById('stkAmt')||{}).value)||0;
+  if(!item||!amt){status('اختر الصنف والكمية');return}
+  try{
+    await sbUpsert('cafe_stock',[{item,qty:(stockQty(item)||0)+amt}],'item');
+    S.stock=await sbGet('cafe_stock?select=item,qty').catch(()=>S.stock||[]);
+    renderCafe();status('✓ أُضيف للمخزون');
+  }catch(e){status(/cafe_stock/.test(e.message)?'⚠ شغّل ملف cafe_stock.sql في Supabase أولاً':'⚠ '+e.message)}
 }
 function cafeCat(c){CAFE_CAT=c;renderCafe()}
 function renderCafe(){
@@ -1611,6 +1626,10 @@ function renderCafe(){
   const payRows=PAYMENTS.filter(p=>T.byPay.get(p)>0).map(p=>
     '<div class="payline"><span>'+p+'</span><span class="grow"></span><b>'+T.byPay.get(p).toFixed(2)+'</b></div>').join('')
     ||'<div class="dim sm">لم تُحدَّد طرق الدفع</div>';
+  const stockList=(S.stock||[]).slice().sort((a,b)=>(+a.qty)-(+b.qty)).map(r=>{
+    const q=+r.qty, soldT=((T.byItem.get(r.item)||{}).q)||0, col=q<=5?'var(--red)':q<=15?'var(--amber)':'var(--green)';
+    return '<div class="payline"><span>'+r.item+'</span><span class="dim sm">'+(soldT?'بيع '+soldT:'')+'</span><span class="grow"></span><b style="color:'+col+'">'+q+'</b></div>';
+  }).join('')||'<div class="dim sm">لم يُدخَل مخزون بعد</div>';
   el.innerHTML='<div class="acc"><div class="accmain">'
     +'<div class="row" style="margin-bottom:10px"><h2 style="margin:0">☕ نقطة بيع الكافيه</h2><span class="grow"></span>'
     +'<button class="btn" onclick="printCafe()">🖨 تقرير الكافيه</button></div>'
@@ -1635,6 +1654,12 @@ function renderCafe(){
       +'<div class="sumrow '+(T.unset?'danger':'')+'"><span>بلا طريقة دفع</span><b>'+T.unset.toFixed(2)+'</b></div></div>'
     +'<div class="sumcard"><div class="sumhdr">التحصيل</div>'+payRows+'</div>'
     +'<div class="sumcard"><div class="sumhdr">أكثر الأصناف</div>'+top+'</div>'
+    +'<div class="sumcard"><div class="sumhdr">📦 مخزون الكافيه</div>'
+      +'<div class="row" style="gap:6px;margin-bottom:8px">'
+        +'<select class="disc-sel" id="stkItem" style="flex:1">'+CAFE_MENU.map(m=>'<option>'+m.n+'</option>').join('')+'</select>'
+        +'<input class="cnt" id="stkAmt" type="number" min="1" placeholder="كمية" style="width:64px">'
+        +'<button class="btn primary" onclick="stockAdd()">+ أضف</button></div>'
+      +stockList+'</div>'
   +'</aside></div>';
 }
 function printCafe(){
@@ -2365,6 +2390,8 @@ const EN={
  'لا مبيعات كافيه اليوم':'No café sales today','صافي الكافيه اليوم':'Net café today','التحصيل':'Collection',
  'أكثر الأصناف':'Top items','لم تُحدَّد طرق الدفع':'No payment methods set',
  '☕ ساخنة':'☕ Hot','🧊 باردة':'🧊 Cold','🍪 سناكس':'🍪 Snacks','➕ إضافات':'➕ Extras',
+ '📦 مخزون الكافيه':'📦 Café stock','لم يُدخَل مخزون بعد':'No stock entered yet','+ أضف':'+ Add','كمية':'Qty',
+ '✓ أُضيف للمخزون':'✓ Added to stock','اختر الصنف والكمية':'Choose item and quantity',
  // — واجهة المبيعات —
  'صافي مبيعات اليوم':'Net sales today','توزيع التحصيل':'Collection breakdown',
  'الكافيه (صفحة مستقلة)':'Café (separate page)','لم تُحدَّد طرق الدفع بعد':'No payment methods set yet',
@@ -2480,6 +2507,7 @@ const EN_RX=[
  [/^🏅 النقاط — (\d+) لاعب$/,'🏅 Points — $1 players'],
  [/^النتيجة (.+)$/,'Score $1'],
  [/^(\d+) مباراة · (.+)$/,'$1 games · $2'],
+ [/^بيع (\d+)$/,'sold $1'],
  [/^⏸ توقف (.+)$/,'⏸ Pause $1'],
  [/^(.+) — تجاوز (\d+)د وأخّر الحجز التالي$/,'$1 — overran $2m and delayed the next booking'],
 ];
@@ -2547,8 +2575,7 @@ function resultCard(g,i){
   const fp=v=>v==null?'-':(pctMode?v+'%':v);
   const tbl=(list,cls)=>{
     const rows=list.slice().sort((a,b)=>b.score-a.score).map(p=>
-      '<div class="rrow"><span class="rpn">'+rEsc(p.name)+'</span><span class="rkda">'+p.kills+' / '+p.deaths+' / '+p.assists+'</span><span class="rscn">'+p.score+'</span>'
-      +(p.mvp?'<div class="rmvpb"><span class="cr">\u265B</span><span class="tx">MVP</span></div>':'')+'</div>').join('')
+      '<div class="rrow"><span class="rpn"><span class="pn">'+rEsc(p.name)+'</span>'+(p.mvp?'<span class="rmvpb"><span class="cr">\u265B</span>MVP</span>':'')+'</span><span class="rkda">'+p.kills+' / '+p.deaths+' / '+p.assists+'</span><span class="rscn">'+p.score+'</span></div>').join('')
       ||'<div class="rrow"><span class="rpn dim sm">\u2014</span></div>';
     return '<div class="rtbl '+cls+'"><div class="rthd"><div class="rseg pl">PLAYER</div><div class="rseg kd">K / D / A</div><div class="rseg sch">SCORE</div></div>'+rows+'</div>';
   };
