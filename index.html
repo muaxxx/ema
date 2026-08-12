@@ -1031,6 +1031,7 @@ function renderRcp(){
   h+=act.filter(s=>!featured||s.id!==featured.id)
        .map(s=>RCP_OPEN.has(s.id)?rcpCard(s,false):rcpFold(s)).join('');
   el.innerHTML=h;
+  sweep(el);
 }
 async function rcpStamp(id,field){
   try{await sbPatch('slots',id,{[field]:new Date().toISOString()});const s=S.slots.find(x=>x.id===id);if(s)s[field]=new Date().toISOString();compute();renderAll();status('✓ سُجّل')}
@@ -1184,6 +1185,7 @@ function renderAna(){
       <button class="btn" onclick="anaProblems()">المشاكل فقط</button>
       <span class="dim sm">اضغط على رأس أي حجز لطيّه أو فتحه</span>
     </div><div class="anagrid">`+h+`</div>`;
+  sweep(el);
 }
 /* بطاقات التفاصيل: مفتوحة افتراضياً، والرأس يلخّص — والضغط عليه يطويها عند الحاجة */
 let ANA_OPEN=new Set(), ANA_INIT=false;
@@ -1361,6 +1363,7 @@ function renderSales(){
     +'<div class="sumcard dim sm">التسعيرة: '+(isSunday(DAY)?'الأحد — ٩٫٥٠ لليوم كامل':'٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)')
     +'<br>العدد المحاسَب: تعديل الموظف ← رصد إيفا ← المحجوز.</div>'
     +'</aside></div>';
+  sweep(el);
 }
 
 /* ── تقسيم الدفع: نافذة كاملة (عدّل ثم احفظ) ── */
@@ -1690,6 +1693,7 @@ function renderCafe(){
       +stockList
       +'<button class="btn" style="margin-top:10px;width:100%" onclick="printStock()">🖨 طباعة المخزون</button></div>'
   +'</aside></div>';
+  sweep(el);
 }
 function printStock(){
   const T=cafeTotals();
@@ -1790,6 +1794,7 @@ function renderRec(){
     <tr><th>الوقت</th><th>اللعبة</th><th>الحساب</th><th>الإيميل (من إيفا)</th><th>إيميل إضافي (يدوي)</th><th>جولات</th><th>الإرسال</th><th>ملاحظات</th></tr>
     ${rows}
   </table></div>`;
+  sweep(el);
 }
 async function setExtraEmail(id,v){
   try{await sbPatch('slots',id,{extra_email:v.trim()||null});const s=S.slots.find(x=>x.id===id);if(s)s.extra_email=v.trim()||null;status('✓ حُفظ الإيميل الإضافي')}
@@ -1971,6 +1976,7 @@ function renderRep(){
     <tr><td>الألعاب</td><td>${byGame.size}</td><td class="dim sm">${[...byGame].map(([g,e])=>`${g}: ${e.n} حجز / ${e.p}👤`).join(' · ')}</td></tr>
     <tr><td>طاقم اليوم</td><td>${S.gms.length}</td><td class="dim sm">${gmLine}</td></tr>
   </table></div>`;
+  sweep(el);
 }
 
 async function extraAdd(){
@@ -2294,6 +2300,7 @@ function renderGm(){
      +'<span class="dim sm">الوظيفة وجدول الأسبوع يُحفظان تلقائياً</span>'
    +'</div></div>';
   el.innerHTML=h;
+  sweep(el);
 }
 async function staffSet(id,field,v){
   try{await sbPatch('gm_staff',id,{[field]:v||null});const p=S.staff.find(x=>x.id===id);if(p)p[field]=v||null;renderGm();status('✓ حُفظ')}
@@ -2614,6 +2621,7 @@ function renderResults(){
       +'<div class="rtoptitle"><h1>🏆 نتائج آخر المباريات</h1><div class="loc">EVA MARASSI - 1</div></div>'
       +'<span class="grow"></span><span class="dim sm">'+games.length+' مباراة · '+DAY+'</span></div>'
     +games.map((g,i)=>resultCard(g,i)).join('')+'</div>';
+  sweep(el);
 }
 function resultCard(g,i){
   const ps=g.players||[];
