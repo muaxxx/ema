@@ -477,6 +477,22 @@ const isVoidPay=p=>VOID_PAY.includes(p);
 /* «How you Know about EVA» — سؤال الاستقبال (كعمود الإكسل) */
 const ROLES={gm:'قيم ماستر',reception:'استقبال',cashier:'كاشير',tech:'فنّي',super:'مشرف',cafe:'كافيه'};
 const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const EN_DAY=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+/* ورديات جاهزة (بالدقائق من منتصف الليل؛ النهاية قد تتجاوز ٢٤ للورديات العابرة لمنتصف الليل) */
+const WEEK_SHIFTS=[
+  {label:'10 AM – 7 PM',s:600,e:1140},{label:'11 AM – 8 PM',s:660,e:1200},{label:'12 PM – 9 PM',s:720,e:1260},
+  {label:'1 PM – 10 PM',s:780,e:1320},{label:'2 PM – 11 PM',s:840,e:1380},{label:'3 PM – 12 AM',s:900,e:1440},
+  {label:'3:30 PM – 12:30 AM',s:930,e:1470},{label:'4 PM – 1 AM',s:960,e:1500},{label:'4 PM – 2 AM',s:960,e:1560},
+  {label:'5 PM – 2 AM',s:1020,e:1560},{label:'6 PM – 3 AM',s:1080,e:1620},
+];
+const shiftByLabel=l=>WEEK_SHIFTS.find(s=>s.label===l);
+function fmtHM12(min){min=((min%1440)+1440)%1440;let h=Math.floor(min/60),m=min%60,ap=h<12?'AM':'PM';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+' '+ap}
+function computeDayBreaks(entries){
+  const br=entries.map(x=>{const mid=Math.round((x.s+x.e)/2);return{name:x.name,bs:mid-30,be:mid+30}});
+  br.sort((a,b)=>a.bs-b.bs);
+  for(let i=1;i<br.length;i++){while(br[i].bs<br[i-1].be){br[i].bs+=60;br[i].be+=60}}
+  return br;
+}
 const CAFE_CATS={hot:'☕ ساخنة',cold:'🧊 باردة',snack:'🍪 سناكس',extra:'➕ إضافات'};
 const CAFE_MENU=[
   {c:'hot',n:'ESPRESSO (4oz)',p:1.20},{c:'hot',n:'MACCHIATO (4oz)',p:1.60},{c:'hot',n:'CORTADO (4oz)',p:1.70},
@@ -2246,6 +2262,7 @@ function renderGm(){
       +(DAY===opDay()?(inside.join('، ')||'—'):'—')+'</span></div>'
     +(onBreak.length&&DAY===opDay()?'<div class="sm" style="color:var(--amber);margin-top:4px">☕ في بريك: '+onBreak.join('، ')+'</div>':'')
     +'<div class="dim sm" style="margin-top:6px">علّم مناوبي اليوم وبريك كلٍّ منهم — يُستخدم آلياً في «التفاصيل» لمعرفة إن وقع تأخير التجهيز أثناء بريك موظف</div></div>'
+    +'<button class="btn" onclick="printWeek()">🖨 الجدول الأسبوعي</button>'
     +'<button class="btn" onclick="gmCopyYesterday()">📋 انسخ طاقم أمس</button>'
   +'</div></div>';
 
@@ -2274,7 +2291,7 @@ function renderGm(){
   h+='<h2>الموظفون · الوظيفة وجدول العمل الأسبوعي</h2>'
    +'<div class="tblwrap"><table><tr><th>الاسم</th><th>الوظيفة</th>'
    +DAYS.map((d,i)=>'<th'+(i===dow?' style="background:#0e8ea6"':'')+'>'+d+'</th>').join('')
-   +'<th>الدوام</th><th></th></tr>'
+   +'<th></th></tr>'
    +(staff.length?staff.map(p=>{
       const days=(p.days||'').split(',').filter(Boolean);
       return '<tr><td class="r"><b>'+p.name+'</b></td>'
@@ -2282,15 +2299,13 @@ function renderGm(){
           +'<option value="">— الوظيفة —</option>'
           +Object.keys(ROLES).map(k=>'<option value="'+k+'" '+(p.role===k?'selected':'')+'>'+ROLES[k]+'</option>').join('')
         +'</select></td>'
-        +DAYS.map((d,i)=>'<td><input type="checkbox" '+(days.indexOf(String(i))>-1?'checked':'')
-            +' onchange="staffDay(\''+p.id+'\','+i+',this.checked)"></td>').join('')
-        +'<td><div class="row" style="gap:3px;flex-wrap:nowrap">'
-          +'<input type="time" value="'+(p.shift_start||'')+'" onchange="staffSet(\''+p.id+'\',\'shift_start\',this.value)">'
-          +'<input type="time" value="'+(p.shift_end||'')+'" onchange="staffSet(\''+p.id+'\',\'shift_end\',this.value)">'
-        +'</div></td>'
+        +DAYS.map((d,i)=>{const wk=staffWeek(p),cur=wk[i]||'';return '<td><select class="disc-sel" style="min-width:118px" onchange="setWeekShift(\''+p.id+'\','+i+',this.value)">'
+            +'<option value="">—</option><option value="OFF"'+(cur==='OFF'?' selected':'')+'>OFF</option>'
+            +WEEK_SHIFTS.map(s=>'<option'+(cur===s.label?' selected':'')+'>'+s.label+'</option>').join('')
+          +'</select></td>';}).join('')
         +'<td><button class="btn ghost" style="color:var(--red)" onclick="gmDelStaff(\''+p.id+'\',\''+esc(p.name)+'\')">✕</button></td></tr>';
     }).join('')
-    :'<tr><td colspan="'+(DAYS.length+4)+'" class="dim">لا موظفين بعد</td></tr>')
+    :'<tr><td colspan="'+(DAYS.length+3)+'" class="dim">لا موظفين بعد</td></tr>')
    +'</table></div>'
    +'<div class="card" style="margin-top:10px"><div class="row">'
      +'<input class="xmail" id="gmNewName" placeholder="اسم الموظف…" style="direction:rtl;width:200px">'
@@ -2301,6 +2316,55 @@ function renderGm(){
    +'</div></div>';
   el.innerHTML=h;
   sweep(el);
+}
+function staffWeek(p){try{return p&&p.week?JSON.parse(p.week):{}}catch(e){return{}}}
+async function setWeekShift(id,dow,label){
+  const p=S.staff.find(x=>x.id===id); if(!p)return;
+  const wk=staffWeek(p); if(label)wk[dow]=label; else delete wk[dow];
+  const days=[]; for(let d=0;d<7;d++){if(wk[d]&&wk[d]!=='OFF')days.push(d);}
+  try{
+    await sbPatch('gm_staff',id,{week:JSON.stringify(wk),days:days.join(',')});
+    p.week=JSON.stringify(wk); p.days=days.join(','); renderGm(); status('✓ حُفظ');
+  }catch(e){status(/week|column/.test(e.message)?'⚠ شغّل ملف staff_week.sql في Supabase أولاً':'⚠ '+e.message)}
+}
+function printWeek(){
+  const staff=S.staff||[];
+  const order=[5,6,0,1,2,3,4];   // الجمعة → الخميس
+  const css='<style>'
+    +'.wk-title{text-align:center;margin-bottom:6px}.wk-title .t{font-size:26px;font-weight:900;color:#1a7a3c;letter-spacing:.5px}'
+    +'.wk-title .s{color:#b8860b;letter-spacing:5px;font-weight:800;font-size:13px}'
+    +'.wk-day{margin:14px 0 2px}.wk-day h3{display:inline-block;background:#1a7a3c;color:#fff;font-size:14px;font-weight:800;padding:6px 18px;border-radius:6px;margin:0}'
+    +'.wk-cards{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px}'
+    +'.wk-card{flex:1 1 150px;max-width:210px;border:1px solid #e2e8e3;border-top:3px solid #1a7a3c;border-radius:8px;padding:9px 12px;background:#fafcfa}'
+    +'.wk-card.off{border-top-color:#c0392b}'
+    +'.wk-card .nm{font-weight:800;font-size:14px;color:#1c2b22;margin-bottom:5px}'
+    +'.wk-card .ln{font-size:11px;color:#5a6b60;margin-top:2px}.wk-card .ln b{color:#b8860b;font-weight:800}'
+    +'.wk-card .offx{color:#c0392b;font-weight:900;letter-spacing:3px;font-size:13px}'
+    +'.wk-note{text-align:center;color:#8a978e;font-size:10px;margin-top:16px;border-top:1px solid #eee;padding-top:8px}'
+    +'</style>';
+  const title='<div class="wk-title"><div class="t">Weekly Schedule</div><div class="s">EVA MARASSI</div></div>';
+  let daysHtml='';
+  for(const dow of order){
+    const working=[];
+    for(const p of staff){const sh=shiftByLabel(staffWeek(p)[dow]); if(sh)working.push({name:p.name,s:sh.s,e:sh.e});}
+    const brs=new Map(computeDayBreaks(working).map(b=>[b.name,b]));
+    let cards='';
+    for(const p of staff){
+      const lbl=staffWeek(p)[dow], sh=shiftByLabel(lbl);
+      if(sh){const b=brs.get(p.name);
+        cards+='<div class="wk-card"><div class="nm">'+rEsc(p.name)+'</div>'
+          +'<div class="ln">Shift <b>'+fmtHM12(sh.s)+' – '+fmtHM12(sh.e)+'</b></div>'
+          +'<div class="ln">Break <b>'+fmtHM12(b.bs)+' – '+fmtHM12(b.be)+'</b></div></div>';
+      }else if(lbl==='OFF'){
+        cards+='<div class="wk-card off"><div class="nm">'+rEsc(p.name)+'</div><div class="offx">OFF</div></div>';
+      }
+    }
+    if(!cards)continue;
+    daysHtml+='<div class="wk-day"><h3>'+EN_DAY[dow]+'</h3><div class="wk-cards">'+cards+'</div></div>';
+  }
+  if(!daysHtml)daysHtml='<div class="wk-note">لا مواعيد مُدخَلة بعد — اختر ورديات الموظفين في الجدول أدناه</div>';
+  const note='<div class="wk-note">Break is placed at the mid-point of each shift · overlapping breaks are pushed back by one hour</div>';
+  return printDoc('Weekly Schedule','<div dir="ltr">'+css+title+daysHtml+note+'</div>');
 }
 async function staffSet(id,field,v){
   try{await sbPatch('gm_staff',id,{[field]:v||null});const p=S.staff.find(x=>x.id===id);if(p)p[field]=v||null;renderGm();status('✓ حُفظ')}
@@ -2472,7 +2536,7 @@ const EN={
  'أرسل الفيديوهات للإيميل (والإضافي إن وُجد) ثم اضغط الزر الأحمر · ومن لا يريد التسجيل اضغط «🚫 لا يريد»':'Send the videos to the email(s) then press the red button · those who decline, press “🚫 Doesn’t want”',
  'ملاحظات':'Notes','🚫 لا يريد':'🚫 Doesn’t want',
  // — الموظفون —
- 'الموظفون · الوظيفة وجدول العمل الأسبوعي':'Staff · role & weekly schedule','الوظيفة':'Role','— الوظيفة —':'— role —','بلا وظيفة':'No role',
+ 'الموظفون · الوظيفة وجدول العمل الأسبوعي':'Staff · role & weekly schedule','🖨 الجدول الأسبوعي':'🖨 Weekly schedule','الوظيفة':'Role','— الوظيفة —':'— role —','بلا وظيفة':'No role',
  'الدوام':'Schedule','الاسم':'Name','+ إضافة موظف':'+ Add staff','القائمة فارغة — أضف الموظفين أدناه':'List empty — add staff below',
  'الوظيفة وجدول الأسبوع يُحفظان تلقائياً':'Role & weekly schedule save automatically','مجدول اليوم':'Scheduled today','إجازة اليوم':'Off today',
  'غير مناوب':'Off duty','لا طاقم مسجّل أمس':'No crew logged yesterday',
