@@ -2,8 +2,17 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=5">
 <title>EM · نظام إيفا مراسي</title>
+<!-- PWA — تثبيت كتطبيق على iPhone و Android -->
+<meta name="theme-color" content="#0e1524">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EMA">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
@@ -396,6 +405,21 @@ tr.cancelled td{opacity:.5}
 .rmvpb{flex:none;display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-size:11px;font-weight:900;padding:3px 9px;border-radius:7px;letter-spacing:.5px;box-shadow:0 2px 6px rgba(109,40,217,.45)}
 .rmvpb .cr{font-size:12px;line-height:1}
 @media(max-width:760px){.rhead{grid-template-columns:1fr;justify-items:center;text-align:center;gap:10px}.rdt{justify-items:center}.rscore{grid-template-columns:1fr;gap:12px;justify-items:center}.rdur{padding-left:0;border-left:none}.rtables{grid-template-columns:1fr}.rtbl.a{border-right:none;border-bottom:1px solid #d9dfe9}.rmid .mode{font-size:24px}.rpct{font-size:44px}}
+/* ═══ ضبط الجوال (PWA) ═══ */
+@media(max-width:640px){
+  body{padding:0}
+  header{padding:8px 10px;flex-wrap:wrap;gap:6px;padding-top:max(8px,env(safe-area-inset-top))}
+  .brand small{display:none}
+  main{padding:8px 10px;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+  nav#tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;gap:4px}
+  nav#tabs button{white-space:nowrap;flex:0 0 auto;font-size:13px;padding:7px 11px}
+  .acc{grid-template-columns:1fr!important;display:block}
+  .accside{margin-top:12px}
+  .hero .metrics{grid-template-columns:1fr 1fr}
+  h2{font-size:16px}
+  .tblwrap{-webkit-overflow-scrolling:touch}
+  footer{font-size:11px;padding:6px 10px;padding-bottom:max(6px,env(safe-area-inset-bottom))}
+}
 </style>
 </head>
 <body>
@@ -2818,6 +2842,10 @@ setInterval(()=>load(false),60000);
 setInterval(()=>{
   document.getElementById('fClock').textContent='🕐 '+fmtTS(Date.now())+(LANG==='ar'?' (البحرين)':' (Bahrain)');
 },1000);
+</script>
+<script>
+/* تسجيل خدمة العامل (PWA) — يتجاهل الأخطاء بصمت */
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 </script>
 </body>
 </html>
