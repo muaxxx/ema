@@ -470,8 +470,8 @@ const DISCOUNTS=[
   {code:'manual',  label:'مبلغ يدوي…',         pct:null},
 ];
 /* طرق الدفع — من ملف الإكسل (مجاميع اليوم تُحسب لكل طريقة). Super Nova = مجاني بلا مبلغ */
-const PAYMENTS=['Card','Cash','Benefit','Online Tap','Battle Pass','Bank Transfer','Gift Card','24 Sessions','10 Sessions','Coupon','Super Nova'];
-const FREE_PAY=['Super Nova'];
+const PAYMENTS=['Card','Cash','Benefit','Online Tap','Battle Pass','Bank Transfer','Gift Card','24 Sessions','10 Sessions','Coupon','Super Nova','ملغي'];
+const FREE_PAY=['Super Nova','Battle Pass','ملغي'];
 /* «How you Know about EVA» — سؤال الاستقبال (كعمود الإكسل) */
 const ROLES={gm:'قيم ماستر',reception:'استقبال',cashier:'كاشير',tech:'فنّي',super:'مشرف',cafe:'كافيه'};
 const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
@@ -493,7 +493,7 @@ const CAFE_MENU=[
 ];
 const cafeCatOf=label=>{const m=CAFE_MENU.find(x=>x.n===label);return m?m.c:'extra'};
 /* إيفا نايت/إيفنت: مبيعات جلسات (لا كافيه) — مخزّنة في extra_sales بتسمية مميّزة */
-const SALE_LABELS=['إيفا نايت','إيفنت'];
+const SALE_LABELS=['إيفا نايت','إيفنت','سوبرنوفا+','سوبرنوفا'];
 const isSaleExtra=x=>!!x&&SALE_LABELS.includes(x.label);
 const HEARD=['Instagram','TikTok','Snapchat','Google','صديق أو معرفة','مررنا بالمكان','إعلان','مؤثّر','زيارة سابقة','أخرى'];
 const isFreePay=p=>FREE_PAY.includes(p);
@@ -1313,9 +1313,11 @@ function renderSales(){
       +'<span class="grow"></span><span class="lnet">'+v.toFixed(2)+'</span>'
       +'<button class="btn ghost" style="color:var(--red)" onclick="extraDel(\''+x.id+'\')">✕</button></div>';
   }
-  const nightSection='<div class="row" style="margin:16px 0 8px"><h2 style="margin:0">🌙 إيفا نايت / إيفنت</h2><span class="grow"></span>'
+  const nightSection='<div class="row" style="margin:16px 0 8px;flex-wrap:wrap;gap:6px"><h2 style="margin:0">🌙 إيفا نايت / إيفنت / سوبرنوفا</h2><span class="grow"></span>'
     +'<button class="btn" onclick="quickSale(\'إيفا نايت\',15)">🌙 + إيفا نايت ١٥</button>'
-    +'<button class="btn" onclick="quickSale(\'إيفنت\',0)">🎉 + إيفنت</button></div>'
+    +'<button class="btn" onclick="quickSale(\'إيفنت\',0)">🎉 + إيفنت</button>'
+    +'<button class="btn" onclick="quickSale(\'سوبرنوفا+\',110)">💠 + سوبرنوفا+ ١١٠</button>'
+    +'<button class="btn" onclick="quickSale(\'سوبرنوفا\',60)">⭐ + سوبرنوفا ٦٠</button></div>'
     +'<div class="inv"><div class="invb"><div class="lines">'
     +(nightRows||'<div class="dim sm">لا سطور بعد — اضغط زرّاً أعلاه لإضافة إيفا نايت (١٥) أو إيفنت. السعر قابل للتعديل، وكل ضغطة تضيف سطراً.</div>')
     +'</div></div></div>';
@@ -2385,6 +2387,9 @@ const EN={
  '🏆 نتائج آخر المباريات':'🏆 Results of the last games','لا نتائج مرصودة اليوم بعد':'No results recorded today yet',
  // — إيفا نايت / إيفنت —
  'إيفا نايت':'EVA Night','إيفنت':'Event','🌙 إيفا نايت / إيفنت':'🌙 EVA Night / Event',
+ 'ملغي':'Cancelled','سوبرنوفا+':'Supernova+','سوبرنوفا':'Supernova',
+ '🌙 إيفا نايت / إيفنت / سوبرنوفا':'🌙 EVA Night / Event / Supernova',
+ '💠 + سوبرنوفا+ ١١٠':'💠 + Supernova+ 110','⭐ + سوبرنوفا ٦٠':'⭐ + Supernova 60',
  '🌙 + إيفا نايت ١٥':'🌙 + EVA Night 15','🎉 + إيفنت':'🎉 + Event','السعر':'Price',
  'لا سطور بعد — اضغط زرّاً أعلاه لإضافة إيفا نايت (١٥) أو إيفنت. السعر قابل للتعديل، وكل ضغطة تضيف سطراً.':'No lines yet — press a button above to add EVA Night (15) or Event. The price is editable, and each press adds a line.',
  // — تبويب الكافيه —
