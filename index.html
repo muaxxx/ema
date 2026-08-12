@@ -494,14 +494,21 @@ const hm2min=hm=>{if(!hm)return null;const a=hm.split(':');return (+a[0])*60+(+a
 function fmtHM12(min){min=((min%1440)+1440)%1440;let h=Math.floor(min/60),m=min%60,ap=h<12?'AM':'PM';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+' '+ap}
 /* البريك: تلقائي في منتصف الوردية؛ والمثبَّت يدوياً (fixed) يُستخدم كما هو؛ والتلقائي المتداخل يُدفع ساعة */
 function computeDayBreaks(entries){
-  const out=[],autos=[];
+  const fixed=[],autos=[];
   for(const x of entries){
-    if(x.fixed!=null)out.push({name:x.name,bs:x.fixed,be:x.fixed+60});
+    if(x.fixed!=null)fixed.push({name:x.name,bs:x.fixed,be:x.fixed+60});
     else{const mid=Math.round((x.s+x.e)/2);autos.push({name:x.name,bs:mid-30,be:mid+30})}
   }
   autos.sort((a,b)=>a.bs-b.bs);
-  for(let i=1;i<autos.length;i++){while(autos[i].bs<autos[i-1].be){autos[i].bs+=60;autos[i].be+=60}}
-  return out.concat(autos);
+  const occ=fixed.map(f=>[f.bs,f.be]);   // المثبّتة عوائق ثابتة
+  for(const a of autos){
+    let moved=true,guard=0;
+    while(moved&&guard++<48){moved=false;
+      for(const o of occ){if(a.bs<o[1]&&o[0]<a.be){a.bs+=60;a.be+=60;moved=true;break}}
+    }
+    occ.push([a.bs,a.be]);
+  }
+  return fixed.concat(autos);
 }
 const CAFE_CATS={hot:'☕ ساخنة',cold:'🧊 باردة',snack:'🍪 سناكس',extra:'➕ إضافات'};
 const CAFE_MENU=[
@@ -2366,6 +2373,7 @@ function printWeek(){
     +'.wk-card.off{border-top-color:#c0392b}'
     +'.wk-card .nm{font-weight:800;font-size:14px;color:#1c2b22;margin-bottom:5px}'
     +'.wk-card .ln{font-size:11px;color:#5a6b60;margin-top:2px}.wk-card .ln b{color:#b8860b;font-weight:800}'
+    +'.wk-card .ln.br b{color:#0e8ea6}'
     +'.wk-card .offx{color:#c0392b;font-weight:900;letter-spacing:3px;font-size:13px}'
     +'.wk-note{text-align:center;color:#8a978e;font-size:10px;margin-top:16px;border-top:1px solid #eee;padding-top:8px}'
     +'</style>';
@@ -2381,7 +2389,7 @@ function printWeek(){
       if(sh){const b=brs.get(p.name);
         cards+='<div class="wk-card"><div class="nm">'+rEsc(p.name)+'</div>'
           +'<div class="ln">Shift <b>'+fmtHM12(sh.s)+' – '+fmtHM12(sh.e)+'</b></div>'
-          +'<div class="ln">Break <b>'+fmtHM12(b.bs)+' – '+fmtHM12(b.be)+'</b></div></div>';
+          +'<div class="ln br">Break <b>'+fmtHM12(b.bs)+' – '+fmtHM12(b.be)+'</b></div></div>';
       }else if(lbl==='OFF'){
         cards+='<div class="wk-card off"><div class="nm">'+rEsc(p.name)+'</div><div class="offx">OFF</div></div>';
       }
