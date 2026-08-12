@@ -1296,6 +1296,7 @@ function renderSales(){
       +'<div class="invb"><div class="lines">'+linesHtml+'</div>'
       +'<div class="invtools">'+tools
       +'<button class="btn" onclick="splitOpen(\''+s.id+'\')">÷ تقسيم</button>'
+      +'<button class="btn" onclick="voidBooking(\''+s.id+'\')" style="'+(isVoidPay(s.pay_method)?'background:var(--red);color:#fff;border-color:var(--red)':'')+'">🚫 لم يلعب هنا</button>'
       +'<button class="noteb '+(s.sale_note?'has':'')+'" onclick="noteEdit(\''+s.id+'\')">'+(s.sale_note||'📝 ملاحظة')+'</button>'
       +'<span class="grow"></span><span class="dim sm">الإجمالي '+c.amt.toFixed(2)+(c.disc?' · خصم −'+c.disc.toFixed(2):'')+'</span>'
       +'</div></div></div>';
@@ -1449,6 +1450,10 @@ function noteEdit(id){
   const v=prompt('ملاحظة على هذا الحجز (تظهر في المبيعات والتسجيلات والتقارير):',s.sale_note||'');
   if(v===null)return;
   setSaleField(id,'sale_note',v);
+}
+function voidBooking(id){
+  const s=S.slots.find(x=>x.id===id); if(!s)return;
+  setSaleField(id,'pay_method',isVoidPay(s.pay_method)?'':'لم يلعب هنا');
 }
 async function setSaleField(id,field,v){
   try{await sbPatch('slots',id,{[field]:String(v).trim()||null});const s=S.slots.find(x=>x.id===id);if(s)s[field]=String(v).trim()||null;renderSales();renderRec();renderRep();status('✓ حُفظ')}
