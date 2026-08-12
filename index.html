@@ -470,8 +470,10 @@ const DISCOUNTS=[
   {code:'manual',  label:'مبلغ يدوي…',         pct:null},
 ];
 /* طرق الدفع — من ملف الإكسل (مجاميع اليوم تُحسب لكل طريقة). Super Nova = مجاني بلا مبلغ */
-const PAYMENTS=['Card','Cash','Benefit','Online Tap','Battle Pass','Bank Transfer','Gift Card','24 Sessions','10 Sessions','Coupon','Super Nova','ملغي'];
-const FREE_PAY=['Super Nova','Battle Pass','ملغي'];
+const PAYMENTS=['Card','Cash','Benefit','Online Tap','Battle Pass','Bank Transfer','Gift Card','24 Sessions','10 Sessions','Coupon','Super Nova','ملغي','لم يلعب هنا'];
+const FREE_PAY=['Super Nova','Battle Pass','ملغي','لم يلعب هنا'];
+const VOID_PAY=['ملغي','لم يلعب هنا'];
+const isVoidPay=p=>VOID_PAY.includes(p);
 /* «How you Know about EVA» — سؤال الاستقبال (كعمود الإكسل) */
 const ROLES={gm:'قيم ماستر',reception:'استقبال',cashier:'كاشير',tech:'فنّي',super:'مشرف',cafe:'كافيه'};
 const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
@@ -1290,7 +1292,7 @@ function renderSales(){
       +'<span class="gtag" style="background:'+gameColor(s.game)+'">'+shortGame(s.game)+'</span>'
       +'<span class="who">'+partiesLabel(s)+'</span><span class="grow"></span>'
       +'<span class="ord">'+(s.order_no?'طلب #'+s.order_no:'<span class="dim">بلا رقم طلب</span>')+'</span>'
-      +'<span class="amt">'+c.net.toFixed(2)+'</span></div>'
+      +((!c.multi&&isVoidPay(s.pay_method))?'<span class="chip warn" style="font-weight:800">'+s.pay_method+'</span>':'<span class="amt">'+c.net.toFixed(2)+'</span>')+'</div>'
       +'<div class="invb"><div class="lines">'+linesHtml+'</div>'
       +'<div class="invtools">'+tools
       +'<button class="btn" onclick="splitOpen(\''+s.id+'\')">÷ تقسيم</button>'
@@ -2387,7 +2389,7 @@ const EN={
  '🏆 نتائج آخر المباريات':'🏆 Results of the last games','لا نتائج مرصودة اليوم بعد':'No results recorded today yet',
  // — إيفا نايت / إيفنت —
  'إيفا نايت':'EVA Night','إيفنت':'Event','🌙 إيفا نايت / إيفنت':'🌙 EVA Night / Event',
- 'ملغي':'Cancelled','سوبرنوفا+':'Supernova+','سوبرنوفا':'Supernova',
+ 'ملغي':'Cancelled','لم يلعب هنا':'Didn’t play here','سوبرنوفا+':'Supernova+','سوبرنوفا':'Supernova',
  '🌙 إيفا نايت / إيفنت / سوبرنوفا':'🌙 EVA Night / Event / Supernova',
  '💠 + سوبرنوفا+ ١١٠':'💠 + Supernova+ 110','⭐ + سوبرنوفا ٦٠':'⭐ + Supernova 60',
  '🌙 + إيفا نايت ١٥':'🌙 + EVA Night 15','🎉 + إيفنت':'🎉 + Event','السعر':'Price',
