@@ -2291,10 +2291,12 @@ function renderGm(){
   h+='<h2>الموظفون · الوظيفة وجدول العمل الأسبوعي</h2>'
    +'<div class="tblwrap"><table><tr><th>الاسم</th><th>الوظيفة</th>'
    +DAYS.map((d,i)=>'<th'+(i===dow?' style="background:#0e8ea6"':'')+'>'+d+'</th>').join('')
-   +'<th></th></tr>'
+   +'</tr>'
    +(staff.length?staff.map(p=>{
       const days=(p.days||'').split(',').filter(Boolean);
-      return '<tr><td class="r"><input class="xmail" value="'+p.name+'" style="width:130px;direction:rtl;font-weight:800" title="عدّل الاسم" onchange="staffRename(\''+p.id+'\',this.value)"></td>'
+      return '<tr><td class="r"><div class="row" style="gap:5px;flex-wrap:nowrap;justify-content:flex-end">'
+        +'<button class="btn ghost" style="color:var(--red);padding:2px 8px;font-weight:800" title="حذف الموظف" onclick="gmDelStaff(\''+p.id+'\',\''+esc(p.name)+'\')">✕</button>'
+        +'<input class="xmail" value="'+p.name+'" style="width:120px;direction:rtl;font-weight:800" title="عدّل الاسم" onchange="staffRename(\''+p.id+'\',this.value)"></div></td>'
         +'<td><select class="disc-sel" onchange="staffSet(\''+p.id+'\',\'role\',this.value)">'
           +'<option value="">— الوظيفة —</option>'
           +Object.keys(ROLES).map(k=>'<option value="'+k+'" '+(p.role===k?'selected':'')+'>'+ROLES[k]+'</option>').join('')
@@ -2303,9 +2305,9 @@ function renderGm(){
             +'<option value="">—</option><option value="OFF"'+(cur==='OFF'?' selected':'')+'>OFF</option>'
             +WEEK_SHIFTS.map(s=>'<option'+(cur===s.label?' selected':'')+'>'+s.label+'</option>').join('')
           +'</select></td>';}).join('')
-        +'<td><button class="btn ghost" style="color:var(--red)" onclick="gmDelStaff(\''+p.id+'\',\''+esc(p.name)+'\')">✕</button></td></tr>';
+        +'</tr>';
     }).join('')
-    :'<tr><td colspan="'+(DAYS.length+3)+'" class="dim">لا موظفين بعد</td></tr>')
+    :'<tr><td colspan="'+(DAYS.length+2)+'" class="dim">لا موظفين بعد</td></tr>')
    +'</table></div>'
    +'<div class="card" style="margin-top:10px"><div class="row">'
      +'<input class="xmail" id="gmNewName" placeholder="اسم الموظف…" style="direction:rtl;width:200px">'
@@ -2423,6 +2425,7 @@ async function gmAddStaff(){
   catch(e){status(/gm_staff/.test(e.message)?'⚠ شغّل eva_v3.sql في Supabase أولاً':'⚠ '+e.message)}
 }
 async function gmDelStaff(id,name){
+  if(!confirm((LANG==='en'?'Delete ':'حذف ')+name+'؟'))return;
   try{await sbDelete('gm_staff',`id=eq.${id}`);
     await sbDelete('gm_shifts',`day=eq.${DAY}&name=eq.${encodeURIComponent(name)}`).catch(()=>{});
     S.staff=S.staff.filter(p=>p.id!==id);await reloadGms();status('✓ حُذف '+name)}
