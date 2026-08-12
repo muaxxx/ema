@@ -1324,8 +1324,9 @@ function renderSales(){
     +'<div class="inv"><div class="invb"><div class="lines">'
     +(nightRows||'<div class="dim sm">لا سطور بعد — اضغط زرّاً أعلاه لإضافة إيفا نايت (١٥) أو إيفنت. السعر قابل للتعديل، وكل ضغطة تضيف سطراً.</div>')
     +'</div></div></div>';
-  const CT=cafeTotals(), cafeNet=CT.net;   // الكافيه له صفحته وتقريره — يُعرض هنا مرجعياً فقط
+  const CT=cafeTotals(), cafeNet=CT.net;
   const net=gross-discT;
+  const grand=+(net+cafeNet).toFixed(2);   // إجمالي اليوم شامل الكافيه
   const payRows=PAYMENTS.filter(p=>payN.get(p)>0).map(p=>
     '<div class="payline"><span>'+p+'</span><span class="dim sm">'+payN.get(p)+'</span>'
     +'<span class="grow"></span><b class="'+(isFreePay(p)?'free':'')+'">'+payT.get(p).toFixed(2)+'</b></div>').join('')
@@ -1336,14 +1337,16 @@ function renderSales(){
     +'<button class="btn" onclick="exportCSV()">⬇ Excel</button></div>'
     +cards+nightSection
     +'</div><aside class="accside">'
-    +'<div class="sumcard"><div class="sumtop"><div class="sumnet">'+net.toFixed(2)+'<span>BD</span></div>'
-    +'<div class="dim sm">صافي مبيعات اليوم</div></div>'
-    +'<div class="sumrow"><span>الإجمالي</span><b>'+gross.toFixed(2)+'</b></div>'
+    +'<div class="sumcard"><div class="sumtop"><div class="sumnet">'+grand.toFixed(2)+'<span>BD</span></div>'
+    +'<div class="dim sm">إجمالي مبيعات اليوم (شامل الكافيه)</div></div>'
+    +'<div class="sumrow"><span>مبيعات الجلسات</span><b>'+net.toFixed(2)+'</b></div>'
+    +'<div class="sumrow"><span>☕ الكافيه</span><b>'+cafeNet.toFixed(2)+'</b></div>'
+    +'<div class="sumrow"><span>الإجمالي قبل الخصم</span><b>'+gross.toFixed(2)+'</b></div>'
     +'<div class="sumrow"><span>الخصومات</span><b style="color:var(--amber)">−'+discT.toFixed(2)+'</b></div>'
-    +'<div class="sumrow"><span>الكافيه (صفحة مستقلة)</span><b>'+cafeNet.toFixed(2)+'</b></div>'
     +'<div class="sumrow '+(unpaid?'danger':'')+'"><span>بلا طريقة دفع</span><b>'+unpaid.toFixed(2)+'</b></div></div>'
     +'<div class="sumcard"><div class="sumhdr">توزيع التحصيل</div>'+payRows
-    +'<div class="payline tot"><span>المجموع</span><span class="grow"></span><b>'+net.toFixed(2)+'</b></div></div>'
+    +(cafeNet?'<div class="payline"><span>☕ الكافيه</span><span class="grow"></span><b>'+cafeNet.toFixed(2)+'</b></div>':'')
+    +'<div class="payline tot"><span>المجموع</span><span class="grow"></span><b>'+grand.toFixed(2)+'</b></div></div>'
     +'<div class="sumcard dim sm">التسعيرة: '+(isSunday(DAY)?'الأحد — ٩٫٥٠ لليوم كامل':'٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)')
     +'<br>العدد المحاسَب: تعديل الموظف ← رصد إيفا ← المحجوز.</div>'
     +'</aside></div>';
@@ -2409,6 +2412,7 @@ const EN={
  '✓ أُضيف للمخزون':'✓ Added to stock','اختر الصنف والكمية':'Choose item and quantity',
  // — واجهة المبيعات —
  'صافي مبيعات اليوم':'Net sales today','توزيع التحصيل':'Collection breakdown',
+ 'إجمالي مبيعات اليوم (شامل الكافيه)':'Total sales today (incl. café)','مبيعات الجلسات':'Session sales','☕ الكافيه':'☕ Café','الإجمالي قبل الخصم':'Gross before discount',
  'الكافيه (صفحة مستقلة)':'Café (separate page)','لم تُحدَّد طرق الدفع بعد':'No payment methods set yet',
  '🖨 تقرير المبيعات':'🖨 Sales report','الإجمالي':'Gross','الخصومات':'Discounts','بلا طريقة دفع':'No payment method',
  'لاعبون':'Players','بلا دفع':'Unpaid','÷ تقسيم':'÷ Split','📝 ملاحظة':'📝 Note','بلا رقم طلب':'No order no.',
@@ -2524,6 +2528,8 @@ const EN_RX=[
  [/^(\d+) مباراة · (.+)$/,'$1 games · $2'],
  [/^بيع (\d+)$/,'sold $1'],
  [/^⚠ مخزون منخفض: (.+)$/,'⚠ Low stock: $1'],
+ [/^الإجمالي ([\d.]+) · خصم −([\d.]+)$/,'Gross $1 · disc −$2'],
+ [/^الإجمالي ([\d.]+)$/,'Gross $1'],
  [/^⏸ توقف (.+)$/,'⏸ Pause $1'],
  [/^(.+) — تجاوز (\d+)د وأخّر الحجز التالي$/,'$1 — overran $2m and delayed the next booking'],
 ];
