@@ -1327,6 +1327,13 @@ function renderSales(){
   const CT=cafeTotals(), cafeNet=CT.net;
   const net=gross-discT;
   const grand=+(net+cafeNet).toFixed(2);   // إجمالي اليوم شامل الكافيه
+  // دمج مدفوعات الكافيه في توزيع التحصيل (بنفس حساب صفحة الكافيه)
+  for(const x of (S.extras||[]).filter(y=>!isSaleExtra(y))){
+    const a=+x.amount||0, d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
+    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0, v=Math.max(0,a-dv);
+    if(x.pay_method&&payT.has(x.pay_method)){payT.set(x.pay_method,payT.get(x.pay_method)+v);payN.set(x.pay_method,payN.get(x.pay_method)+1)}
+    else unpaid+=v;
+  }
   const payRows=PAYMENTS.filter(p=>payN.get(p)>0).map(p=>
     '<div class="payline"><span>'+p+'</span><span class="dim sm">'+payN.get(p)+'</span>'
     +'<span class="grow"></span><b class="'+(isFreePay(p)?'free':'')+'">'+payT.get(p).toFixed(2)+'</b></div>').join('')
@@ -1345,7 +1352,6 @@ function renderSales(){
     +'<div class="sumrow"><span>الخصومات</span><b style="color:var(--amber)">−'+discT.toFixed(2)+'</b></div>'
     +'<div class="sumrow '+(unpaid?'danger':'')+'"><span>بلا طريقة دفع</span><b>'+unpaid.toFixed(2)+'</b></div></div>'
     +'<div class="sumcard"><div class="sumhdr">توزيع التحصيل</div>'+payRows
-    +(cafeNet?'<div class="payline"><span>☕ الكافيه</span><span class="grow"></span><b>'+cafeNet.toFixed(2)+'</b></div>':'')
     +'<div class="payline tot"><span>المجموع</span><span class="grow"></span><b>'+grand.toFixed(2)+'</b></div></div>'
     +'<div class="sumcard dim sm">التسعيرة: '+(isSunday(DAY)?'الأحد — ٩٫٥٠ لليوم كامل':'٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)')
     +'<br>العدد المحاسَب: تعديل الموظف ← رصد إيفا ← المحجوز.</div>'
