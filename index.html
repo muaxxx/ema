@@ -2056,23 +2056,26 @@ table,tr,.tile{page-break-inside:avoid}
 `;
 function repHead(title,sub){
   return `<div class="hd">
-    <div><h1>EVA MARASSI — ${title}</h1><div class="sub">${sub}</div></div>
-    <div class="iss">صدر في<br><b>${fmtT(Date.now())}</b> · ${opDay()}${USER?'<br>بواسطة '+USER:''}</div>
+    <div><h1>EVA MARASSI — ${trText(title)}</h1><div class="sub">${trText(sub)}</div></div>
+    <div class="iss">${trText('صدر في')}<br><b>${fmtT(Date.now())}</b> · ${opDay()}${USER?'<br>'+trText('بواسطة')+' '+USER:''}</div>
   </div>`;
 }
 function printDoc(title,body,preview){
-  const html=`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
-<title>${title} — ${DAY}</title><style>${REP_CSS}</style></head><body>${body}
-<div class="ft"><span>EM · نظام مراسي v4.0 — الأرقام من إيفا مباشرة</span><span>${DAY}</span></div>
+  const en=LANG==='en';
+  const ft=en?'EM · Marassi System — numbers directly from EVA':'EM · نظام مراسي v4.0 — الأرقام من إيفا مباشرة';
+  const html=`<!doctype html><html lang="${en?'en':'ar'}" dir="${en?'ltr':'rtl'}"><head><meta charset="utf-8">
+<title>${trText(title)} — ${DAY}</title><style>${REP_CSS}</style></head><body>${body}
+<div class="ft"><span>${ft}</span><span>${DAY}</span></div>
 </body></html>`;
   if(preview)return html;
   /* كروم يسمّي ملف PDF بعنوان الصفحة الأمّ — فنغيّره مؤقتاً ليصير الاسم واضحاً */
   const oldTitle=document.title;
-  document.title=title+' · '+DAY+(USER?' · '+USER:'');
+  document.title=trText(title)+' · '+DAY+(USER?' · '+USER:'');
   const f=document.createElement('iframe');
   f.style.cssText='position:fixed;inset:0;width:0;height:0;border:0;opacity:0';
   document.body.appendChild(f);
   f.contentDocument.open();f.contentDocument.write(html);f.contentDocument.close();
+  if(en){try{sweep(f.contentDocument.body)}catch(e){}}
   setTimeout(()=>{f.contentWindow.focus();f.contentWindow.print();
     setTimeout(()=>{f.remove();document.title=oldTitle},1500)},350);
 }
@@ -2434,6 +2437,8 @@ const EN={
  'أكثر الأصناف':'Top items','لم تُحدَّد طرق الدفع':'No payment methods set',
  '☕ ساخنة':'☕ Hot','🧊 باردة':'🧊 Cold','🍪 سناكس':'🍪 Snacks','➕ إضافات':'➕ Extras',
  '📦 مخزون الكافيه':'📦 Café stock','لم يُدخَل مخزون بعد':'No stock entered yet','+ أضف':'+ Add','كمية':'Qty','🖨 طباعة المخزون':'🖨 Print stock',
+ 'صدر في':'Issued','بواسطة':'By','المخزون':'Stock','تقرير المخزون':'Stock report','المتبقّي':'Remaining','بيع اليوم':'Sold today','الحالة':'Status',
+ 'منخفض جداً':'Very low','منخفض':'Low','جيّد':'Good','لا مخزون مُدخَل بعد':'No stock entered yet','الساعة':'Time',
  '✓ أُضيف للمخزون':'✓ Added to stock','اختر الصنف والكمية':'Choose item and quantity',
  // — واجهة المبيعات —
  'صافي مبيعات اليوم':'Net sales today','توزيع التحصيل':'Collection breakdown',
@@ -2555,6 +2560,7 @@ const EN_RX=[
  [/^⚠ مخزون منخفض: (.+)$/,'⚠ Low stock: $1'],
  [/^الإجمالي ([\d.]+) · خصم −([\d.]+)$/,'Gross $1 · disc −$2'],
  [/^الإجمالي ([\d.]+)$/,'Gross $1'],
+ [/^جرد مخزون الكافيه · (.+) · الساعة (.+)$/,'Café stock count · $1 · time $2'],
  [/^⏸ توقف (.+)$/,'⏸ Pause $1'],
  [/^(.+) — تجاوز (\d+)د وأخّر الحجز التالي$/,'$1 — overran $2m and delayed the next booking'],
 ];
@@ -2575,7 +2581,7 @@ function trText(s){
 }
 function sweep(root){
   if(LANG!=='en'||!root)return;
-  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  const w=(root.ownerDocument||document).createTreeWalker(root,NodeFilter.SHOW_TEXT);
   let n;
   while(n=w.nextNode()){
     const s=n.nodeValue.trim();
