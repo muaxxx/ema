@@ -1687,8 +1687,20 @@ function renderCafe(){
         +'<select class="disc-sel" id="stkItem" style="flex:1">'+STOCK_ITEMS.map(n=>'<option>'+n+'</option>').join('')+'</select>'
         +'<input class="cnt" id="stkAmt" type="number" min="1" placeholder="كمية" style="width:64px">'
         +'<button class="btn primary" onclick="stockAdd()">+ أضف</button></div>'
-      +stockList+'</div>'
+      +stockList
+      +'<button class="btn" style="margin-top:10px;width:100%" onclick="printStock()">🖨 طباعة المخزون</button></div>'
   +'</aside></div>';
+}
+function printStock(){
+  const T=cafeTotals();
+  const rows=(S.stock||[]).slice().sort((a,b)=>(+a.qty)-(+b.qty)).map(r=>{
+    const q=+r.qty, sold=[...T.byItem].filter(e=>stockKeyOf(e[0])===r.item).reduce((a,e)=>a+(e[1].q||0),0);
+    const st=q<=5?'منخفض جداً':q<=15?'منخفض':'جيّد';
+    return '<tr><td class="r">'+r.item+'</td><td>'+q+'</td><td>'+(sold||'—')+'</td><td>'+st+'</td></tr>';
+  }).join('')||'<tr><td colspan="4">لا مخزون مُدخَل بعد</td></tr>';
+  const body=repHead('المخزون','جرد مخزون الكافيه · '+opDay()+' · الساعة '+fmtTS(Date.now()))
+    +'<table><tr><th>الصنف</th><th>المتبقّي</th><th>بيع اليوم</th><th>الحالة</th></tr>'+rows+'</table>';
+  return printDoc('تقرير المخزون',body);
 }
 function printCafe(){
   const T=cafeTotals();
@@ -2421,7 +2433,7 @@ const EN={
  'لا مبيعات كافيه اليوم':'No café sales today','صافي الكافيه اليوم':'Net café today','التحصيل':'Collection',
  'أكثر الأصناف':'Top items','لم تُحدَّد طرق الدفع':'No payment methods set',
  '☕ ساخنة':'☕ Hot','🧊 باردة':'🧊 Cold','🍪 سناكس':'🍪 Snacks','➕ إضافات':'➕ Extras',
- '📦 مخزون الكافيه':'📦 Café stock','لم يُدخَل مخزون بعد':'No stock entered yet','+ أضف':'+ Add','كمية':'Qty',
+ '📦 مخزون الكافيه':'📦 Café stock','لم يُدخَل مخزون بعد':'No stock entered yet','+ أضف':'+ Add','كمية':'Qty','🖨 طباعة المخزون':'🖨 Print stock',
  '✓ أُضيف للمخزون':'✓ Added to stock','اختر الصنف والكمية':'Choose item and quantity',
  // — واجهة المبيعات —
  'صافي مبيعات اليوم':'Net sales today','توزيع التحصيل':'Collection breakdown',
