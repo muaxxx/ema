@@ -538,8 +538,8 @@ const DISCOUNTS=[
   {code:'SPlat',   label:'S Platinum 50%',     pct:50},
   {code:'BP10',    label:'BP 10%',             pct:10},
   {code:'BP15',    label:'BP 15%',             pct:15},
-  {code:'80plus',  label:'80+ (مبلغ يدوي)',    pct:null},
-  {code:'80staff', label:'80+ STAFF (يدوي)',   pct:null},
+  {code:'80plus',  label:'80+ — 10%',           pct:10},
+  {code:'80staff', label:'80+ STAFF — 50% (أمريكانو/فلتر)',pct:50},
   {code:'manual',  label:'مبلغ يدوي…',         pct:null},
 ];
 /* طرق الدفع — من ملف الإكسل (مجاميع اليوم تُحسب لكل طريقة). Super Nova = مجاني بلا مبلغ */
@@ -1305,9 +1305,22 @@ function goAna(id){switchTab('ana');ANA_OPEN.add(id);renderAna();sweep(document.
 
 /* ═════════ المبيعات ═════════ */
 function discCode(s){return s.discount_code??''}
+/* أكواد مقصورة على أصناف بعينها: 80+ STAFF لا يخصم إلا على الأمريكانو والفلتر كوفي.
+   (80+ العادي ١٠٪ على كل شيء فلا قيد له.) */
+const DISC_ITEMS={'80staff':/AMERICANO|FILTER *COFFEE/i};
+function discOf(code){return DISCOUNTS.find(x=>x.code===(code||''))||null}
+/* نسبة الحجز — الأكواد المقصورة على أصناف الكافيه تُعامل كمبلغ يدوي (لا تُحسب على اللعب) */
+function slotPct(code){const d=discOf(code); return (!d||!d.code||DISC_ITEMS[d.code])?null:d.pct}
+/* نسبة صنف الكافيه — تُطبَّق فقط إن طابق اسم الصنف قيد الكود */
+function itemPct(code,label){
+  const d=discOf(code); if(!d||!d.code||d.pct==null)return 0;
+  const rx=DISC_ITEMS[d.code]; if(rx&&!rx.test(label||''))return 0;
+  return d.pct;
+}
+function itemDisc(amount,code,label){return +(((+amount||0)*itemPct(code,label))/100).toFixed(2)}
 function discAmountFor(s,amt){
-  const d=DISCOUNTS.find(x=>x.code===discCode(s));
-  if(d&&d.pct!=null&&d.code!=='')return +(amt*d.pct/100).toFixed(2);
+  const p=slotPct(discCode(s));
+  if(p!=null&&discCode(s)!=='')return +(amt*p/100).toFixed(2);
   return +(s.discount||0);
 }
 /* ── حساب الجلسة مع تقسيم الدفع ──
@@ -1327,8 +1340,8 @@ function saleCalc(s){
   const parts=[];
   const lineOf=(n,pay,code,manual,name)=>{
     const amt=+(n*rate).toFixed(2);
-    const d=DISCOUNTS.find(x=>x.code===(code||''));
-    let disc=(d&&d.pct!=null&&d.code)?+(amt*d.pct/100).toFixed(2):(+manual||0);
+    const p=slotPct(code);
+    let disc=(p!=null&&code)?+(amt*p/100).toFixed(2):(+manual||0);
     if(isFreePay(pay))disc=amt;                     // سوبر نوفا: مجاني بالكامل
     return {n,pay:pay||'',code:code||'',name:name||'',amt,disc:+disc.toFixed(2),net:+Math.max(0,amt-disc).toFixed(2)};
   };
@@ -1442,8 +1455,8 @@ function renderSales(){
   const grand=+(net+cafeNet).toFixed(2);   // إجمالي اليوم شامل الكافيه
   // دمج مدفوعات الكافيه في توزيع التحصيل (بنفس حساب صفحة الكافيه)
   for(const x of (S.extras||[]).filter(y=>!isSaleExtra(y))){
-    const a=+x.amount||0, d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
-    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0, v=Math.max(0,a-dv);
+    const a=+x.amount||0, d=discOf(x.discount_code);
+    const dv=itemDisc(a,x.discount_code,x.label), v=Math.max(0,a-dv);
     if(x.pay_method&&payT.has(x.pay_method)){payT.set(x.pay_method,payT.get(x.pay_method)+v);payN.set(x.pay_method,payN.get(x.pay_method)+1)}
     else unpaid+=v;
   }
@@ -1502,7 +1515,7 @@ function splitRender(){
       ${DISCOUNTS.map(d=>`<option value="${d.code}" ${v===d.code?'selected':''}>${d.label}</option>`).join('')}</select>`;
   let o=document.getElementById('splitOvl');
   if(!o){o=document.createElement('div');o.id='splitOvl';o.className='ovl';o.onclick=e=>{if(e.target===o)splitClose()};document.body.appendChild(o)}
-  const totalNet=SPL.arr.reduce((a,x)=>a+(isFreePay(x.pay)?0:(x.n*rate*(1-((DISCOUNTS.find(d=>d.code===x.code)||{}).pct||0)/100))),0);
+  const totalNet=SPL.arr.reduce((a,x)=>a+(isFreePay(x.pay)?0:(x.n*rate*(1-(slotPct(x.code)||0)/100))),0);
   o.innerHTML=`<div class="dlg">
     <h3>تقسيم الدفع — حجز <span class="t">${fmtT(s._t)}</span> · ${shortGame(s.game)}</h3>
     <div class="dim sm">اكتب لكل مجموعة: العدد وطريقة الدفع والخصم. مثال: ٢ سوبر نوفا · ٥ كاش · ٣ كارد</div>
@@ -1525,7 +1538,7 @@ function splitRender(){
         ${paySel(x.pay,`splitSet(${i},'pay',this.value)`)}
         ${discSel(x.code,`splitSet(${i},'code',this.value)`)}
         <span class="grow"></span>
-        <span class="t">${(isFreePay(x.pay)?0:(x.n*rate*(1-((DISCOUNTS.find(d=>d.code===x.code)||{}).pct||0)/100))).toFixed(2)}</span>
+        <span class="t">${(isFreePay(x.pay)?0:(x.n*rate*(1-(slotPct(x.code)||0)/100))).toFixed(2)}</span>
         <button class="btn ghost" style="color:var(--red)" onclick="splitDel(${i})">✕</button>
       </div>`).join('')}
     </div>
@@ -1588,7 +1601,8 @@ async function setDiscCode(id,code){
   const n=s.actual_players??s._actual??s.booked_players??0;
   const d=DISCOUNTS.find(x=>x.code===code);
   const amt=n*rate;
-  const val=(d&&d.pct!=null&&code!=='')?+(amt*d.pct/100).toFixed(2):(d&&d.pct==null?+(s.discount||0):null);
+  const p=slotPct(code);
+  const val=(p!=null&&code!=='')?+(amt*p/100).toFixed(2):((d&&(d.pct==null||DISC_ITEMS[code]))?+(s.discount||0):null);
   try{
     await sbPatch('slots',id,{discount_code:code||null,discount:val});
     s.discount_code=code||null;s.discount=val;renderSales();status('✓ حُفظ الخصم');
@@ -1677,13 +1691,14 @@ function printFinance(){
 }
 
 /* ═════════ الكافيه ═════════ */
-let CART=[], CAFE_CAT='hot';
+let CART=[], CAFE_CAT='hot', CART_PAY='', CART_DISC='';
+function cartDiscSet(v){CART_DISC=v;renderCafe()}
 function cafeTotals(){
   const byPay=new Map(PAYMENTS.map(p=>[p,0])), byItem=new Map(); let gross=0,disc=0,unset=0;
   for(const x of (S.extras||[])){
     if(isSaleExtra(x))continue;
-    const a=+x.amount||0, d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
-    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0, v=Math.max(0,a-dv);
+    const a=+x.amount||0, d=discOf(x.discount_code);
+    const dv=itemDisc(a,x.discount_code,x.label), v=Math.max(0,a-dv);
     gross+=a;disc+=dv;
     if(x.pay_method&&byPay.has(x.pay_method))byPay.set(x.pay_method,byPay.get(x.pay_method)+v);else unset+=v;
     const k=x.label||'—', e=byItem.get(k)||{q:0,v:0}; e.q+=(+x.qty||1); e.v+=v; byItem.set(k,e);
@@ -1712,7 +1727,7 @@ async function cartSave(){
     for(const x of CART){const k=stockKeyOf(x.n); if(stockQty(k)!=null)dec[k]=(dec[k]||0)+x.q;}
     const upd=Object.keys(dec).map(k=>({item:k,qty:stockQty(k)-dec[k]}));
     if(upd.length){try{await sbUpsert('cafe_stock',upd,'item');S.stock=await sbGet('cafe_stock?select=item,qty').catch(()=>S.stock);}catch(e){}}
-    CART=[];renderCafe();renderSales();renderRep();status('✓ سُجّل طلب الكافيه');
+    CART=[];CART_PAY='';CART_DISC='';renderCafe();renderSales();renderRep();status('✓ سُجّل طلب الكافيه');
   }catch(e){status(/extra_sales|discount_code|at_time/.test(e.message)?'⚠ شغّل ملف eva_v4.sql في Supabase أولاً':'⚠ '+e.message)}
 }
 function stockQty(item){const r=(S.stock||[]).find(x=>x.item===item);return r?+r.qty:null}
@@ -1731,6 +1746,12 @@ function renderCafe(){
   const el=document.getElementById('tab-cafe'); if(!el)return;
   const T=cafeTotals();
   const cartTotal=CART.reduce((a,x)=>a+x.p*x.q,0);
+  /* الخصم يُحسب لكل صنف على حدة — بعض الأكواد لا تخصم إلا على أصناف بعينها */
+  const cartDisc=CART.reduce((a,x)=>a+itemDisc(x.p*x.q,CART_DISC,x.n),0);
+  const cartNet=Math.max(0,cartTotal-cartDisc);
+  const dSel=discOf(CART_DISC);
+  const dHint=(dSel&&dSel.code&&DISC_ITEMS[dSel.code])
+    ?'<div class="dim sm" style="padding:2px 10px 8px">'+dSel.label+' — يُطبَّق على الأمريكانو والفلتر كوفي فقط</div>':'';
   const menu=CAFE_MENU.filter(m=>m.c===CAFE_CAT).map(m=>
     '<button class="mbtn" onclick="cafeAddItem(\''+m.n.replace(/'/g,"\\'")+'\','+m.p+')">'
     +'<span class="mn">'+m.n+'</span><b class="mp">'+m.p.toFixed(2)+'</b></button>').join('');
@@ -1743,8 +1764,8 @@ function renderCafe(){
     :'<div class="dim sm">اضغط أي صنف لإضافته</div>';
   const orders=(S.extras||[]).filter(x=>!isSaleExtra(x)).slice().reverse();
   const ordersHtml=orders.length?orders.map(x=>{
-    const a=+x.amount||0,d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
-    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0;
+    const a=+x.amount||0,d=discOf(x.discount_code);
+    const dv=itemDisc(a,x.discount_code,x.label);
     return '<div class="lin"><span class="dim sm">'+(x.at_time||'')+'</span>'
       +'<b>'+(x.label||'—')+'</b><span class="dim sm">×'+(x.qty||1)+'</span>'
       +(d&&d.code?'<span class="chip warn sm">'+d.label+'</span>':'')
@@ -1774,11 +1795,16 @@ function renderCafe(){
         '<button class="catbtn '+(CAFE_CAT===c?'on':'')+'" onclick="cafeCat(\''+c+'\')">'+CAFE_CATS[c]+'</button>').join('')+'</div>'
     +'<div class="menugrid">'+menu+'</div>'
     +'<div class="inv cafe" style="margin-top:14px"><div class="invh"><b>🧾 الطلب الحالي</b>'
-      +'<span class="grow"></span><span class="amt">'+cartTotal.toFixed(2)+'</span></div>'
-      +'<div class="invb"><div class="lines">'+cart+'</div>'
+      +'<span class="grow"></span>'
+      +(cartDisc?'<span class="dim sm" style="text-decoration:line-through;margin-inline-end:8px">'+cartTotal.toFixed(2)+'</span>'
+        +'<span class="chip warn sm" style="margin-inline-end:8px">−'+cartDisc.toFixed(2)+'</span>':'')
+      +'<span class="amt">'+cartNet.toFixed(2)+'</span></div>'
+      +'<div class="invb"><div class="lines">'+cart+'</div>'+dHint
       +'<div class="invtools">'
-        +'<select class="disc-sel" id="cartPay"><option value="">— طريقة الدفع —</option>'+PAYMENTS.map(p=>'<option>'+p+'</option>').join('')+'</select>'
-        +'<select class="disc-sel" id="cartDisc">'+DISCOUNTS.map(d=>'<option value="'+d.code+'">'+d.label+'</option>').join('')+'</select>'
+        +'<select class="disc-sel" id="cartPay" onchange="CART_PAY=this.value"><option value="">— طريقة الدفع —</option>'
+          +PAYMENTS.map(p=>'<option'+(p===CART_PAY?' selected':'')+'>'+p+'</option>').join('')+'</select>'
+        +'<select class="disc-sel" id="cartDisc" onchange="cartDiscSet(this.value)">'
+          +DISCOUNTS.map(d=>'<option value="'+d.code+'"'+(d.code===CART_DISC?' selected':'')+'>'+d.label+'</option>').join('')+'</select>'
         +'<button class="btn primary" onclick="cartSave()">💾 احفظ الطلب</button>'
         +'<button class="btn" onclick="cartClear()">مسح</button>'
       +'</div></div></div>'
@@ -1815,8 +1841,8 @@ function printStock(){
 function printCafe(){
   const T=cafeTotals();
   const rows=(S.extras||[]).map(x=>{
-    const a=+x.amount||0,d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
-    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0;
+    const a=+x.amount||0,d=discOf(x.discount_code);
+    const dv=itemDisc(a,x.discount_code,x.label);
     return '<tr><td>'+(x.at_time||'')+'</td><td class="r">'+(x.label||'')+'</td><td>'+(CAFE_CATS[cafeCatOf(x.label)]||'')+'</td>'
       +'<td>'+(x.qty||1)+'</td><td>'+a.toFixed(2)+'</td><td>'+(dv?'−'+dv.toFixed(2):'')+'</td>'
       +'<td><b>'+(a-dv).toFixed(2)+'</b></td><td>'+(x.pay_method||'<b class="bad">بلا دفع</b>')+'</td></tr>';
@@ -2402,8 +2428,8 @@ function printSales(preview){
     }
   }
   for(const x of (S.extras||[])){
-    const a=+x.amount||0,d=DISCOUNTS.find(t=>t.code===(x.discount_code||''));
-    const dv=(d&&d.pct!=null&&d.code)?+(a*d.pct/100).toFixed(2):0;
+    const a=+x.amount||0,d=discOf(x.discount_code);
+    const dv=itemDisc(a,x.discount_code,x.label);
     gross+=a;disc+=dv;const v=a-dv;
     if(x.pay_method&&payT.has(x.pay_method)){payT.set(x.pay_method,payT.get(x.pay_method)+v);payN.set(x.pay_method,payN.get(x.pay_method)+1)}
     else unset+=v;
