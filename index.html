@@ -2170,6 +2170,11 @@ thead{display:table-header-group}                 /* رأس الأعمدة يت�
 tfoot{display:table-footer-group}
 h2{page-break-after:avoid;break-after:avoid}      /* لا يبقى عنوان وحيداً أسفل الصفحة */
 @page{size:A4;margin:0}
+/* التذييل سطر واحد — كان يُزيح لصفحة كاملة وحده. يصير تذييلاً ثابتاً أسفل كل صفحة. */
+@media print{
+  body{padding-bottom:13mm}
+  .ft{position:fixed;left:0;right:0;bottom:0;margin:0;padding:2mm 8mm 3mm;background:#fff;border-top:1px solid #dbe7ee}
+}
 `;
 function repHead(title,sub){
   return `<div class="hd">
@@ -2213,7 +2218,8 @@ const PRN_CSS=`
   body>*:not(#prnLayer){display:none!important}
   #prnBar{display:none!important}
   #prnLayer{position:static;inset:auto;overflow:visible;background:#fff}
-  #prnInner{width:auto;margin:0;padding:9mm 8mm;background:#fff}
+  #prnInner{width:auto;margin:0;padding:9mm 8mm 13mm;background:#fff}
+  #prnInner .ft{position:fixed;left:0;right:0;bottom:0;margin:0;padding:2mm 8mm 3mm;background:#fff;border-top:1px solid #dbe7ee}
 }`;
 let PRN_TITLE='';
 function prnClose(){
@@ -3020,12 +3026,18 @@ function rDownload(idx){
     H=Math.ceil(clone.getBoundingClientRect().height)||Math.ceil(clone.offsetHeight)||420;
   }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message); return }
   rMapData(bgm?bgm[1]:null,W*sc,H*sc,function(dataUrl){
+    const nobg=(bgm&&!dataUrl)?' (بلا خلفية خريطة)':'';
     try{
       if(dataUrl)clone.style.backgroundImage="url('"+dataUrl+"')";
       const inner=new XMLSerializer().serializeToString(clone);
       if(frame){frame.remove();frame=null}
-      const body='<div xmlns="http://www.w3.org/1999/xhtml" style="direction:ltr;width:'+W+'px;height:'+H+'px;background:#0a1220"><style>'+css+'</style>'+inner+'</div>';
-      const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+(W*sc)+'" height="'+(H*sc)+'" viewBox="0 0 '+W+' '+H+'"><foreignObject x="0" y="0" width="'+W+'" height="'+H+'">'+body+'</foreignObject></svg>';
+      /* سفاري (iPhone) لا يُكبّر محتوى foreignObject مع viewBox — كانت البطاقة تخرج بنصف الحجم
+         في ركن الصورة. الحلّ: بلا viewBox إطلاقاً، والتكبير بـtransform:scale داخل الـHTML نفسه. */
+      const body='<div xmlns="http://www.w3.org/1999/xhtml" style="direction:ltr;width:'+W+'px;height:'+H+'px;'
+        +'background:#0a1220;transform:scale('+sc+');transform-origin:0 0;-webkit-transform:scale('+sc+');-webkit-transform-origin:0 0">'
+        +'<style>'+css+'</style>'+inner+'</div>';
+      const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+(W*sc)+'" height="'+(H*sc)+'">'
+        +'<foreignObject x="0" y="0" width="'+(W*sc)+'" height="'+(H*sc)+'">'+body+'</foreignObject></svg>';
       const img=new Image();
       img.onload=function(){
         try{
@@ -3035,9 +3047,9 @@ function rDownload(idx){
           c.toBlob(function(b){ if(!b){status('⚠ تعذّر إنشاء الصورة');return}
             const file=new File([b],'EVA-MARASSI-result.png',{type:'image/png'});
             if(navigator.canShare&&navigator.canShare({files:[file]})){
-              navigator.share({files:[file],title:'EVA Marassi'}).then(function(){status('✓ تمّت المشاركة/الحفظ')}).catch(function(){status('أُلغيت المشاركة')});
+              navigator.share({files:[file],title:'EVA Marassi'}).then(function(){status('✓ تمّت المشاركة/الحفظ'+nobg)}).catch(function(){status('أُلغيت المشاركة')});
             }else{
-              const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='EVA-MARASSI-result.png'; a.click(); status('✓ نُزّلت الصورة');
+              const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='EVA-MARASSI-result.png'; a.click(); status('✓ نُزّلت الصورة'+nobg);
             } },'image/png');
         }catch(e){ status('⚠ '+e.message) }
       };
