@@ -1808,7 +1808,7 @@ function printCafe(){
    +'<div class="tile"><div class="v" style="color:'+(T.unset?'#c22e3c':'#127a48')+'">'+T.unset.toFixed(2)+'</div><div class="l">بلا طريقة دفع</div></div>'
    +'<div class="tile"><div class="v">'+(S.extras||[]).length+'</div><div class="l">أصناف مباعة</div></div>'
   +'</div>'
-  +'<h2>تفصيل المبيعات</h2><table><tr><th>الوقت</th><th>الصنف</th><th>الفئة</th><th>الكمية</th><th>المبلغ</th><th>الخصم</th><th>الصافي</th><th>الدفع</th></tr>'+rows+'</table>'
+  +'<h2>تفصيل المبيعات</h2><table><thead><tr><th>الوقت</th><th>الصنف</th><th>الفئة</th><th>الكمية</th><th>المبلغ</th><th>الخصم</th><th>الصافي</th><th>الدفع</th></tr></thead>'+rows+'</table>'
   +'<div class="two"><div><h2>حسب الصنف</h2><table><tr><th>الصنف</th><th>عدد</th><th>الصافي</th></tr>'+(items||'<tr><td colspan="3">—</td></tr>')+'</table></div>'
   +'<div><h2>التحصيل</h2><table><tr><th>الطريقة</th><th>المبلغ</th></tr>'+pays+'</table></div></div>';
   return printDoc('تقرير الكافيه',body);
@@ -2138,7 +2138,11 @@ tr.tot th{background:#123f4a}
 .two{display:flex;gap:8px;align-items:flex-start}.two>div{flex:1;min-width:0}
 .three{display:flex;gap:8px;align-items:flex-start}.three>div{flex:1;min-width:0}
 .ft{margin-top:9px;border-top:1px solid #dbe7ee;padding-top:4px;font-size:8px;color:#708999;display:flex;justify-content:space-between}
-table,tr,.tile{page-break-inside:avoid}
+/* الجدول الطويل يُقسَّم بين الصفحات (كان table في القائمة فيُقفز كاملاً وتبقى صفحة فارغة) */
+tr,.tile{page-break-inside:avoid;break-inside:avoid}
+thead{display:table-header-group}                 /* رأس الأعمدة يتكرّر في كل صفحة */
+tfoot{display:table-footer-group}
+h2{page-break-after:avoid;break-after:avoid}      /* لا يبقى عنوان وحيداً أسفل الصفحة */
 @page{size:A4;margin:0}
 `;
 function repHead(title,sub){
@@ -2147,24 +2151,77 @@ function repHead(title,sub){
     <div class="iss">${trText('صدر في')}<br><b>${fmtT(Date.now())}</b> · ${opDay()}${USER?'<br>'+trText('بواسطة')+' '+USER:''}</div>
   </div>`;
 }
+/* ── طبقة الطباعة للجوال ──
+   سفاري/كروم على الهاتف لا يطبعان إطاراً مخفيّاً (يطبعان الصفحة الأمّ)، فنجعل التقرير
+   نفسه هو الصفحة: طبقة تغطّي الشاشة + نخفي بقيّة الصفحة، ثم window.print() على النافذة الأمّ. */
+const PRN_CSS=`
+#prnLayer{position:fixed;inset:0;z-index:99998;overflow:auto;-webkit-overflow-scrolling:touch;background:#dfe8ee}
+#prnInner{width:794px;max-width:none;margin:0 auto;background:#fff;padding:9mm 8mm 120px;color:#1a2b38}
+#prnBar{position:fixed;left:0;right:0;bottom:0;z-index:99999;display:flex;gap:8px;justify-content:center;
+  padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:#0e6c7d;box-shadow:0 -4px 14px rgba(0,0,0,.25)}
+#prnBar button{font:800 15px/1 'Tajawal',system-ui,Tahoma,sans-serif;border:0;border-radius:9px;padding:13px 20px;cursor:pointer}
+#prnBar .go{background:#fff;color:#0e6c7d}
+#prnBar .cx{background:rgba(255,255,255,.18);color:#fff}
+@media screen{body>*:not(#prnLayer):not(#prnBar){display:none!important}body{padding:0!important;background:#dfe8ee}}
+@media print{
+  body>*:not(#prnLayer){display:none!important}
+  #prnBar{display:none!important}
+  #prnLayer{position:static;inset:auto;overflow:visible;background:#fff}
+  #prnInner{width:auto;margin:0;padding:0}
+}`;
+let PRN_TITLE='';
+function prnClose(){
+  const l=document.getElementById('prnLayer'), b=document.getElementById('prnBar'), s=document.getElementById('prnCSS');
+  if(l)l.remove(); if(b)b.remove(); if(s)s.remove();
+  if(PRN_TITLE){document.title=PRN_TITLE;PRN_TITLE=''}
+}
+function prnLayer(bodyHtml,title,en){
+  prnClose();
+  const s=document.createElement('style'); s.id='prnCSS'; s.textContent=REP_CSS+PRN_CSS;
+  const l=document.createElement('div'); l.id='prnLayer';
+  const inner=document.createElement('div'); inner.id='prnInner';
+  inner.dir=en?'ltr':'rtl'; inner.innerHTML=bodyHtml;
+  l.appendChild(inner);
+  const bar=document.createElement('div'); bar.id='prnBar';
+  const go=document.createElement('button'); go.className='go'; go.textContent='🖨 '+(en?'Print / Save PDF':'اطبع · حفظ PDF');
+  const cx=document.createElement('button'); cx.className='cx'; cx.textContent=en?'Close':'إغلاق';
+  go.addEventListener('click',function(){try{window.print()}catch(e){}});
+  cx.addEventListener('click',prnClose);
+  bar.appendChild(go); bar.appendChild(cx);
+  document.head.appendChild(s); document.body.appendChild(l); document.body.appendChild(bar);
+  PRN_TITLE=document.title; document.title=title;   /* اسم ملف PDF */
+  if(en){try{sweep(inner)}catch(e){}}
+  l.scrollTop=0;
+  setTimeout(function(){try{window.print()}catch(e){}},450);
+}
+function isPhone(){
+  try{return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(matchMedia('(max-width:820px)').matches&&matchMedia('(pointer:coarse)').matches)}catch(e){return false}
+}
 function printDoc(title,body,preview){
   const en=LANG==='en';
   const ft=en?'EM · Marassi System — numbers directly from EVA':'EM · نظام مراسي v4.0 — الأرقام من إيفا مباشرة';
+  const full=`${body}\n<div class="ft"><span>${ft}</span><span>${DAY}</span></div>`;
+  const name=trText(title)+' · '+DAY+(USER?' · '+USER:'');
   const html=`<!doctype html><html lang="${en?'en':'ar'}" dir="${en?'ltr':'rtl'}"><head><meta charset="utf-8">
-<title>${trText(title)} — ${DAY}</title><style>${REP_CSS}</style></head><body>${body}
-<div class="ft"><span>${ft}</span><span>${DAY}</span></div>
+<meta name="viewport" content="width=794,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<title>${trText(title)} — ${DAY}</title><style>${REP_CSS}</style></head><body>${full}
 </body></html>`;
   if(preview)return html;
+  if(isPhone()){prnLayer(full,name,en);status('اضغط «اطبع · حفظ PDF» ثم «إغلاق»');return}
   /* كروم يسمّي ملف PDF بعنوان الصفحة الأمّ — فنغيّره مؤقتاً ليصير الاسم واضحاً */
   const oldTitle=document.title;
-  document.title=trText(title)+' · '+DAY+(USER?' · '+USER:'');
+  document.title=name;
   const f=document.createElement('iframe');
   f.style.cssText='position:fixed;inset:0;width:0;height:0;border:0;opacity:0';
   document.body.appendChild(f);
   f.contentDocument.open();f.contentDocument.write(html);f.contentDocument.close();
   if(en){try{sweep(f.contentDocument.body)}catch(e){}}
-  setTimeout(()=>{f.contentWindow.focus();f.contentWindow.print();
-    setTimeout(()=>{f.remove();document.title=oldTitle},1500)},350);
+  const done=function(){if(f.parentNode){f.remove();document.title=oldTitle}};
+  setTimeout(()=>{try{f.contentWindow.onafterprint=function(){setTimeout(done,400)}}catch(e){}
+    f.contentWindow.focus();f.contentWindow.print();
+    setTimeout(done,60000);   /* حارس فقط — الحذف المبكّر كان يقطع الطباعة */
+  },350);
 }
 
 /* ── تقرير التشغيل: حجوزات · أوقات · تأخير · خرائط (بلا أرقام مالية) ── */
@@ -2213,7 +2270,7 @@ function printOps(preview){
     <div class="tile"><div class="v">${players}</div><div class="l">لاعبون</div></div>
   </div>
   <h2>حجوزات اليوم</h2>
-  <table><tr><th>الوقت</th><th>الحساب</th><th>اللعبة</th><th>لعبوا</th><th>بدء</th><th>صافي اللعب</th><th>التجهيز</th><th>النقص</th><th>الخرائط</th></tr>${rows}</table>
+  <table><thead><tr><th>الوقت</th><th>الحساب</th><th>اللعبة</th><th>لعبوا</th><th>بدء</th><th>صافي اللعب</th><th>التجهيز</th><th>النقص</th><th>الخرائط</th></tr></thead>${rows}</table>
   <div class="three">
     <div><h2>مسؤولية التأخير</h2>
       <table><tr><th>الوقت</th><th>الحساب</th><th>التأخير</th><th>السبب</th></tr>
@@ -2299,7 +2356,7 @@ function printSales(preview){
     <div class="tile"><div class="v">${idx}</div><div class="l">فواتير</div></div>
   </div>
   <h2>تفصيل المبيعات</h2>
-  <table><tr><th>#</th><th>الوقت</th><th>رقم الطلب</th><th>الحساب</th><th>اللعبة</th><th>لعبوا/محجوز</th><th>الفرد</th><th>المبلغ</th><th>الخصم</th><th>الصافي</th><th>الدفع</th><th>ملاحظات</th></tr>
+  <table><thead><tr><th>#</th><th>الوقت</th><th>رقم الطلب</th><th>الحساب</th><th>اللعبة</th><th>لعبوا/محجوز</th><th>الفرد</th><th>المبلغ</th><th>الخصم</th><th>الصافي</th><th>الدفع</th><th>ملاحظات</th></tr></thead>
   ${rows}
   <tr class="tot"><th colspan="7">المجموع</th><th>${gross.toFixed(2)}</th><th>−${disc.toFixed(2)}</th><th>${net.toFixed(2)}</th><th colspan="2"></th></tr></table>
   <h2>مجموع الدفع</h2>
@@ -2817,46 +2874,99 @@ function resultCard(g,i){
    +'<div class="rtables">'+tbl(A,'a')+tbl(B,'b')+'</div></div>';
 }
 
+/* عرض ثابت لصورة النتيجة — لا يتبع عرض الجوال إطلاقاً */
+const R_EXP_W=1000, R_EXP_SC=2;
 function rCollectCSS(){
   let out='';
   for(const sh of document.styleSheets){
     let rules; try{rules=sh.cssRules||sh.rules}catch(e){continue}
     if(!rules)continue;
-    for(const r of rules){const t=r.cssText||''; if(/\.(r[a-z]|crown|glogo|dim|row|grow|empty)/.test(t))out+=t+'\n';}
+    for(const r of rules){
+      /* نتخطّى @media كلّها: داخل الصورة يُقاس العرض بشكل مختلف فتنطبق قواعد الجوال خطأً وتُقصّ البطاقة */
+      if(r.type===4||/^\s*@media/i.test(r.cssText||''))continue;
+      const t=r.cssText||''; if(/\.(r[a-z]|crown|glogo|dim|row|grow|empty)/.test(t))out+=t+'\n';
+    }
   }
   return out;
+}
+/* الخريطة تُصغَّر إلى مقاس البطاقة (بدل تضمين ٤ م.ب داخل الصورة) */
+function rMapData(url,W,H,cb){
+  if(!url){cb(null);return}
+  const im=new Image();
+  im.onload=function(){
+    try{
+      const c=document.createElement('canvas'); c.width=W; c.height=H;
+      const x=c.getContext('2d'), s=Math.max(W/im.width,H/im.height);
+      const dw=im.width*s, dh=im.height*s;
+      x.drawImage(im,(W-dw)/2,(H-dh)/2,dw,dh);
+      cb(c.toDataURL('image/jpeg',.86));
+    }catch(e){cb(null)}
+  };
+  im.onerror=function(){cb(null)};
+  im.src=url;
 }
 function rDownload(idx){
   const card=document.querySelectorAll('#tab-res .rcard')[idx];
   if(!card){status('⚠ لا توجد بطاقة');return}
   status('⏳ تجهيز الصورة…');
-  const bg=(card.style.backgroundImage||'').match(/url\(["']?([^"')]+)/);
-  const finish=function(dataUrl){
+  const bgm=(card.style.backgroundImage||'').match(/url\(["']?([^"')]+)/);
+  const W=R_EXP_W, sc=R_EXP_SC;
+  const css=rCollectCSS()
+    +'*{box-sizing:border-box;margin:0;padding:0}'
+    +'.rcard{margin:0!important;width:'+W+'px}'
+    +'.rcard,.rcard *{font-family:Arial,Helvetica,sans-serif}';
+  let frame=null, clone=null, H=0;
+  try{
+    /* إطار مخفي بعرض ثابت ١٠٠٠px: يُقاس فيه الارتفاع الحقيقي بنفس التنسيق الذي سيُرسم به */
+    frame=document.createElement('iframe');
+    frame.setAttribute('aria-hidden','true');
+    frame.style.cssText='position:fixed;left:-20000px;top:0;width:'+W+'px;height:600px;border:0;opacity:0;pointer-events:none';
+    document.body.appendChild(frame);
+    const fd=frame.contentDocument;
+    fd.open();
+    fd.write('<!doctype html><html dir="ltr"><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;width:'+W+'px;background:#0a1220}'+css+'</style></head><body></body></html>');
+    fd.close();
+    clone=card.cloneNode(true);
+    const dl=clone.querySelector('.rdl'); if(dl)dl.remove();
+    clone.style.margin='0'; clone.style.width=W+'px'; clone.style.backgroundImage='none';
+    fd.body.appendChild(clone);
+    void fd.body.offsetHeight;                       /* فرض إعادة التخطيط قبل القياس */
+    H=Math.ceil(clone.getBoundingClientRect().height)||Math.ceil(clone.offsetHeight)||420;
+  }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message); return }
+  rMapData(bgm?bgm[1]:null,W*sc,H*sc,function(dataUrl){
+    let url=null;
     try{
-      const w=Math.ceil(card.offsetWidth), h=Math.ceil(card.offsetHeight), sc=2;
-      const clone=card.cloneNode(true); clone.style.margin='0';
       if(dataUrl)clone.style.backgroundImage="url('"+dataUrl+"')";
-      const dl=clone.querySelector('.rdl'); if(dl)dl.remove();
-      const body='<div xmlns="http://www.w3.org/1999/xhtml" style="direction:ltr;width:'+w+'px"><style>'+rCollectCSS()+'</style>'+new XMLSerializer().serializeToString(clone)+'</div>';
-      const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+(w*sc)+'" height="'+(h*sc)+'" viewBox="0 0 '+w+' '+h+'"><foreignObject x="0" y="0" width="'+w+'" height="'+h+'">'+body+'</foreignObject></svg>';
+      const inner=new XMLSerializer().serializeToString(clone);
+      if(frame){frame.remove();frame=null}
+      const body='<div xmlns="http://www.w3.org/1999/xhtml" style="direction:ltr;width:'+W+'px;height:'+H+'px;background:#0a1220"><style>'+css+'</style>'+inner+'</div>';
+      const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+(W*sc)+'" height="'+(H*sc)+'" viewBox="0 0 '+W+' '+H+'"><foreignObject x="0" y="0" width="'+W+'" height="'+H+'">'+body+'</foreignObject></svg>';
       const img=new Image();
       img.onload=function(){
-        const c=document.createElement('canvas'); c.width=w*sc; c.height=h*sc;
-        c.getContext('2d').drawImage(img,0,0,w*sc,h*sc);
-        c.toBlob(function(b){ if(!b){status('⚠ تعذّر إنشاء الصورة');return}
-          const file=new File([b],'EVA-MARASSI-result.png',{type:'image/png'});
-          if(navigator.canShare&&navigator.canShare({files:[file]})){
-            navigator.share({files:[file],title:'EVA Marassi'}).then(function(){status('✓ تمّت المشاركة/الحفظ')}).catch(function(){status('أُلغيت المشاركة')});
-          }else{
-            const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='EVA-MARASSI-result.png'; a.click(); status('✓ نُزّلت الصورة');
-          } },'image/png');
+        try{
+          const c=document.createElement('canvas'); c.width=W*sc; c.height=H*sc;
+          const x=c.getContext('2d'); x.fillStyle='#0a1220'; x.fillRect(0,0,c.width,c.height);
+          x.drawImage(img,0,0,W*sc,H*sc);
+          if(url)URL.revokeObjectURL(url);
+          c.toBlob(function(b){ if(!b){status('⚠ تعذّر إنشاء الصورة');return}
+            const file=new File([b],'EVA-MARASSI-result.png',{type:'image/png'});
+            if(navigator.canShare&&navigator.canShare({files:[file]})){
+              navigator.share({files:[file],title:'EVA Marassi'}).then(function(){status('✓ تمّت المشاركة/الحفظ')}).catch(function(){status('أُلغيت المشاركة')});
+            }else{
+              const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='EVA-MARASSI-result.png'; a.click(); status('✓ نُزّلت الصورة');
+            } },'image/png');
+        }catch(e){ status('⚠ '+e.message) }
       };
-      img.onerror=function(){ status('⚠ تعذّر توليد الصورة'); };
-      img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
-    }catch(e){ status('⚠ '+e.message); }
-  };
-  if(bg){ fetch(bg[1]).then(function(r){return r.blob()}).then(function(b){const fr=new FileReader();fr.onload=function(){finish(fr.result)};fr.onerror=function(){finish(null)};fr.readAsDataURL(b);}).catch(function(){finish(null)}); }
-  else finish(null);
+      img.onerror=function(){
+        if(url){ URL.revokeObjectURL(url); url=null;   /* بديل: data-URI لو رُفض blob */
+          img.onerror=function(){status('⚠ تعذّر توليد الصورة')};
+          img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); return }
+        status('⚠ تعذّر توليد الصورة');
+      };
+      try{ url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'})); img.src=url }
+      catch(e){ img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg) }
+    }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message) }
+  });
 }
 
 /* ═════════ التبويبات ═════════ */
