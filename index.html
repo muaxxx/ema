@@ -2940,20 +2940,12 @@ function resultCard(g,i){
   const n1=(k1!=null?String(k1):'ALLIANCE').toUpperCase(), n2=(k2!=null?String(k2):'REBELS').toUpperCase();
   const kA=A.reduce((a,p)=>a+(+p.kills||0),0), kB=B.reduce((a,p)=>a+(+p.kills||0),0);
   /* اسم اللعبة الحقيقي من الحجز (أو من raw إن كان لعباً بلا حجز) — كان مكتوباً BATTLE ARENA دائماً */
-  const rawG=(g.raw&&(g.raw.gameId!=null?'gameId '+g.raw.gameId:(g.raw.game||g.raw.gameName)))||null;
-  const gFull=g.cc?'RABBIDS: COLOR CHAOS':gameName((g._slot&&g._slot.game)||rawG||'EVA BATTLE ARENA');
-  const gU=String(gFull).toUpperCase();
-  /* ثلاثة أنماط:
-     coop = مون أوف ذا ديد/زومبي (تعاوني — لا نتيجة فريقين)
-     team = فريقان ونتيجة حقيقية
-     solo = فري-فور-أول (ترتيب فردي — كان يظهر 0 · 0 بلا معنى) */
-  const isCoop=/MOON|ZOMBIE|SURVIVAL/.test(gU);
-  const twoTeams=(g.team_one!=null&&g.team_two!=null&&String(g.team_one)!==String(g.team_two))||teams.length===2;
-  const hasRes=(s1!=null&&s2!=null)&&!(+s1===0&&+s2===0);
-  const mode=isCoop?'coop':((twoTeams&&hasRes)?'team':'solo');
-  // Team Deathmatch: نتيجة الفريق = مجموع قتلاه (نقاط، بلا %) · غير ذلك = Domination (%)
-  const isTDM=(s1!=null&&s2!=null&&s1===kA&&s2===kB);
-  const pctMode=(!isTDM&&s1!=null&&s2!=null&&s1<=100&&s2<=100);
+  /* النوع من البيانات نفسها (يعمل للجولات القديمة بلا حجز مرتبط) — انظر roundMode */
+  const rmode=roundMode(g);
+  const mode=(rmode==='coop')?'coop':(rmode==='ffa'?'solo':'team');
+  const gFull=g.cc?'RABBIDS: COLOR CHAOS'
+    :gameName((g._slot&&g._slot.game)||(rmode==='coop'?'EVA MOON OF THE DEAD':'EVA BATTLE ARENA'));
+  const pctMode=(rmode==='dom');   /* دومينيشن بنسبة مئوية · تيم دث ماتش بالنقاط */
   const fp=v=>v==null?'-':(pctMode?v+'%':String(v));
   const prow=(p,rk)=>'<div class="rrow'+(rk===1?' rw1':'')+'">'
     +'<span class="rpn">'+(rk?'<span class="rrk">'+rk+'</span>':'')+'<span class="pn">'+rEsc(p.name)+'</span>'
@@ -2991,13 +2983,12 @@ function resultCard(g,i){
   const gname=shortGame(gFull);
   const brand=gname.split(' - ')[0];
   /* السطر الأزرق الصغير = نوع اللعب لا اسم اللعبة (اسم اللعبة صار في شعار البطاقة) */
-  const modeLbl=mode==='team'?(isTDM?'TEAM DEATHMATCH':(pctMode?'DOMINATION':gname))
-    :(mode==='coop'?'SURVIVAL':'FREE FOR ALL');
-  const mapU=rEsc((g.map||'\u2014')).toUpperCase();
+  const modeLbl=MODE_LBL[rmode]||gname;
+  const mapU=rEsc(roundMap(g,rmode)).toUpperCase();
   const d=String(DAY).split('-'); const dstr=(+d[1])+'/'+(+d[2])+'/'+String(d[0]).slice(2);
   const cal='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>';
   const clk='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
-  const bg=mapBg(g.map);
+  const bg=(rmode==='coop')?null:mapBg(g.map);   /* لا خلفية سيريس للزومبي */
   return '<div class="rcard"'+(bg?' style="background-image:url(\''+bg+'\')"':'')+'>'
    +'<button class="rdl" onclick="rDownload('+i+')">\u2B07 PNG</button>'
    +'<div class="rhead">'
@@ -3041,7 +3032,8 @@ function rRoundPath(x,w,h,r){
   x.lineTo(0,r); x.quadraticCurveTo(0,0,r,0); x.closePath();
 }
 function rDownload(idx){ rDownloadEl(document.querySelectorAll('#tab-res .rcard')[idx]) }
-function topDownload(){ rDownloadEl(document.querySelector('#tab-top .rcard')) }
+function topDownload(){ rDownloadEl(document.querySelector('#tab-top .rtopc')) }
+function topDownloadMap(){ rDownloadEl(document.querySelector('#tab-top .rmapc')) }
 function rDownloadEl(card){
   if(!card){status('⚠ لا توجد بطاقة');return}
   status('⏳ تجهيز الصورة…');
@@ -3110,60 +3102,116 @@ function rDownloadEl(card){
   });
 }
 
-/* ═════════ مراسي توب بلاير — ترتيب اللاعبين بمجموع النقاط ═════════ */
-let TOPR='day';                                   /* day | week | month */
+/* ═════════ مراسي توب بلاير ═════════ */
+/* نوع الجولة يُستنبط من البيانات نفسها — لا من اسم اللعبة (الجولات القديمة بلا حجز مرتبط):
+   · فريق واحد (إيفا يسمّيه FFA) ⇒ زومبي إن كان القتل أضعاف الموت، وإلا فري فور أول
+   · فريقان ⇒ تيم دث ماتش إن ساوت نتيجة الفريق مجموع قتلاه، وإلا دومينيشن */
+const MODES=[['dom','دومينيشن','DOMINATION'],['tdm','تيم دث ماتش','TEAM DEATHMATCH'],['coop','زومبي','SURVIVAL'],['ffa','فري فور أول','FREE FOR ALL']];
+const MODE_LBL=Object.fromEntries(MODES.map(m=>[m[0],m[2]]));
+function rPlayers(g){
+  if(g&&g.players&&g.players.length&&g.players[0].kills!==undefined)return g.players;
+  return ((g&&g.raw&&g.raw.players)||[]).map(p=>({
+    id:p.userId, name:(p.data&&p.data.niceName)||p.name||'ضيف',
+    kills:(p.data&&+p.data.kills)||0, deaths:(p.data&&+p.data.deaths)||0,
+    assists:(p.data&&+p.data.assists)||0, score:(p.data&&+p.data.score)||0,
+    team:(p.data&&p.data.team!=null)?p.data.team:null, mvp:!!p.isMvp}));
+}
+/* إيفا تُسجّل جولات الزومبي باسم خريطة الأرينا نفسها (Ceres) مع أنّها لعبة مستقلّة —
+   فنعرض «MOON OF THE DEAD» بدل اسم الخريطة، وبلا صورة سيريس خلفها. */
+function roundMap(g,mode){ return ((mode||roundMode(g))==='coop')?'MOON OF THE DEAD':((g&&g.map)||'—') }
+function roundMode(g){
+  const ps=rPlayers(g);
+  const teams=[...new Set(ps.map(p=>p.team).filter(t=>t!=null&&t!==''))];
+  if(teams.length<2){
+    const k=ps.reduce((a,p)=>a+(+p.kills||0),0), d=ps.reduce((a,p)=>a+(+p.deaths||0),0);
+    return (k>0&&(d===0||k/d>3))?'coop':'ffa';     /* الزومبي: قتل ضخم بلا موت تقريباً */
+  }
+  const k1=g.team_one!=null?g.team_one:teams[0], k2=g.team_two!=null?g.team_two:teams[1];
+  const kA=ps.filter(p=>p.team===k1).reduce((a,p)=>a+(+p.kills||0),0);
+  const kB=ps.filter(p=>p.team===k2).reduce((a,p)=>a+(+p.kills||0),0);
+  const s1=g.team_one_score, s2=g.team_two_score;
+  return (s1!=null&&s2!=null&&s1===kA&&s2===kB)?'tdm':'dom';
+}
+let TOPR='day', TOPM='dom';
 const TOP_SPAN={day:1,week:7,month:30};
 const TOP_LBL={day:['اليوم','TODAY'],week:['آخر ٧ أيام','LAST 7 DAYS'],month:['آخر ٣٠ يوماً','LAST 30 DAYS']};
 function topRange(){
-  const d0=Date.parse(DAY+'T03:00:00Z');          /* نفس اليوم التشغيلي: ٣ص → ٢ص */
+  const d0=Date.parse(DAY+'T03:00:00Z');            /* نفس اليوم التشغيلي: ٣ص → ٢ص */
   return {from:d0-(TOP_SPAN[TOPR]-1)*86400e3, to:d0+23*3600e3};
 }
 function topSet(r){TOPR=r;renderTop()}
-function topRows(){
-  const R=topRange(), agg=new Map();
-  for(const r of (S.rounds||[])){
-    const t=+new Date(r.played_at); if(!(t>=R.from&&t<R.to))continue;
-    for(const p of ((r.raw&&r.raw.players)||[])){
-      const nm=(p.data&&p.data.niceName)||p.name||'ضيف';
-      const k=(p.userId!=null?'u'+p.userId:'n'+nm.toLowerCase());
-      const e=agg.get(k)||{name:nm,score:0,kills:0,deaths:0,games:0,mvp:0};
-      e.name=nm;
-      e.score+=(p.data&&+p.data.score)||0;
-      e.kills+=(p.data&&+p.data.kills)||0;
-      e.deaths+=(p.data&&+p.data.deaths)||0;
-      e.games++; if(p.isMvp)e.mvp++;
-      agg.set(k,e);
-    }
+function topMode(m){TOPM=m;renderTop()}
+function topGames(){
+  const R=topRange();
+  return (S.rounds||[]).filter(r=>{const t=+new Date(r.played_at);
+    return t>=R.from&&t<R.to&&rPlayers(r).length&&roundMode(r)===TOPM});
+}
+function topRows(games){
+  const agg=new Map();
+  for(const r of games) for(const p of rPlayers(r)){
+    const k=(p.id!=null?'u'+p.id:'n'+String(p.name).toLowerCase());
+    const e=agg.get(k)||{name:p.name,kills:0,deaths:0,games:0,mvp:0};
+    e.name=p.name; e.kills+=+p.kills||0; e.deaths+=+p.deaths||0; e.games++; if(p.mvp)e.mvp++;
+    agg.set(k,e);
   }
-  return [...agg.values()].sort((a,b)=>b.score-a.score||b.kills-a.kills);
+  return [...agg.values()].sort((a,b)=>b.kills-a.kills||a.deaths-b.deaths||b.mvp-a.mvp);
+}
+function topMaps(games){
+  const m=new Map();
+  for(const r of games){
+    const k=String(roundMap(r,TOPM)||'—').trim()||'—';
+    const e=m.get(k)||{map:k,games:0,players:0,sec:0};
+    e.games++; e.players+=rPlayers(r).length; e.sec+=(+r.duration_sec||0);
+    m.set(k,e);
+  }
+  return [...m.values()].sort((a,b)=>b.games-a.games);
 }
 function renderTop(){
   const el=document.getElementById('tab-top'); if(!el)return;
-  const rows=topRows(), R=topRange();
+  const R=topRange(), games=topGames(), rows=topRows(games), maps=topMaps(games);
   const dt=t=>{const d=new Date(t);return (d.getUTCMonth()+1)+'/'+d.getUTCDate()};
-  const bar='<div class="row" style="margin-bottom:12px;align-items:center">'
+  const span=dt(R.from)+(TOPR==='day'?'':' – '+dt(R.to-1));
+  const bar='<div class="row" style="margin-bottom:8px;align-items:center">'
     +'<h2 style="margin:0">🏆 مراسي توب بلاير</h2><span class="grow"></span>'
     +Object.keys(TOP_SPAN).map(r=>'<button class="catbtn '+(TOPR===r?'on':'')+'" onclick="topSet(&quot;'+r+'&quot;)">'+TOP_LBL[r][0]+'</button>').join('')
+    +'</div><div class="catbar" style="margin-bottom:12px">'
+    +MODES.map(m=>'<button class="catbtn '+(TOPM===m[0]?'on':'')+'" onclick="topMode(&quot;'+m[0]+'&quot;)">'+m[1]+'</button>').join('')
     +'</div>';
-  if(!rows.length){el.innerHTML=bar+'<div class="empty">لا نتائج مرصودة في هذه الفترة</div>';sweep(el);return}
+  if(!rows.length){el.innerHTML=bar+'<div class="empty">لا جولات من هذا النوع في هذه الفترة</div>';sweep(el);return}
   const cal='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>';
   const usr='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
+  const head=(sub,mode,c1,c2)=>'<div class="rhead">'
+    +'<div class="rbrand"><div class="b1">EVA<i>·</i>MARASSI</div><div class="b2">TOP PLAYER</div><div class="b3">LEADERBOARD</div></div>'
+    +'<div class="rmid"><div class="sub">'+sub+'</div><div class="mode">'+mode+'</div></div>'
+    +'<div class="rdt"><div>'+cal+span+'</div><div>'+usr+c1+'</div></div>'
+  +'</div>';
   const body=rows.map((p,i)=>'<div class="rrow'+(i<3?' rw'+(i+1):'')+'">'
     +'<span class="rpn"><span class="rrk">'+(i+1)+'</span><span class="pn">'+rEsc(p.name)+'</span>'
-    +(p.mvp?'<span class="rmvpb"><span class="cr">♛</span>'+p.mvp+'</span>':'')+'</span>'
-    +'<span class="rkda">'+p.games+' G · '+p.kills+' K</span>'
-    +'<span class="rscn">'+p.score+'</span></div>').join('');
-  const card='<div class="rcard">'
+    +'<span class="dim sm">'+p.games+' G</span></span>'
+    +'<span class="rkda">'+p.kills+' / '+p.deaths+'</span>'
+    +'<span class="rscn">'+(p.mvp?'♛ '+p.mvp:'—')+'</span></div>').join('');
+  const card='<div class="rcard rtopc">'
     +'<button class="rdl" onclick="topDownload()">⬇ PNG</button>'
+    +head(MODE_LBL[TOPM],'TOP PLAYERS',rows.length+' PLAYERS')
+    +'<div class="rtables rone"><div class="rtbl rsol">'
+      +'<div class="rthd"><div class="rseg pl">RANK · PLAYER</div><div class="rseg kd">KILLS / DEATHS</div><div class="rseg sch">MVP</div></div>'
+      +body+'</div></div></div>';
+  const totG=maps.reduce((a,m)=>a+m.games,0);
+  const mrows=maps.map((m,i)=>'<div class="rrow'+(i<3?' rw'+(i+1):'')+'">'
+    +'<span class="rpn"><span class="rrk">'+(i+1)+'</span><span class="pn">'+rEsc(String(m.map).toUpperCase())+'</span></span>'
+    +'<span class="rkda">'+m.games+' · '+m.players+'</span>'
+    +'<span class="rscn">'+(totG?Math.round(m.games*100/totG):0)+'%</span></div>').join('');
+  const mapCard='<div class="rcard rmapc">'
+    +'<button class="rdl" onclick="topDownloadMap()">⬇ PNG</button>'
     +'<div class="rhead">'
-      +'<div class="rbrand"><div class="b1">EVA<i>·</i>MARASSI</div><div class="b2">TOP PLAYER</div><div class="b3">LEADERBOARD</div></div>'
-      +'<div class="rmid"><div class="sub">'+TOP_LBL[TOPR][1]+'</div><div class="mode">TOP PLAYERS</div></div>'
-      +'<div class="rdt"><div>'+cal+dt(R.from)+(TOPR==='day'?'':' – '+dt(R.to-1))+'</div><div>'+usr+rows.length+' PLAYERS</div></div>'
+      +'<div class="rbrand"><div class="b1">EVA<i>·</i>MARASSI</div><div class="b2">MAPS</div><div class="b3">MOST PLAYED</div></div>'
+      +'<div class="rmid"><div class="sub">'+MODE_LBL[TOPM]+'</div><div class="mode">MAP STATS</div></div>'
+      +'<div class="rdt"><div>'+cal+span+'</div><div>'+usr+totG+' ROUNDS</div></div>'
     +'</div>'
     +'<div class="rtables rone"><div class="rtbl rsol">'
-      +'<div class="rthd"><div class="rseg pl">RANK · PLAYER</div><div class="rseg kd">GAMES · KILLS</div><div class="rseg sch">TOTAL SCORE</div></div>'
-      +body+'</div></div></div>';
-  el.innerHTML=bar+'<div class="rwrap">'+card+'</div>';
+      +'<div class="rthd"><div class="rseg pl">RANK · MAP</div><div class="rseg kd">ROUNDS · PLAYERS</div><div class="rseg sch">SHARE</div></div>'
+      +mrows+'</div></div></div>';
+  el.innerHTML=bar+'<div class="rwrap">'+card+'<h2 style="margin:18px 0 8px">🗺 إحصائية الخرائط</h2>'+mapCard+'</div>';
   sweep(el);
 }
 
