@@ -2981,21 +2981,21 @@ function rCollectCSS(){
   }
   return out;
 }
-/* الخريطة تُصغَّر إلى مقاس البطاقة (بدل تضمين ٤ م.ب داخل الصورة) */
-function rMapData(url,W,H,cb){
+/* سفاري داخل صورة SVG لا يرسم أي صورة مضمّنة (حتى data:) — فكانت الخريطة تختفي على iPhone.
+   لذلك ترسم الخريطة مباشرة على الـcanvas تحت البطاقة (والبطاقة تُصدَّر بخلفية شفّافة). */
+function rMapImg(url,cb){
   if(!url){cb(null);return}
   const im=new Image();
-  im.onload=function(){
-    try{
-      const c=document.createElement('canvas'); c.width=W; c.height=H;
-      const x=c.getContext('2d'), s=Math.max(W/im.width,H/im.height);
-      const dw=im.width*s, dh=im.height*s;
-      x.drawImage(im,(W-dw)/2,(H-dh)/2,dw,dh);
-      cb(c.toDataURL('image/jpeg',.86));
-    }catch(e){cb(null)}
-  };
+  im.onload=function(){cb(im)};
   im.onerror=function(){cb(null)};
   im.src=url;
+}
+function rRoundPath(x,w,h,r){
+  x.beginPath();
+  x.moveTo(r,0); x.lineTo(w-r,0); x.quadraticCurveTo(w,0,w,r);
+  x.lineTo(w,h-r); x.quadraticCurveTo(w,h,w-r,h);
+  x.lineTo(r,h); x.quadraticCurveTo(0,h,0,h-r);
+  x.lineTo(0,r); x.quadraticCurveTo(0,0,r,0); x.closePath();
 }
 function rDownload(idx){
   const card=document.querySelectorAll('#tab-res .rcard')[idx];
@@ -3005,7 +3005,7 @@ function rDownload(idx){
   const W=R_EXP_W, sc=R_EXP_SC;
   const css=rCollectCSS()
     +'*{box-sizing:border-box;margin:0;padding:0}'
-    +'.rcard{margin:0!important;width:'+W+'px}'
+    +'.rcard{margin:0!important;width:'+W+'px;background:transparent!important}'
     +'.rcard,.rcard *{font-family:Arial,Helvetica,sans-serif}';
   let frame=null, clone=null, H=0;
   try{
@@ -3025,16 +3025,15 @@ function rDownload(idx){
     void fd.body.offsetHeight;                       /* فرض إعادة التخطيط قبل القياس */
     H=Math.ceil(clone.getBoundingClientRect().height)||Math.ceil(clone.offsetHeight)||420;
   }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message); return }
-  rMapData(bgm?bgm[1]:null,W*sc,H*sc,function(dataUrl){
-    const nobg=(bgm&&!dataUrl)?' (بلا خلفية خريطة)':'';
+  rMapImg(bgm?bgm[1]:null,function(mapImg){
+    const nobg=(bgm&&!mapImg)?' (بلا خلفية خريطة)':'';
     try{
-      if(dataUrl)clone.style.backgroundImage="url('"+dataUrl+"')";
       const inner=new XMLSerializer().serializeToString(clone);
       if(frame){frame.remove();frame=null}
       /* سفاري (iPhone) لا يُكبّر محتوى foreignObject مع viewBox — كانت البطاقة تخرج بنصف الحجم
          في ركن الصورة. الحلّ: بلا viewBox إطلاقاً، والتكبير بـtransform:scale داخل الـHTML نفسه. */
       const body='<div xmlns="http://www.w3.org/1999/xhtml" style="direction:ltr;width:'+W+'px;height:'+H+'px;'
-        +'background:#0a1220;transform:scale('+sc+');transform-origin:0 0;-webkit-transform:scale('+sc+');-webkit-transform-origin:0 0">'
+        +'background:transparent;transform:scale('+sc+');transform-origin:0 0;-webkit-transform:scale('+sc+');-webkit-transform-origin:0 0">'
         +'<style>'+css+'</style>'+inner+'</div>';
       const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+(W*sc)+'" height="'+(H*sc)+'">'
         +'<foreignObject x="0" y="0" width="'+(W*sc)+'" height="'+(H*sc)+'">'+body+'</foreignObject></svg>';
@@ -3043,7 +3042,13 @@ function rDownload(idx){
         try{
           const c=document.createElement('canvas'); c.width=W*sc; c.height=H*sc;
           const x=c.getContext('2d'); x.fillStyle='#0a1220'; x.fillRect(0,0,c.width,c.height);
-          x.drawImage(img,0,0,W*sc,H*sc);
+          if(mapImg&&mapImg.width){                     /* الخريطة أولاً بقصّ زوايا البطاقة */
+            x.save(); rRoundPath(x,c.width,c.height,14*sc); x.clip();
+            const k=Math.max(c.width/mapImg.width,c.height/mapImg.height);
+            const dw=mapImg.width*k, dh=mapImg.height*k;
+            x.drawImage(mapImg,(c.width-dw)/2,(c.height-dh)/2,dw,dh); x.restore();
+          }
+          x.drawImage(img,0,0,W*sc,H*sc);              /* البطاقة الشفّافة فوقها */
           c.toBlob(function(b){ if(!b){status('⚠ تعذّر إنشاء الصورة');return}
             const file=new File([b],'EVA-MARASSI-result.png',{type:'image/png'});
             if(navigator.canShare&&navigator.canShare({files:[file]})){
@@ -3055,7 +3060,7 @@ function rDownload(idx){
       };
       img.onerror=function(){ status('⚠ تعذّر توليد الصورة') };
       /* data-URI إلزامي: صورة SVG من blob: تُلوّث الـcanvas فيفشل toBlob
-         («Tainted canvases may not be exported»). الخريطة صارت JPEG مصغّراً فالحجم صغير. */
+         («Tainted canvases may not be exported»). والـSVG صغير الآن لأن الخريطة لم تعد بداخله. */
       img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
     }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message) }
   });
