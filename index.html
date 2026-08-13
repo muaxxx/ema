@@ -2785,8 +2785,11 @@ function resultCard(g,i){
   if(!A.length&&!B.length){const h=Math.ceil(ps.length/2);A=ps.slice(0,h);B=ps.slice(h)}
   const s1=g.team_one_score, s2=g.team_two_score;
   const n1=(k1!=null?String(k1):'ALLIANCE').toUpperCase(), n2=(k2!=null?String(k2):'REBELS').toUpperCase();
-  const pctMode=(s1!=null&&s2!=null&&s1<=100&&s2<=100);
-  const fp=v=>v==null?'-':(pctMode?v+'%':v);
+  const kA=A.reduce((a,p)=>a+(+p.kills||0),0), kB=B.reduce((a,p)=>a+(+p.kills||0),0);
+  // Team Deathmatch: نتيجة الفريق = مجموع قتلاه (نقاط، بلا %) · غير ذلك = Domination (%)
+  const isTDM=(s1!=null&&s2!=null&&s1===kA&&s2===kB);
+  const pctMode=(!isTDM&&s1!=null&&s2!=null&&s1<=100&&s2<=100);
+  const fp=v=>v==null?'-':(pctMode?v+'%':String(v));
   const tbl=(list,cls)=>{
     const rows=list.slice().sort((a,b)=>b.score-a.score).map(p=>
       '<div class="rrow"><span class="rpn"><span class="pn">'+rEsc(p.name)+'</span>'+(p.mvp?'<span class="rmvpb"><span class="cr">\u265B</span>MVP</span>':'')+'</span><span class="rkda">'+p.kills+' / '+p.deaths+' / '+p.assists+'</span><span class="rscn">'+p.score+'</span></div>').join('')
@@ -2841,7 +2844,12 @@ function rDownload(idx){
         const c=document.createElement('canvas'); c.width=w*sc; c.height=h*sc;
         c.getContext('2d').drawImage(img,0,0,w*sc,h*sc);
         c.toBlob(function(b){ if(!b){status('⚠ تعذّر إنشاء الصورة');return}
-          const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='EVA-MARASSI-result.png'; a.click(); status('✓ نُزّلت الصورة'); },'image/png');
+          const file=new File([b],'EVA-MARASSI-result.png',{type:'image/png'});
+          if(navigator.canShare&&navigator.canShare({files:[file]})){
+            navigator.share({files:[file],title:'EVA Marassi'}).then(function(){status('✓ تمّت المشاركة/الحفظ')}).catch(function(){status('أُلغيت المشاركة')});
+          }else{
+            const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='EVA-MARASSI-result.png'; a.click(); status('✓ نُزّلت الصورة');
+          } },'image/png');
       };
       img.onerror=function(){ status('⚠ تعذّر توليد الصورة'); };
       img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
