@@ -2208,9 +2208,9 @@ const PRN_RESET=`
 const PRN_CSS=`
 #prnLayer{position:fixed;inset:0;z-index:99998;overflow:auto;-webkit-overflow-scrolling:touch;background:#dfe8ee}
 #prnInner{width:794px;max-width:none;margin:0 auto;background:#fff;padding:9mm 8mm 120px;color:#1a2b38}
-#prnBar{position:fixed;left:0;right:0;bottom:0;z-index:99999;display:flex;gap:8px;justify-content:center;
-  padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:#0e6c7d;box-shadow:0 -4px 14px rgba(0,0,0,.25)}
-#prnBar button{font:800 15px/1 'Tajawal',system-ui,Tahoma,sans-serif;border:0;border-radius:9px;padding:13px 20px;cursor:pointer}
+#prnBar{position:fixed;left:0;right:0;bottom:0;z-index:99999;display:flex;gap:14px;justify-content:center;
+  padding:16px 14px calc(16px + env(safe-area-inset-bottom));background:#0e6c7d;box-shadow:0 -4px 14px rgba(0,0,0,.25)}
+#prnBar button{font:800 24px/1 'Tajawal',system-ui,Tahoma,sans-serif;border:0;border-radius:14px;padding:20px 30px;cursor:pointer}
 #prnBar .go{background:#fff;color:#0e6c7d}
 #prnBar .cx{background:rgba(255,255,255,.18);color:#fff}
 @media screen{body>*:not(#prnLayer):not(#prnBar){display:none!important}body{padding:0!important;background:#dfe8ee}}
@@ -2221,16 +2221,27 @@ const PRN_CSS=`
   #prnInner{width:auto;margin:0;padding:9mm 8mm 13mm;background:#fff}
   #prnInner .ft{position:fixed;left:0;right:0;bottom:0;margin:0;padding:2mm 8mm 3mm;background:#fff;border-top:1px solid #dbe7ee}
 }`;
-let PRN_TITLE='';
+let PRN_TITLE='', PRN_VP=null;
+/* سفاري على iPhone يبني صفحة الطباعة بعرض **الشاشة** (٤٣٠px) لا بعرض الورقة، ولا يُكبّر الناتج —
+   فيخرج التقرير في ٥٤٪ من الورقة وأعمدته اليمنى مقصوصة. الحلّ: نجعل الـviewport نفسه بعرض A4
+   طوال فتح الطبقة، فيبني التخطيط على ٧٩٤px ثم يُصغّره ليملأ الورقة (كروم/أندرويد لا يتأثّر). */
+function prnViewport(on){
+  const m=document.querySelector('meta[name="viewport"]'); if(!m)return;
+  if(on){ if(PRN_VP===null)PRN_VP=m.getAttribute('content'); m.setAttribute('content','width=794,viewport-fit=cover'); }
+  else if(PRN_VP!==null){ m.setAttribute('content',PRN_VP); PRN_VP=null; }
+}
 function prnClose(){
   const l=document.getElementById('prnLayer'), b=document.getElementById('prnBar'), s=document.getElementById('prnCSS');
   if(l)l.remove(); if(b)b.remove(); if(s)s.remove();
+  prnViewport(false);
   if(PRN_TITLE){document.title=PRN_TITLE;PRN_TITLE=''}
 }
 function prnLayer(bodyHtml,title,en){
   prnClose();
   const s=document.createElement('style'); s.id='prnCSS';
-  s.textContent=PRN_RESET+scopeCss(REP_CSS,'#prnInner')+PRN_CSS;
+  /* ضمان ثانٍ لسفاري: عرض تخطيط الطباعة مثبّت على A4 حتى لو لم يُطبَّق تغيير الـviewport */
+  const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)?'@media print{#prnInner{width:794px;margin:0}}':'';
+  s.textContent=PRN_RESET+scopeCss(REP_CSS,'#prnInner')+PRN_CSS+ios;
   const l=document.createElement('div'); l.id='prnLayer';
   const inner=document.createElement('div'); inner.id='prnInner';
   inner.dir=en?'ltr':'rtl'; inner.innerHTML=bodyHtml;
@@ -2242,6 +2253,7 @@ function prnLayer(bodyHtml,title,en){
   cx.addEventListener('click',prnClose);
   bar.appendChild(go); bar.appendChild(cx);
   document.head.appendChild(s); document.body.appendChild(l); document.body.appendChild(bar);
+  prnViewport(true);
   PRN_TITLE=document.title; document.title=title;   /* اسم ملف PDF */
   if(en){try{sweep(inner)}catch(e){}}
   l.scrollTop=0;
