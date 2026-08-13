@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#3A1B3D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Joury Spa">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<title>تواصل معنا — جوري سبا | Contact Joury Spa</title>
+<meta name="description" content="جوري سبا — حمام مغربي، مساج علاجي، وجاكوزي على يد معالِجات محترفات. الطابق 15، فندق المنزل، الجفير، البحرين.">
+<meta property="og:title" content="جوري سبا | Joury Spa">
+<meta property="og:description" content="حمام مغربي، مساج علاجي، وعناية بالبشرة — الطابق 15، فندق المنزل، الجفير.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "DaySpa",
+  "name": "Joury Spa",
+  "alternateName": "جوري سبا",
+  "description": "Moroccan bath, therapeutic massage, jacuzzi and skincare by professional female therapists.",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Level 15, Al Manzil Hotel, Building 1842, Road 4047, Juffair",
+    "postalCode": "",
+    "addressLocality": "Juffair",
+    "addressCountry": "BH"
+  },
+  "telephone": "+97335606838",
+  "openingHours": "Mo-Su 11:00-01:00",
+  "geo": {"@type": "GeoCoordinates", "latitude": 26.2158801, "longitude": 50.6036661},
+  "sameAs": ["https://www.instagram.com/jwrysbjfyr","https://www.tiktok.com/@jouryspa4","https://www.facebook.com/share/18HSGGi3bH/"],
+  "hasMap": "https://www.google.com/maps/search/?api=1&query=26.2158801,50.6036661",
+  "priceRange": "BHD 20-65"
+}
+</script>
+<style>
+:root{
+  --plum:#3A1B3D;        /* الباذنجاني العميق من هوية المركز */
+  --plum-soft:#5C3162;
+  --rose:#D98CAE;        /* وردي الشعار */
+  --rose-pale:#F3E1EA;
+  --zellige:#2F6B74;     /* أزرق الزليج من غرفة الحمام */
+  --brass:#B8894A;
+  --plaster:#F7F1F4;     /* جص وردي فاتح */
+  --ink:#2A1730;
+  --line:rgba(58,27,61,.14);
+
+  --f-disp-ar:'Amiri', serif;
+  --f-disp-en:'Cormorant Garamond', serif;
+  --f-body:'IBM Plex Sans Arabic', system-ui, sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden;width:100%;max-width:100%;-webkit-text-size-adjust:100%}
+body{
+  background:var(--plaster);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-weight:400;
+  line-height:1.9;
+  letter-spacing:.002em;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--zellige);outline-offset:3px;border-radius:2px}
+
+/* ── تبديل اللغة ─────────────────────────── */
+[data-lang="ar"] .en,
+[data-lang="en"] .ar{display:none !important}
+
+.wrap{width:min(1140px,92vw);margin-inline:auto}
+
+/* ── الزخرفة: نجمة الزليج ─────────────────── */
+.zellige-band{
+  height:34px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='68' height='34' viewBox='0 0 68 34'%3E%3Cg fill='none' stroke='%23D98CAE' stroke-width='1.1' opacity='.55'%3E%3Cpath d='M17 4l4 4 5.6-1.5L25 12l5 4-5 4 1.6 5.5L21 24l-4 4-4-4-5.6 1.5L9 20l-5-4 5-4-1.6-5.5L13 8z'/%3E%3Cpath d='M51 4l4 4 5.6-1.5L59 12l5 4-5 4 1.6 5.5L55 24l-4 4-4-4-5.6 1.5L43 20l-5-4 5-4-1.6-5.5L47 8z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:68px 34px;
+}
+
+/* ── الترويسة ────────────────────────────── */
+header.bar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(58,27,61,.94);
+  backdrop-filter:blur(10px);
+  color:#fff;
+}
+.bar-in{display:flex;align-items:center;gap:20px;padding:12px 0;justify-content:space-between}
+.brand{font-family:var(--f-disp-en);font-size:1.5rem;letter-spacing:.22em;font-weight:400}
+.brand small{display:block;font-size:.5rem;letter-spacing:.42em;opacity:.72;margin-top:-2px}
+nav.links{display:flex;gap:26px;font-size:.83rem;letter-spacing:.03em}
+nav.links a{opacity:.82;transition:opacity .2s,color .2s}
+nav.links a:hover{opacity:1;color:var(--rose)}
+.lang{
+  border:1px solid rgba(255,255,255,.32);
+  background:none;color:#fff;cursor:pointer;
+  font-family:var(--f-body);font-size:.75rem;
+  padding:6px 14px;border-radius:999px;letter-spacing:.08em;
+  transition:background .2s,border-color .2s;
+}
+.lang:hover{background:rgba(255,255,255,.12);border-color:var(--rose)}
+
+/* ── الواجهة: القوس ──────────────────────── */
+.hero{
+  position:relative;
+  min-height:100svh;
+  display:flex;flex-direction:column;justify-content:center;
+  background:#26102A;
+  color:#fff;
+  padding:112px 0 0;
+  overflow:hidden;
+  isolation:isolate;
+}
+.hero-bg{
+  position:absolute;inset:-5%;z-index:-3;
+  background:url("hero.jpg") center center/cover no-repeat;
+  animation:kenburns 26s ease-in-out infinite alternate;
+}
+@keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.1)}}
+.hero-veil{
+  position:absolute;inset:0;z-index:-2;
+  background:
+    linear-gradient(180deg,rgba(30,14,20,.72) 0%,rgba(40,18,26,.34) 40%,rgba(30,14,20,.88) 100%),
+    radial-gradient(115% 78% at 50% 46%,transparent 26%,rgba(28,12,18,.72) 100%);
+}
+.hero-glow{
+  position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(48% 34% at 50% 40%,rgba(232,190,124,.16),transparent 70%);
+}
+.hero-inner{
+  position:relative;z-index:2;text-align:center;
+  max-width:min(700px,90vw);margin:0 auto;
+  animation:rise 1.2s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+.orb{
+  width:52px;height:52px;margin:0 auto 30px;
+  border:1px solid rgba(232,190,124,.55);border-radius:50%;
+  display:grid;place-items:center;
+}
+.orb i{width:22px;height:22px;border:1px solid rgba(232,190,124,.5);border-radius:50%}
+.mark{
+  font-family:var(--f-disp-en);
+  font-size:clamp(3rem,10.5vw,5.4rem);
+  letter-spacing:.15em;font-weight:400;line-height:1;
+  text-shadow:0 6px 40px rgba(0,0,0,.6);
+}
+.mark .petal{color:var(--rose)}
+.mark-sub{
+  font-family:var(--f-disp-en);font-size:clamp(.72rem,1.7vw,.9rem);
+  letter-spacing:.5em;color:#E8BE7C;margin-top:16px;
+  text-shadow:0 2px 18px rgba(0,0,0,.55);
+}
+.rule-dot{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:26px}
+.rule-dot span{height:1px;width:54px;background:rgba(255,255,255,.42)}
+.rule-dot i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.65)}
+.hero-line{
+  font-family:var(--f-disp-ar);font-size:clamp(1.1rem,3vw,1.45rem);
+  margin-top:30px;color:#F6EAE2;line-height:2.1;font-weight:300;
+  text-shadow:0 2px 22px rgba(0,0,0,.65);
+}
+[data-lang="en"] .hero-line{font-family:var(--f-disp-en);letter-spacing:.04em}
+.hero-meta{
+  position:relative;z-index:2;
+  display:flex;flex-wrap:wrap;justify-content:center;gap:12px 30px;
+  margin:40px 0 0;padding-bottom:34px;
+  font-size:.8rem;letter-spacing:.05em;color:rgba(255,255,255,.72);
+}
+.hero-meta > span{display:flex;align-items:center;gap:9px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--rose);flex:none}
+.hero .zellige-band{position:relative;z-index:2}
+
+/* ── الأزرار ─────────────────────────────── */
+.cta{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--rose);color:#3A1B3D;
+  font-family:var(--f-body);font-weight:700;font-size:.92rem;
+  padding:14px 34px;border-radius:999px;border:none;cursor:pointer;
+  letter-spacing:.02em;
+  transition:transform .18s ease,box-shadow .18s ease,background .18s;
+  box-shadow:0 6px 20px rgba(58,27,61,.18);
+}
+.cta:hover{transform:translateY(-2px);background:#E9A5C1;box-shadow:0 10px 26px rgba(58,27,61,.26)}
+.cta.ghost{background:none;border:1px solid rgba(255,255,255,.4);color:#fff;box-shadow:none;font-weight:400}
+.cta.ghost:hover{background:rgba(255,255,255,.1)}
+.hero-cta{position:relative;z-index:2;text-align:center;margin-top:34px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.hero-cta .cta{padding:15px 38px;box-shadow:0 10px 34px rgba(217,140,174,.32)}
+
+/* ── الأقسام ─────────────────────────────── */
+section{padding:88px 0}
+.eyebrow{
+  font-size:.7rem;letter-spacing:.34em;color:var(--zellige);
+  text-transform:uppercase;margin-bottom:14px;font-weight:400;
+}
+h2{
+  font-family:var(--f-disp-ar);font-weight:400;letter-spacing:.005em;
+  font-size:clamp(1.75rem,4.6vw,2.5rem);
+  color:var(--plum);line-height:1.4;margin-bottom:16px;
+}
+[data-lang="en"] h2{font-family:var(--f-disp-en);letter-spacing:.02em}
+.lede{max-width:58ch;color:#5A4560;font-size:1rem;font-weight:300;line-height:2.05}
+.head{margin-bottom:48px}
+
+
+/* ── عرض الخدمات البصري ──────────────────── */
+.showcase{padding:0;background:#2E1A24;position:relative;overflow:hidden}
+.showcase .wrap{padding-block:74px}
+.sc-head{text-align:center;margin-bottom:44px;position:relative;z-index:2}
+.sc-head .eyebrow{color:#E8BE7C}
+.sc-head h2{color:#F6EAE2}
+.sc-head p{color:rgba(246,234,226,.66);max-width:52ch;margin:0 auto;font-weight:300}
+
+/* ماسونري بالأعمدة — كل صورة بنسبتها الطبيعية كاملة */
+.sc-grid{columns:3;column-gap:16px}
+@media (max-width:900px){.sc-grid{columns:2}}
+@media (max-width:560px){.sc-grid{columns:1}}
+
+.tile{
+  position:relative;overflow:hidden;border-radius:5px;
+  background:#3A2030;margin:0 0 16px;
+  break-inside:avoid;-webkit-column-break-inside:avoid;
+  box-shadow:0 12px 34px rgba(0,0,0,.38);
+  display:block;
+}
+.tile img{
+  width:100%;height:auto;display:block;
+  transition:transform 1.1s cubic-bezier(.2,.7,.3,1),filter .5s;
+  filter:saturate(.96) brightness(.96);
+}
+.tile:hover img{transform:scale(1.045);filter:saturate(1.05) brightness(1.02)}
+.tile::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to top,rgba(18,7,12,.92) 0%,rgba(18,7,12,.42) 30%,transparent 58%);
+}
+.tile .cap{position:absolute;inset-inline:0;inset-block-end:0;z-index:2;padding:24px 22px}
+.tile .cap .ttl{
+  font-family:var(--f-disp-ar);font-size:1.24rem;color:#fff;
+  line-height:1.5;text-shadow:0 2px 16px rgba(0,0,0,.7);
+}
+[data-lang="en"] .tile .cap .ttl{font-family:var(--f-disp-en);letter-spacing:.03em;font-size:1.36rem}
+.tile .cap .sub{font-size:.79rem;color:rgba(255,255,255,.72);margin-top:6px;font-weight:300;line-height:1.7}
+.tile .cap .pr{
+  display:inline-block;margin-top:12px;
+  font-family:var(--f-disp-en);font-size:1.06rem;color:#E8BE7C;
+  letter-spacing:.06em;border-top:1px solid rgba(232,190,124,.45);padding-top:9px;
+}
+.tile .cap .pr small{font-family:var(--f-body);font-size:.6rem;letter-spacing:.2em;opacity:.82;margin-inline-start:5px}
+.tile.lead .cap .ttl{font-size:1.45rem}
+[data-lang="en"] .tile.lead .cap .ttl{font-size:1.6rem}
+
+/* ── الباقات ─────────────────────────────── */
+
+.pkgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:18px}
+.pkg{
+  position:relative;overflow:hidden;
+  background:#fff;border:1px solid var(--line);
+  border-radius:6px;
+  padding:36px 26px 26px;text-align:center;
+  transition:transform .24s ease,border-color .24s,box-shadow .24s;
+  display:flex;flex-direction:column;
+}
+.pkg::before{
+  content:"";position:absolute;inset-inline:0;top:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--brass),transparent);
+  opacity:.5;transition:opacity .24s;
+}
+.pkg:hover::before{opacity:1}
+.pkg:hover{transform:translateY(-5px);border-color:var(--rose);box-shadow:0 14px 34px rgba(58,27,61,.09)}
+.pkg .price{font-family:var(--f-disp-en);font-size:2.9rem;color:var(--plum);line-height:1;font-weight:500;letter-spacing:.01em}
+.pkg .cur{font-family:var(--f-body);font-size:.68rem;letter-spacing:.24em;color:var(--brass);display:block;margin-top:7px}
+.pkg .items{margin:22px 0 18px;font-size:.92rem;font-weight:300;color:#4A3550;line-height:2.1;flex:1}
+.pkg .dur{font-size:.74rem;letter-spacing:.13em;color:var(--zellige);border-top:1px solid var(--line);padding-top:14px}
+.pkg.star{background:linear-gradient(170deg,#41204a,#5C3162);border-color:transparent}
+.pkg.star::before{background:linear-gradient(90deg,transparent,var(--rose),transparent);opacity:1}
+.pkg.star .price,.pkg.star .items{color:#fff}
+.pkg.star .cur{color:var(--rose)}
+.pkg.star .dur{color:var(--rose-pale);border-color:rgba(255,255,255,.2)}
+.tag{
+  display:inline-block;font-size:.62rem;letter-spacing:.2em;
+  background:var(--rose);color:#3A1B3D;padding:3px 12px;border-radius:999px;margin-bottom:14px;font-weight:700;
+}
+
+/* ── الخدمات المفردة ─────────────────────── */
+.alt{background:#fff;border-block:1px solid var(--line)}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:44px}
+.menu h3{
+  font-family:var(--f-disp-ar);font-weight:400;font-size:1.3rem;color:var(--plum);
+  padding-bottom:12px;margin-bottom:6px;border-bottom:1px solid var(--rose);
+}
+[data-lang="en"] .menu h3{font-family:var(--f-disp-en);letter-spacing:.03em}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:11px 0;border-bottom:1px dotted var(--line)}
+.row .nm{font-size:.95rem}
+.row .nm em{display:block;font-style:normal;font-size:.76rem;color:#7A6480;margin-top:1px}
+.row .pr{font-family:var(--f-disp-en);font-size:1.2rem;color:var(--brass);white-space:nowrap;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{
+  font-size:.78rem;padding:6px 15px;border-radius:999px;
+  background:var(--rose-pale);color:var(--plum-soft);
+}
+
+/* ── التجربة ─────────────────────────────── */
+.exp{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:34px}
+.exp .card{text-align:center}
+.exp .ico{
+  width:62px;height:62px;margin:0 auto 16px;
+  border:1px solid var(--rose);border-radius:50% 50% 6px 6px/60% 60% 6px 6px;
+  display:grid;place-items:center;color:var(--zellige);
+}
+.exp h4{font-family:var(--f-disp-ar);font-weight:400;font-size:1.1rem;color:var(--plum);margin-bottom:6px}
+[data-lang="en"] .exp h4{font-family:var(--f-disp-en)}
+.exp p{font-size:.88rem;color:#5A4560}
+
+/* ── زر الحجز في الترويسة وقائمة الجوال ──── */
+.bar-social{display:flex;align-items:center;gap:5px}
+.bar-social a{
+  width:31px;height:31px;border-radius:50%;
+  display:grid;place-items:center;color:rgba(255,255,255,.72);
+  transition:color .2s,background .2s;
+}
+.bar-social a:hover{color:var(--rose);background:rgba(255,255,255,.09)}
+@media (max-width:980px){.bar-social{display:none}}
+.bar-cta{
+  background:var(--rose);color:#3A1B3D;
+  font-family:var(--f-body);font-weight:700;font-size:.78rem;
+  padding:8px 20px;border-radius:999px;letter-spacing:.02em;
+  transition:filter .2s;
+}
+.bar-cta:hover{filter:brightness(1.08)}
+.burger{
+  display:none;background:none;border:none;color:#fff;cursor:pointer;
+  padding:4px;line-height:0;
+}
+#mobileNav{
+  display:none;
+  background:rgba(42,23,48,.98);
+  border-top:1px solid rgba(255,255,255,.1);
+  padding:8px 0 14px;
+}
+#mobileNav.open{display:block}
+#mobileNav a{
+  display:block;padding:11px 0;color:#EBDCEF;font-size:.95rem;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+#mobileNav a:last-child{border-bottom:none}
+
+/* ── مؤشر التمرير ────────────────────────── */
+.scroll-cue{
+  position:relative;z-index:2;
+  width:24px;height:38px;margin:6px auto 34px;
+  border:1px solid rgba(255,255,255,.38);border-radius:999px;
+  display:grid;justify-items:center;padding-top:8px;
+}
+.scroll-cue i{
+  width:3px;height:7px;border-radius:999px;background:var(--rose);
+  animation:cue 1.7s ease-in-out infinite;
+}
+@keyframes cue{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(9px);opacity:.35}}
+
+/* ── الظهور التدريجي ─────────────────────── */
+.reveal{opacity:0;transform:translateY(20px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.3,1)}
+
+/* ── المعرض ──────────────────────────────── */
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.gal figure{position:relative;overflow:hidden;border-radius:16px;background:#55323F;margin:0;min-height:420px}
+.gal img{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.7,.3,1)}
+.gal figure:hover img{transform:scale(1.06)}
+.gal figcaption{
+  position:absolute;inset-inline:0;inset-block-end:0;
+  padding:34px 20px 16px;color:#fff;font-size:.88rem;letter-spacing:.05em;
+  background:linear-gradient(to top,rgba(20,8,14,.86),transparent);
+}
+@media (max-width:860px){
+  .gal{grid-template-columns:1fr}
+  .gal figure{min-height:300px}
+}
+
+/* ── الموقع ─────────────────────────────── */
+.loc{display:grid;grid-template-columns:1fr 1.35fr;gap:34px;align-items:stretch}
+.loc-info{display:flex;flex-direction:column;justify-content:center}
+.loc-row{display:flex;gap:13px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line)}
+.loc-row:last-of-type{border-bottom:none}
+.loc-row svg{flex:none;margin-top:4px;color:var(--zellige)}
+.loc-row b{display:block;font-size:.72rem;letter-spacing:.16em;color:var(--zellige);font-weight:400;margin-bottom:3px}
+.loc-row span{font-size:.95rem;color:#4A3550;line-height:1.8}
+.map-frame{
+  position:relative;overflow:hidden;border-radius:6px;
+  border:1px solid var(--line);min-height:380px;
+  box-shadow:0 14px 40px rgba(58,27,61,.10);
+}
+.map-frame::before{
+  content:"";position:absolute;inset-inline:0;top:0;height:2px;z-index:2;
+  background:linear-gradient(90deg,transparent,var(--brass),transparent);opacity:.6;
+}
+.map-frame iframe{width:100%;height:100%;min-height:380px;border:0;display:block;filter:saturate(.9)}
+@media (max-width:860px){
+  .loc{grid-template-columns:1fr;gap:24px}
+  .map-frame,.map-frame iframe{min-height:300px}
+}
+
+/* ── الحجز ───────────────────────────────── */
+/* ── الحجز ───────────────────────────────── */
+.book-split{display:grid;grid-template-columns:1.12fr .88fr;gap:32px;align-items:stretch}
+.book-split .form{max-width:none;margin:0;order:1}
+.book-photo{
+  order:2;position:relative;overflow:hidden;border-radius:6px;
+  box-shadow:0 18px 46px rgba(0,0,0,.4);margin:0;
+}
+.book-photo img{width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block}
+.book-photo::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(18,7,12,.92) 0%,rgba(18,7,12,.32) 40%,transparent 64%);
+}
+.book-photo .cap{position:absolute;inset-inline:0;inset-block-end:0;padding:26px 24px;z-index:2}
+.book-photo .cap .ttl{
+  font-family:var(--f-disp-ar);font-size:1.32rem;color:#fff;line-height:1.55;
+  text-shadow:0 2px 18px rgba(0,0,0,.75);
+}
+[data-lang="en"] .book-photo .cap .ttl{font-family:var(--f-disp-en);font-size:1.45rem;letter-spacing:.03em}
+.book-photo .cap .sub{font-size:.8rem;color:rgba(255,255,255,.78);margin-top:7px;font-weight:300;line-height:1.7}
+html[dir="ltr"] .book-split{grid-template-columns:.88fr 1.12fr}
+html[dir="ltr"] .book-split .form{order:2}
+html[dir="ltr"] .book-photo{order:1}
+@media (max-width:900px){
+  .book-split{grid-template-columns:1fr;gap:20px}
+  .book-photo{min-height:320px;order:1}
+  .book-split .form{order:2}
+}
+
+.book{background:linear-gradient(168deg,#3A1B3D,#5C3162);color:#fff}
+.book h2{color:#fff}
+.book .lede{color:var(--rose-pale)}
+.form{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(217,140,174,.3);
+  border-radius:18px;padding:30px;
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:660px;
+}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+label{font-size:.75rem;letter-spacing:.13em;color:var(--rose-pale)}
+input,select{
+  font-family:var(--f-body);font-size:.92rem;
+  padding:12px 14px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.24);
+  background:rgba(255,255,255,.94);color:var(--ink);
+}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 49%,var(--plum) 50%),linear-gradient(-45deg,transparent 49%,var(--plum) 50%);background-size:6px 6px;background-position:right 16px center,right 10px center;background-repeat:no-repeat}
+html[dir="rtl"] select{background-position:left 10px center,left 16px center}
+.note{font-size:.78rem;color:var(--rose-pale);opacity:.82;grid-column:1/-1;line-height:1.7}
+
+/* ── التذييل ─────────────────────────────── */
+footer{background:#2A1730;color:#E8DCEA;padding:56px 0 30px;font-size:.87rem}
+.f-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:32px;margin-bottom:34px}
+.social{display:flex;gap:12px;margin-top:4px}
+.social a{
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.22);
+  display:grid;place-items:center;color:#E8DCEA;opacity:.85;
+  transition:border-color .2s,color .2s,transform .2s,opacity .2s;
+}
+.social a:hover{border-color:var(--rose);color:var(--rose);transform:translateY(-2px);opacity:1}
+footer h5{font-family:var(--f-disp-en);letter-spacing:.2em;font-size:.82rem;color:var(--rose);margin-bottom:12px;font-weight:400}
+footer p,footer a{opacity:.8;line-height:1.95}
+footer a:hover{opacity:1;color:var(--rose)}
+.tel{unicode-bidi:embed;direction:ltr;display:inline-block}
+.legal{border-top:1px solid rgba(255,255,255,.12);padding-top:20px;font-size:.75rem;opacity:.6;display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:space-between}
+
+/* ── زر واتساب العائم ────────────────────── */
+.float{
+  position:fixed;inset-block-end:22px;inset-inline-end:22px;z-index:80;
+  width:56px;height:56px;border-radius:50%;
+  background:#25D366;display:grid;place-items:center;
+  box-shadow:0 6px 22px rgba(0,0,0,.24);transition:transform .2s;
+}
+.float:hover{transform:scale(1.08)}
+
+@media (max-width:760px){
+  nav.links{display:none}
+  .burger{display:block}
+  .bar-social{display:flex;align-items:center;gap:5px}
+.bar-social a{
+  width:31px;height:31px;border-radius:50%;
+  display:grid;place-items:center;color:rgba(255,255,255,.72);
+  transition:color .2s,background .2s;
+}
+.bar-social a:hover{color:var(--rose);background:rgba(255,255,255,.09)}
+@media (max-width:980px){.bar-social{display:none}}
+.bar-cta{display:none}
+  section{padding:62px 0}
+  .form{grid-template-columns:1fr;padding:22px}
+  .hero{padding-top:48px}
+  .hero{background-attachment:scroll}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head><body>
+
+<header class="bar">
+  <div class="wrap bar-in">
+    <a href="index.html" class="brand">JOURY<small>MOROCCAN SPA</small></a>
+    <nav class="links">
+      <a href="index.html#booking"><span class="ar">الحجز</span><span class="en">Book</span></a>
+      <a href="index.html#showcase"><span class="ar">خدماتنا</span><span class="en">Treatments</span></a>
+      <a href="index.html#packages"><span class="ar">الباقات</span><span class="en">Packages</span></a>
+      <a href="index.html#location"><span class="ar">الموقع</span><span class="en">Location</span></a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:12px">
+      <a class="bar-cta" href="index.html#booking"><span class="ar">احجز</span><span class="en">Book</span></a>
+      <button class="lang" id="langBtn" aria-label="Switch language">English</button>
+    </div>
+  </div>
+</header>
+
+<section style="padding:120px 0 80px;min-height:80vh;display:flex;align-items:center">
+  <div class="wrap" style="max-width:640px">
+    <div class="head" style="text-align:center">
+      <p class="eyebrow">Connect</p>
+      <h2><span class="ar">تواصل معنا</span><span class="en">Connect with us</span></h2>
+      <p class="lede" style="margin-inline:auto">
+        <span class="ar">تابعنا على منصاتنا، أو راسلنا مباشرة على واتساب للحجز والاستفسار.</span>
+        <span class="en block">Follow us, or message us directly on WhatsApp to book or ask a question.</span>
+      </p>
+    </div>
+
+    <div class="link-stack">
+      <a class="link-row wa" href="https://wa.me/97333759691" target="_blank" rel="noreferrer">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm5.8 14.2c-.2.7-1.2 1.3-1.9 1.4-.5.1-1.2.1-3.7-.8-3.1-1.3-5.1-4.4-5.3-4.6-.1-.2-1.2-1.6-1.2-3.1s.8-2.2 1.1-2.5c.3-.3.6-.4.8-.4h.6c.2 0 .5 0 .7.5l1 2.4c.1.2.1.4 0 .6l-.4.6-.3.3c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1l.9-1c.2-.2.4-.2.6-.1l2.3 1.1c.2.1.4.2.5.3 0 .2 0 .8-.4 1.2z"/></svg></span>
+        <span class="tx"><b><span class="ar">واتساب — الحجز</span><span class="en">WhatsApp — booking</span></b><i class="tel">+973 3375 9691</i></span>
+        <span class="ar-go">↖</span>
+      </a>
+
+      <a class="link-row ig" href="https://www.instagram.com/jwrysbjfyr" target="_blank" rel="noreferrer">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg></span>
+        <span class="tx"><b>Instagram</b><i>@jwrysbjfyr</i></span>
+        <span class="ar-go">↖</span>
+      </a>
+
+      <a class="link-row tt" href="https://www.tiktok.com/@jouryspa4" target="_blank" rel="noreferrer">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c.3 2.2 1.6 3.6 3.8 3.8v2.5c-1.4.1-2.7-.3-3.8-1.1v5.9c0 4.4-4.4 6.9-8 4.6-2.3-1.5-2.8-4.8-1-6.9 1.1-1.3 2.9-1.9 4.5-1.5v2.6c-1.6-.4-2.8 1-2.2 2.4.5 1.3 2.4 1.4 3.1.2.2-.4.3-.8.3-1.2V3h3.3z"/></svg></span>
+        <span class="tx"><b>TikTok</b><i>@jouryspa4</i></span>
+        <span class="ar-go">↖</span>
+      </a>
+
+      <a class="link-row sc" href="https://www.snapchat.com/add/jouryspa26" target="_blank" rel="noreferrer">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5c-3 0-5.3 2.2-5.4 5.2 0 .8 0 1.6.1 2.3-.3.1-.7 0-1.1-.2-.5-.2-1.1 0-1.3.5-.1.4 0 .9.5 1.2.5.3 1.2.5 1.6.9.2.2.2.5.1.8-.5 1.2-1.4 2.4-2.6 3.1-.4.2-.9.4-1.3.5-.4.1-.6.5-.5.9.1.3.3.5.6.6.6.3 1.4.4 2.1.6.1.2.2.6.3.9.1.3.3.6.7.5.5-.1 1.1-.3 1.8-.2.6.1 1.1.4 1.6.8.8.6 1.7 1.1 2.8 1.1s2-.5 2.8-1.1c.5-.4 1-.7 1.6-.8.7-.1 1.3.1 1.8.2.4.1.6-.2.7-.5.1-.3.2-.7.3-.9.7-.2 1.5-.3 2.1-.6.3-.1.5-.3.6-.6.1-.4-.1-.8-.5-.9-.4-.1-.9-.3-1.3-.5-1.2-.7-2.1-1.9-2.6-3.1-.1-.3-.1-.6.1-.8.4-.4 1.1-.6 1.6-.9.5-.3.6-.8.5-1.2-.2-.5-.8-.7-1.3-.5-.4.2-.8.3-1.1.2.1-.7.1-1.5.1-2.3-.1-3-2.4-5.2-5.4-5.2z"/></svg></span>
+        <span class="tx"><b>Snapchat</b><i>@jouryspa26</i></span>
+        <span class="ar-go">↖</span>
+      </a>
+
+      <a class="link-row fb" href="https://www.facebook.com/share/18HSGGi3bH/" target="_blank" rel="noreferrer">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M14 9V7.2c0-.8.2-1.2 1.4-1.2H17V3h-2.6C11.5 3 10.5 4.5 10.5 7v2H8.5v3h2v9h3.5v-9h2.5l.4-3H14z"/></svg></span>
+        <span class="tx"><b>Facebook</b><i><span class="ar">صفحتنا الرسمية</span><span class="en">Our official page</span></i></span>
+        <span class="ar-go">↖</span>
+      </a>
+
+      <a class="link-row ph" href="tel:+97335606838">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 5.5c0 8 6 14 14 14l2-3-4.5-2.2-2 2c-2.6-1.3-4.9-3.6-6.2-6.2l2-2L7.5 3.5z"/></svg></span>
+        <span class="tx"><b><span class="ar">اتصال مباشر</span><span class="en">Call us</span></b><i class="tel">+973 3560 6838</i></span>
+        <span class="ar-go">↖</span>
+      </a>
+
+      <a class="link-row ph" href="tel:+97338811720">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 5.5c0 8 6 14 14 14l2-3-4.5-2.2-2 2c-2.6-1.3-4.9-3.6-6.2-6.2l2-2L7.5 3.5z"/></svg></span>
+        <span class="tx"><b><span class="ar">اتصال مباشر</span><span class="en">Call us</span></b><i class="tel">+973 3881 1720</i></span>
+        <span class="ar-go">↖</span>
+      </a>
+
+      <a class="link-row mp" href="https://www.google.com/maps/search/?api=1&amp;query=26.2158801%2C50.6036661" target="_blank" rel="noreferrer">
+        <span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="tx"><b><span class="ar">الموقع على الخريطة</span><span class="en">Find us on the map</span></b><i><span class="ar">فندق المنزل، الطابق ١٥، الجفير</span><span class="en">Al Manzil Hotel, Level 15, Juffair</span></i></span>
+        <span class="ar-go">↖</span>
+      </a>
+    </div>
+
+    <p style="text-align:center;margin-top:34px;font-size:.8rem;color:#7A6480">
+      <span class="ar">يومياً ١١:٠٠ صباحاً — ١:٠٠ بعد منتصف الليل</span>
+      <span class="en block">Daily 11:00 AM — 1:00 AM</span>
+    </p>
+  </div>
+</section>
+
+<style>
+.link-stack{display:flex;flex-direction:column;gap:12px}
+.link-row{
+  display:flex;align-items:center;gap:15px;
+  background:#fff;border:1px solid var(--line);border-radius:6px;
+  padding:16px 20px;position:relative;overflow:hidden;
+  transition:transform .2s ease,border-color .2s,box-shadow .2s;
+}
+.link-row::before{
+  content:"";position:absolute;inset-inline-start:0;inset-block:0;width:3px;
+  background:var(--brass);opacity:.5;transition:opacity .2s,width .2s;
+}
+.link-row:hover{transform:translateY(-2px);border-color:var(--rose);box-shadow:0 12px 30px rgba(58,27,61,.1)}
+.link-row:hover::before{opacity:1;width:4px}
+.link-row .ic{
+  width:44px;height:44px;flex:none;border-radius:50%;
+  display:grid;place-items:center;
+  transition:background .2s,color .2s;
+}
+.link-row:hover .ic{color:#fff}
+.link-row.wa .ic{background:rgba(37,211,102,.15);color:#128C4A}
+.link-row.wa:hover .ic{background:#25D366}
+.link-row.ig .ic{background:rgba(225,48,108,.13);color:#E1306C}
+.link-row.ig:hover .ic{background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF)}
+.link-row.tt .ic{background:rgba(255,59,92,.12);color:#111}
+.link-row.tt:hover .ic{background:#010101}
+.link-row.sc .ic{background:rgba(255,252,0,.22);color:#8A8800}
+.link-row.sc:hover .ic{background:#FFFC00;color:#1A1A1A}
+.link-row.fb .ic{background:rgba(24,119,242,.13);color:#1877F2}
+.link-row.fb:hover .ic{background:#1877F2}
+.link-row.ph .ic{background:var(--rose-pale);color:var(--plum)}
+.link-row.ph:hover .ic{background:var(--plum)}
+.link-row.mp .ic{background:rgba(47,107,116,.13);color:#2F6B74}
+.link-row.mp:hover .ic{background:#2F6B74}
+.link-row .tx{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.link-row .tx b{font-size:.98rem;font-weight:400;color:var(--plum)}
+.link-row .tx i{font-style:normal;font-size:.8rem;color:#7A6480}
+.link-row .ar-go{color:var(--brass);font-size:1.1rem;opacity:.55;transition:opacity .2s,transform .2s}
+.link-row:hover .ar-go{opacity:1;transform:translate(-3px,-3px)}
+html[dir="ltr"] .link-row .ar-go{transform:scaleX(-1)}
+html[dir="ltr"] .link-row:hover .ar-go{transform:scaleX(-1) translate(-3px,-3px)}
+</style>
+
+<footer>
+  <div class="wrap">
+    <div class="legal" style="border-top:none;padding-top:0;justify-content:center;text-align:center">
+      <span>© <span id="yr">2026</span> Joury Spa — CR 186174-1</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const html = document.documentElement, btn = document.getElementById('langBtn');
+btn.addEventListener('click', () => {
+  const toEn = html.getAttribute('data-lang') === 'ar';
+  html.setAttribute('data-lang', toEn ? 'en' : 'ar');
+  html.setAttribute('lang', toEn ? 'en' : 'ar');
+  html.setAttribute('dir', toEn ? 'ltr' : 'rtl');
+  btn.textContent = toEn ? 'العربية' : 'English';
+});
+document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
