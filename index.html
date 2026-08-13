@@ -2764,7 +2764,7 @@ function rEmblem(kind){
 }
 /* مطابقة اسم الخريطة بصورتها (خلفية بطاقة النتيجة) */
 const MAP_BG={HELIOS:'helios',POLARIS:'polaris',CERES:'ceres',HORIZON:'horizon',COLISEUM:'coliseum',BASTION:'bastion',SILVA:'silva',ATLANTIS:'atlantis',ARTEFACT:'artefact',CLIFF:'cliff',THECLIFF:'cliff',ENGINE:'engine',ALMOHARIK:'engine',LUNAROUTPOST:'lunaroutpost',REEFPOINT:'reefpoint',OUTLAW:'outlaw',THEROCK:'therock',ROCK:'therock'};
-const mapBg=n=>{const k=String(n||'').toUpperCase().replace(/[^A-Z]/g,'');return MAP_BG[k]?('maps/'+MAP_BG[k]+'.webp'):null};
+const mapBg=n=>{const k=String(n||'').toUpperCase().replace(/[^A-Z]/g,'');return MAP_BG[k]?(MAP_BG[k]+'.webp'):null};
 function renderResults(){
   const el=document.getElementById('tab-res'); if(!el)return;
   const games=[...(S.dayRounds||[])].sort((a,b)=>b.end-a.end);
