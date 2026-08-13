@@ -2180,6 +2180,26 @@ function repHead(title,sub){
 /* ── طبقة الطباعة للجوال ──
    سفاري/كروم على الهاتف لا يطبعان إطاراً مخفيّاً (يطبعان الصفحة الأمّ)، فنجعل التقرير
    نفسه هو الصفحة: طبقة تغطّي الشاشة + نخفي بقيّة الصفحة، ثم window.print() على النافذة الأمّ. */
+/* التقرير يعيش الآن داخل صفحة التطبيق، وتنسيقات التطبيق (ثيم داكن: tr:nth-child(even) td{background:#131b25})
+   كانت تُسوّد صفوفه. الحلّ: تقييد كلّ قواعد REP_CSS تحت #prnInner (خصوصية id تغلب قواعد التطبيق)
+   + تصفير شامل قبلها يمسح أي خلفية/لون موروث. */
+function scopeCss(css,sel){
+  return css.replace(/\/\*[\s\S]*?\*\//g,'').replace(/(^|\})([^{}]*)\{/g,function(m,br,s){
+    if(s.indexOf('@')>=0)return m;                       /* @page يبقى عاماً */
+    const out=s.split(',').map(function(x){
+      x=x.trim(); if(!x)return '';
+      if(x==='body'||x==='html')return sel;
+      if(x==='*')return sel+','+sel+' *';
+      return sel+' '+x;
+    }).filter(Boolean).join(',');
+    return out?br+out+'{':m;
+  });
+}
+const PRN_RESET=`
+#prnLayer,#prnLayer *{background:none;box-shadow:none;text-shadow:none;border-radius:0;opacity:1;
+  color:inherit;border-color:#e9eff3;font-family:'Tajawal',system-ui,Tahoma,sans-serif}
+#prnLayer{color:#1a2b38;background:#dfe8ee}
+`;
 const PRN_CSS=`
 #prnLayer{position:fixed;inset:0;z-index:99998;overflow:auto;-webkit-overflow-scrolling:touch;background:#dfe8ee}
 #prnInner{width:794px;max-width:none;margin:0 auto;background:#fff;padding:9mm 8mm 120px;color:#1a2b38}
@@ -2193,7 +2213,7 @@ const PRN_CSS=`
   body>*:not(#prnLayer){display:none!important}
   #prnBar{display:none!important}
   #prnLayer{position:static;inset:auto;overflow:visible;background:#fff}
-  #prnInner{width:auto;margin:0;padding:0}
+  #prnInner{width:auto;margin:0;padding:9mm 8mm;background:#fff}
 }`;
 let PRN_TITLE='';
 function prnClose(){
@@ -2203,7 +2223,8 @@ function prnClose(){
 }
 function prnLayer(bodyHtml,title,en){
   prnClose();
-  const s=document.createElement('style'); s.id='prnCSS'; s.textContent=REP_CSS+PRN_CSS;
+  const s=document.createElement('style'); s.id='prnCSS';
+  s.textContent=PRN_RESET+scopeCss(REP_CSS,'#prnInner')+PRN_CSS;
   const l=document.createElement('div'); l.id='prnLayer';
   const inner=document.createElement('div'); inner.id='prnInner';
   inner.dir=en?'ltr':'rtl'; inner.innerHTML=bodyHtml;
