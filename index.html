@@ -403,6 +403,26 @@ tr.cancelled td{opacity:.5}
 .rtbl.a .rscn{color:#ffcf6a}.rtbl.b .rscn{color:#6fc8ff}
 .rmvpb{flex:none;display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-size:11px;font-weight:900;padding:3px 9px;border-radius:7px;letter-spacing:.5px;box-shadow:0 2px 6px rgba(0,0,0,.45)}
 .rmvpb .cr{font-size:12px;line-height:1}
+/* ═ أنماط بلا فريقين: FREE FOR ALL (فردي) و SURVIVAL (تعاوني) ═ */
+.rgrp.rsolo{flex-direction:column;gap:12px;align-items:center;padding:4px 0}
+.rchip{font-size:11px;font-weight:900;letter-spacing:3.5px;color:#d9c9ff;background:rgba(109,40,217,.42);
+  border:1px solid rgba(167,139,250,.55);padding:5px 18px;border-radius:999px;text-shadow:0 1px 5px rgba(0,0,0,.85)}
+.rwin{display:flex;align-items:center;gap:16px}
+.rwin .rlogo{width:50px;height:50px}
+.rwl{font-size:10px;font-weight:900;letter-spacing:3px;color:#ffcf6a;text-shadow:0 1px 5px rgba(0,0,0,.9)}
+.rwn{font-size:27px;font-weight:900;font-style:italic;color:#fff;line-height:1.06;text-shadow:0 2px 12px rgba(0,0,0,.92),0 0 5px rgba(0,0,0,.8)}
+.rws{font-size:36px;font-weight:900;font-style:italic;color:#ffcf6a;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.92)}
+.rsts{display:flex;gap:30px;align-items:flex-end}
+.rst{text-align:center}
+.rst b{display:block;font-size:29px;font-weight:900;font-style:italic;color:#fff;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 2px 12px rgba(0,0,0,.92)}
+.rst i{font-style:normal;font-size:9.5px;font-weight:900;letter-spacing:2px;color:#9fd4ff;text-shadow:0 1px 5px rgba(0,0,0,.85)}
+.rtables.rone{grid-template-columns:1fr}
+.rtbl.rsol .rseg.pl{background:linear-gradient(90deg,#7c3aed,#5a4fe0)}
+.rtbl.rsol .rseg.kd{background:linear-gradient(90deg,#2f7fe0,#243f9c)}
+.rrk{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:23px;height:23px;border-radius:7px;
+  background:rgba(255,255,255,.14);font-size:12px;font-weight:900;color:#e6eef7;text-shadow:none}
+.rrow.rw1 .rrk{background:linear-gradient(135deg,#ffd97a,#e79c00);color:#3a2500}
+.rrow.rw1 .pn{color:#ffe0a0}
 @media(max-width:760px){.rhead{grid-template-columns:1fr;justify-items:center;text-align:center;gap:10px}.rdt{justify-items:center}.rgrp{flex-wrap:wrap;justify-content:center;gap:14px}.rtables{grid-template-columns:1fr}.rtbl.a{border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}.rmid .mode{font-size:22px}.rpct{font-size:38px}}
 /* هواتف ضيّقة — تظهر النتيجة كاملة بلا تمدّد */
 @media(max-width:520px){
@@ -423,6 +443,11 @@ tr.cancelled td{opacity:.5}
   .rpn{padding-left:8px;gap:7px}.rpn .pn{font-size:13px}
   .rkda{font-size:12px;letter-spacing:.5px}.rscn{font-size:13px;padding-right:8px}
   .rmvpb{font-size:9px;padding:2px 6px}
+  .rwin{gap:11px}.rwin .rlogo{width:40px;height:40px}
+  .rwn{font-size:20px}.rws{font-size:26px}.rwl{font-size:9px;letter-spacing:2px}
+  .rsts{gap:20px}.rst b{font-size:22px}.rst i{font-size:8.5px;letter-spacing:1.5px}
+  .rchip{font-size:9.5px;letter-spacing:2.5px;padding:4px 13px}
+  .rrk{min-width:20px;height:20px;font-size:11px}
 }
 /* ═══ ضبط الجوال (PWA) ═══ */
 @media(max-width:640px){
@@ -2123,14 +2148,15 @@ body{font:10px/1.45 'Tajawal',system-ui,Tahoma,sans-serif;color:#1a2b38;padding:
 .tile .l{font-size:8.5px;color:#607a8b;margin-top:1px}
 h2{font-size:10.5px;color:#0e6c7d;font-weight:800;margin:9px 0 4px;padding-bottom:2px;border-bottom:1.5px solid #cfe3ea}
 table{width:100%;border-collapse:collapse;font-size:9px}
-th{background:#0e6c7d;color:#fff;padding:4px 4px;text-align:center;font-weight:700;white-space:nowrap;font-size:8.5px}
-td{padding:3px 4px;border-bottom:1px solid #eef4f7;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+th{background:#0e6c7d;color:#fff;padding:5px 4px;text-align:center;font-weight:700;white-space:nowrap;font-size:8.5px}
+td{padding:4px 5px;border-bottom:1px solid #e9eff3;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
 td.r{text-align:right;white-space:normal}
 td.mini{font-size:8px;color:#5f7889;white-space:normal;line-height:1.35}
-tr:nth-child(even) td{background:#f7fbfc}
-tr.walk td{background:#fdf6e3}
-tr.cx td{color:#9aa7b1;background:#f5f7f8!important}
-tr.sub td{background:#eef7fa;font-size:8.5px;color:#31596b}
+/* تنسيق هادئ: بلا تظليل صفوف متبادل ولا ألوان خلفية متعدّدة — التمييز بالنصّ والحدّ فقط */
+tr.walk td:first-child{border-inline-start:2px solid #d9a83a}
+tr.cx td{color:#9aa7b1}
+tr.sub td{background:#f6fafc;font-size:8.5px;color:#31596b}
+tr.sub td:first-child{border-inline-start:2px solid #bcd7e2}
 tr.tot th{background:#123f4a}
 .gp{display:inline-block;color:#fff;border-radius:3px;padding:0 6px;font-weight:700;font-size:8px;white-space:nowrap}
 .bad{color:#c22e3c;font-weight:800}.ok{color:#127a48;font-weight:700}.warn{color:#a4780c;font-weight:700}
@@ -2347,7 +2373,7 @@ function printSales(preview){
       <td><b>${v.toFixed(2)}</b></td><td>${x.pay_method||'<b class="bad">بلا دفع</b>'}</td><td class="r mut">${x.note||'—'}</td></tr>`;
   }
   const net=gross-disc;
-  const body=repHead('تقرير المبيعات اليومي',`${DAY}${isSunday(DAY)?' · الأحد':''} · التسعيرة: ${isSunday(DAY)?'٩٫٥٠ لليوم كامل':'٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)'}`)
+  const body=repHead('تقرير المبيعات اليومي',`${DAY}${isSunday(DAY)?' · الأحد':''}`)
   +`<div class="tiles">
     <div class="tile"><div class="v">${gross.toFixed(2)}</div><div class="l">الإجمالي (BD)</div></div>
     <div class="tile"><div class="v" style="color:#a97b0a">−${disc.toFixed(2)}</div><div class="l">الخصومات</div></div>
@@ -2835,7 +2861,7 @@ function renderResults(){
 }
 function resultCard(g,i){
   const ps=g.players||[];
-  const teams=[...new Set(ps.map(p=>p.team).filter(x=>x!=null))];
+  const teams=[...new Set(ps.map(p=>p.team).filter(x=>x!=null&&x!==''))];
   const k1=g.team_one!=null?g.team_one:teams[0];
   const k2=g.team_two!=null?g.team_two:teams[1];
   let A=ps.filter(p=>p.team===k1), B=ps.filter(p=>p.team===k2);
@@ -2843,17 +2869,60 @@ function resultCard(g,i){
   const s1=g.team_one_score, s2=g.team_two_score;
   const n1=(k1!=null?String(k1):'ALLIANCE').toUpperCase(), n2=(k2!=null?String(k2):'REBELS').toUpperCase();
   const kA=A.reduce((a,p)=>a+(+p.kills||0),0), kB=B.reduce((a,p)=>a+(+p.kills||0),0);
+  /* اسم اللعبة الحقيقي من الحجز (أو من raw إن كان لعباً بلا حجز) — كان مكتوباً BATTLE ARENA دائماً */
+  const rawG=(g.raw&&(g.raw.gameId!=null?'gameId '+g.raw.gameId:(g.raw.game||g.raw.gameName)))||null;
+  const gFull=g.cc?'RABBIDS: COLOR CHAOS':gameName((g._slot&&g._slot.game)||rawG||'EVA BATTLE ARENA');
+  const gU=String(gFull).toUpperCase();
+  /* ثلاثة أنماط:
+     coop = مون أوف ذا ديد/زومبي (تعاوني — لا نتيجة فريقين)
+     team = فريقان ونتيجة حقيقية
+     solo = فري-فور-أول (ترتيب فردي — كان يظهر 0 · 0 بلا معنى) */
+  const isCoop=/MOON|ZOMBIE|SURVIVAL/.test(gU);
+  const twoTeams=(g.team_one!=null&&g.team_two!=null&&String(g.team_one)!==String(g.team_two))||teams.length===2;
+  const hasRes=(s1!=null&&s2!=null)&&!(+s1===0&&+s2===0);
+  const mode=isCoop?'coop':((twoTeams&&hasRes)?'team':'solo');
   // Team Deathmatch: نتيجة الفريق = مجموع قتلاه (نقاط، بلا %) · غير ذلك = Domination (%)
   const isTDM=(s1!=null&&s2!=null&&s1===kA&&s2===kB);
   const pctMode=(!isTDM&&s1!=null&&s2!=null&&s1<=100&&s2<=100);
   const fp=v=>v==null?'-':(pctMode?v+'%':String(v));
-  const tbl=(list,cls)=>{
-    const rows=list.slice().sort((a,b)=>b.score-a.score).map(p=>
-      '<div class="rrow"><span class="rpn"><span class="pn">'+rEsc(p.name)+'</span>'+(p.mvp?'<span class="rmvpb"><span class="cr">\u265B</span>MVP</span>':'')+'</span><span class="rkda">'+p.kills+' / '+p.deaths+' / '+p.assists+'</span><span class="rscn">'+p.score+'</span></div>').join('')
-      ||'<div class="rrow"><span class="rpn dim sm">\u2014</span></div>';
-    return '<div class="rtbl '+cls+'"><div class="rthd"><div class="rseg pl">PLAYER</div><div class="rseg kd">K / D / A</div><div class="rseg sch">SCORE</div></div>'+rows+'</div>';
-  };
-  const gname=g.cc?'COLOR CHAOS':'BATTLE ARENA';
+  const prow=(p,rk)=>'<div class="rrow'+(rk===1?' rw1':'')+'">'
+    +'<span class="rpn">'+(rk?'<span class="rrk">'+rk+'</span>':'')+'<span class="pn">'+rEsc(p.name)+'</span>'
+    +(p.mvp?'<span class="rmvpb"><span class="cr">\u265B</span>MVP</span>':'')+'</span>'
+    +'<span class="rkda">'+p.kills+' / '+p.deaths+' / '+p.assists+'</span><span class="rscn">'+p.score+'</span></div>';
+  const thd='<div class="rthd"><div class="rseg pl">PLAYER</div><div class="rseg kd">K / D / A</div><div class="rseg sch">SCORE</div></div>';
+  const none='<div class="rrow"><span class="rpn dim sm">\u2014</span></div>';
+  const tbl=(list,cls)=>'<div class="rtbl '+cls+'">'+thd
+    +(list.slice().sort((a,b)=>b.score-a.score).map(p=>prow(p,0)).join('')||none)+'</div>';
+  const ranked=ps.slice().sort((a,b)=>(+b.score||0)-(+a.score||0));
+  const totK=ps.reduce((a,p)=>a+(+p.kills||0),0), totS=ps.reduce((a,p)=>a+(+p.score||0),0);
+  const win=ranked[0];
+  /* \u0627\u0644\u0634\u0631\u064A\u0637 \u0627\u0644\u0623\u0648\u0633\u0637: \u0646\u062A\u064A\u062C\u0629 \u0627\u0644\u0641\u0631\u064A\u0642\u064A\u0646 \u00B7 \u0623\u0648 \u0627\u0644\u0641\u0627\u0626\u0632 (\u0641\u0631\u062F\u064A) \u00B7 \u0623\u0648 \u0645\u062C\u0627\u0645\u064A\u0639 \u0627\u0644\u0641\u0631\u064A\u0642 (\u062A\u0639\u0627\u0648\u0646\u064A) */
+  const band=mode==='team'
+   ? '<div class="rgrp">'
+      +'<div class="rside a">'+rEmblem('gold')+'<span class="rnm">'+n1+'</span></div>'
+      +'<span class="rpct">'+fp(s1)+'</span><span class="rvs">VS</span><span class="rpct">'+fp(s2)+'</span>'
+      +'<div class="rside b">'+rEmblem('blue')+'<span class="rnm">'+n2+'</span></div>'
+     +'</div>'
+   : mode==='coop'
+   ? '<div class="rgrp rsolo"><div class="rchip">SURVIVAL \u00B7 CO-OP</div>'
+      +'<div class="rsts"><div class="rst"><b>'+ps.length+'</b><i>PLAYERS</i></div>'
+      +'<div class="rst"><b>'+totK+'</b><i>KILLS</i></div>'
+      +'<div class="rst"><b>'+totS+'</b><i>TEAM SCORE</i></div></div></div>'
+   : '<div class="rgrp rsolo"><div class="rchip">FREE FOR ALL</div>'
+      +(win?'<div class="rwin">'+rEmblem('gold')
+        +'<div><div class="rwl">WINNER</div><div class="rwn">'+rEsc(win.name)+'</div></div>'
+        +'<div class="rws">'+(win.score||0)+'</div></div>':'')
+      +'<div class="rsts"><div class="rst"><b>'+ps.length+'</b><i>PLAYERS</i></div>'
+      +'<div class="rst"><b>'+totK+'</b><i>KILLS</i></div></div></div>';
+  const tables=mode==='team'
+   ? '<div class="rtables">'+tbl(A,'a')+tbl(B,'b')+'</div>'
+   : '<div class="rtables rone"><div class="rtbl rsol">'+thd
+      +(ranked.map((p,n)=>prow(p,n+1)).join('')||none)+'</div></div>';
+  const gname=shortGame(gFull);
+  const brand=gname.split(' - ')[0];
+  /* السطر الأزرق الصغير = نوع اللعب لا اسم اللعبة (اسم اللعبة صار في شعار البطاقة) */
+  const modeLbl=mode==='team'?(isTDM?'TEAM DEATHMATCH':(pctMode?'DOMINATION':gname))
+    :(mode==='coop'?'SURVIVAL':'FREE FOR ALL');
   const mapU=rEsc((g.map||'\u2014')).toUpperCase();
   const d=String(DAY).split('-'); const dstr=(+d[1])+'/'+(+d[2])+'/'+String(d[0]).slice(2);
   const cal='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>';
@@ -2862,16 +2931,12 @@ function resultCard(g,i){
   return '<div class="rcard"'+(bg?' style="background-image:url(\''+bg+'\')"':'')+'>'
    +'<button class="rdl" onclick="rDownload('+i+')">\u2B07 PNG</button>'
    +'<div class="rhead">'
-     +'<div class="rbrand"><div class="b1">AFTER<i>\u00B7</i>H</div><div class="b2">BATTLE ARENA</div><div class="b3">EVA ORIGINAL GAME</div></div>'
-     +'<div class="rmid"><div class="sub">'+gname+'</div><div class="mode">'+mapU+'</div></div>'
+     +'<div class="rbrand"><div class="b1">AFTER<i>\u00B7</i>H</div><div class="b2">'+brand+'</div><div class="b3">EVA ORIGINAL GAME</div></div>'
+     +'<div class="rmid"><div class="sub">'+modeLbl+'</div><div class="mode">'+mapU+'</div></div>'
      +'<div class="rdt"><div>'+cal+dstr+'</div><div>'+clk+rH12(fmtT(g.end))+'</div></div>'
    +'</div>'
-   +'<div class="rscore"><div class="rgrp">'
-     +'<div class="rside a">'+rEmblem('gold')+'<span class="rnm">'+n1+'</span></div>'
-     +'<span class="rpct">'+fp(s1)+'</span><span class="rvs">VS</span><span class="rpct">'+fp(s2)+'</span>'
-     +'<div class="rside b">'+rEmblem('blue')+'<span class="rnm">'+n2+'</span></div>'
-   +'</div></div>'
-   +'<div class="rtables">'+tbl(A,'a')+tbl(B,'b')+'</div></div>';
+   +'<div class="rscore">'+band+'</div>'
+   +tables+'</div>';
 }
 
 /* عرض ثابت لصورة النتيجة — لا يتبع عرض الجوال إطلاقاً */
@@ -2934,7 +2999,6 @@ function rDownload(idx){
     H=Math.ceil(clone.getBoundingClientRect().height)||Math.ceil(clone.offsetHeight)||420;
   }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message); return }
   rMapData(bgm?bgm[1]:null,W*sc,H*sc,function(dataUrl){
-    let url=null;
     try{
       if(dataUrl)clone.style.backgroundImage="url('"+dataUrl+"')";
       const inner=new XMLSerializer().serializeToString(clone);
@@ -2947,7 +3011,6 @@ function rDownload(idx){
           const c=document.createElement('canvas'); c.width=W*sc; c.height=H*sc;
           const x=c.getContext('2d'); x.fillStyle='#0a1220'; x.fillRect(0,0,c.width,c.height);
           x.drawImage(img,0,0,W*sc,H*sc);
-          if(url)URL.revokeObjectURL(url);
           c.toBlob(function(b){ if(!b){status('⚠ تعذّر إنشاء الصورة');return}
             const file=new File([b],'EVA-MARASSI-result.png',{type:'image/png'});
             if(navigator.canShare&&navigator.canShare({files:[file]})){
@@ -2957,14 +3020,10 @@ function rDownload(idx){
             } },'image/png');
         }catch(e){ status('⚠ '+e.message) }
       };
-      img.onerror=function(){
-        if(url){ URL.revokeObjectURL(url); url=null;   /* بديل: data-URI لو رُفض blob */
-          img.onerror=function(){status('⚠ تعذّر توليد الصورة')};
-          img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); return }
-        status('⚠ تعذّر توليد الصورة');
-      };
-      try{ url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'})); img.src=url }
-      catch(e){ img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg) }
+      img.onerror=function(){ status('⚠ تعذّر توليد الصورة') };
+      /* data-URI إلزامي: صورة SVG من blob: تُلوّث الـcanvas فيفشل toBlob
+         («Tainted canvases may not be exported»). الخريطة صارت JPEG مصغّراً فالحجم صغير. */
+      img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
     }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message) }
   });
 }
