@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
 /* ═══ EM v2.2 — ثيم فاتح · Tajawal · بطاقات ملوّنة كإيفا ═══ */
 :root{
@@ -355,13 +355,31 @@ tr.cancelled td{opacity:.5}
 .rtoptitle{margin-bottom:14px;direction:ltr}
 .rtoptitle h1{margin:0;font-size:26px;font-weight:900;font-style:italic;letter-spacing:.5px;color:#f4f7fb;line-height:1;text-transform:uppercase}
 .rtoptitle .loc{color:#a78bfa;font-weight:900;font-style:italic;font-size:17px;letter-spacing:3px;margin-top:5px}
-.rcard{position:relative;margin-bottom:24px;background:#0a1220;background-size:cover;background-position:center;border-radius:14px;overflow:hidden;box-shadow:0 22px 56px rgba(0,0,0,.6);border-bottom:5px solid #6d28d9;padding-bottom:18px;direction:ltr;color:#eef3f8}
-.rcard::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,12,22,.6),rgba(6,12,22,.12) 40%,rgba(6,12,22,.58));z-index:0;pointer-events:none}
+.rcard{position:relative;margin-bottom:24px;background:#0a1220;background-size:cover;background-position:center;border-radius:16px;overflow:hidden;
+  box-shadow:0 22px 56px rgba(0,0,0,.62);border:1px solid rgba(150,190,255,.16);border-bottom:3px solid rgba(109,40,217,.85);direction:ltr;color:#eef3f8}
+/* تعتيم متدرّج: أطراف داكنة ومركز أوضح كي تتصدّر البيانات على الخريطة */
+.rcard::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:
+  linear-gradient(180deg,rgba(4,8,18,.74),rgba(4,8,18,.26) 34%,rgba(4,8,18,.52) 66%,rgba(4,8,18,.88)),
+  radial-gradient(78% 62% at 50% 34%,rgba(4,8,18,0),rgba(4,8,18,.55))}
 .rcard>*{position:relative;z-index:1}
 .rwm{display:none}
+/* بطاقة بلا صورة خريطة: تدرّج إيفا (بنفسجي/أزرق) بدل الأسود الصلب */
+.rcard.rgrad{background:
+  radial-gradient(1100px 420px at 18% -12%,rgba(124,58,237,.50),transparent 62%),
+  radial-gradient(900px 380px at 88% -4%,rgba(47,127,224,.42),transparent 58%),
+  radial-gradient(700px 420px at 50% 115%,rgba(109,40,217,.30),transparent 60%),
+  linear-gradient(160deg,#1a2340 0%,#141d33 42%,#101728 100%)}
+.rcard.rgrad::before{background:linear-gradient(180deg,rgba(8,14,26,.28),transparent 38%,rgba(8,14,26,.34))}
+.rcard.rgrad .rrow{border-bottom-color:rgba(255,255,255,.10)}
+.rcard.rgrad .rtbl{background:linear-gradient(180deg,rgba(9,14,26,.42),rgba(9,14,26,.26))}
+.rcard.rnightc::after{content:"";position:absolute;top:-90px;left:50%;transform:translateX(-50%);width:340px;height:340px;border-radius:50%;
+  background:radial-gradient(circle,rgba(167,139,250,.34),rgba(109,40,217,.14) 45%,transparent 70%);z-index:0;pointer-events:none}
+.rcard.rnightc .rmid .mode{color:#ece6ff;text-shadow:0 2px 18px rgba(0,0,0,.9),0 0 40px rgba(167,139,250,.6)}
+.rsec{margin:16px 16px 0;font-size:11px;font-weight:900;letter-spacing:3px;color:#a9c4e4;
+  text-shadow:0 1px 5px rgba(0,0,0,.7);border-top:1px solid rgba(255,255,255,.10);padding-top:12px}
 .rdl{position:absolute;top:12px;right:14px;z-index:6;background:rgba(109,40,217,.9);color:#fff;border:none;font-size:12px;font-weight:800;padding:6px 12px;border-radius:8px;cursor:pointer;letter-spacing:.5px;box-shadow:0 3px 8px rgba(0,0,0,.5)}
 .rdl:hover{background:#6d28d9}
-.rhead{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:22px;padding:16px 24px 10px;color:#fff;overflow:hidden}
+.rhead{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:22px;padding:18px 22px 12px;color:#fff;overflow:hidden}
 .rhead>*{position:relative;z-index:1}
 .rbrand{padding:6px 16px;border:2px solid rgba(255,255,255,.55);clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);text-align:center;line-height:1;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.85)}
 .rbrand .b1{font-size:11px;font-weight:900;letter-spacing:3px}
@@ -370,39 +388,56 @@ tr.cancelled td{opacity:.5}
 .rbrand .b3{font-size:7.5px;font-weight:700;letter-spacing:2.5px;opacity:.75;margin-top:2px}
 .rmid{text-align:center}
 .rmid .sub{font-size:11px;font-weight:900;letter-spacing:4px;color:#7fd0ff;text-shadow:0 1px 6px rgba(0,0,0,.7)}
-.rmid .mode{font-size:27px;font-weight:900;letter-spacing:1px;line-height:.98;text-shadow:0 2px 16px rgba(0,0,0,.9),0 0 34px rgba(0,0,0,.5)}
-.rdt{display:grid;gap:4px;font-size:16px;font-weight:900;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.75)}
+.rmid .mode{font-family:'Rajdhani','Arial Narrow',Arial,sans-serif;font-size:34px;font-weight:700;letter-spacing:3px;line-height:1;
+  text-shadow:0 2px 16px rgba(0,0,0,.9),0 0 34px rgba(120,160,255,.35)}
+.rdt{display:grid;gap:6px;font-size:15px;font-weight:800;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.75);
+  color:#bfe0ff;background:rgba(6,12,26,.42);border:1px solid rgba(120,170,255,.28);padding:9px 15px;
+  clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)}
 .rdt div{display:flex;align-items:center;gap:9px}
 .rdt svg{width:16px;height:16px;opacity:.85;flex:none}
-.rscore{position:relative;display:flex;justify-content:center;align-items:center;margin:8px 14px;padding:8px}
+.rscore{position:relative;display:flex;justify-content:center;align-items:center;margin:6px 14px 2px;padding:10px 8px 18px}
+/* خطّان يلتقيان بنقطة ضوء تحت النتيجة: ذهبي من جهة ALLIANCE وأزرق من جهة REBELS */
+.rscore::after{content:"";position:absolute;left:12%;right:12%;bottom:6px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,rgba(242,178,26,0),#f2b21a 26%,#fff 50%,#3f92ee 74%,rgba(63,146,238,0))}
 .rgrp{display:flex;align-items:center;gap:28px;padding:6px 0}
 .rside{display:flex;flex-direction:column;align-items:center;gap:2px}
 .rside .rlogo{width:56px;height:56px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.5))}
-.rside .rnm{font-size:14px;font-weight:900;letter-spacing:2px;text-shadow:0 1px 6px rgba(0,0,0,.9),0 0 3px rgba(0,0,0,.7)}
+.rside .rnm{font-family:'Rajdhani','Arial Narrow',Arial,sans-serif;font-size:19px;font-weight:700;letter-spacing:3px;text-shadow:0 1px 6px rgba(0,0,0,.9),0 0 3px rgba(0,0,0,.7)}
 .rside.a .rnm{color:#ffcf6a}.rside.b .rnm{color:#6fc8ff}
-.rpct{font-size:44px;font-weight:900;font-style:italic;color:#fff;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.92),0 0 5px rgba(0,0,0,.8)}
+.rpct{font-family:'Rajdhani','Arial Narrow',Arial,sans-serif;font-size:62px;font-weight:700;font-style:italic;color:#fff;
+  font-variant-numeric:tabular-nums;line-height:.92;letter-spacing:1px;
+  text-shadow:0 3px 16px rgba(0,0,0,.95),0 0 26px rgba(140,180,255,.35)}
 .rvs{font-size:19px;font-weight:900;font-style:italic;color:#c9b6ff;text-shadow:0 1px 6px rgba(0,0,0,.85)}
-.rtables{position:relative;display:grid;grid-template-columns:1fr 1fr;margin:8px 14px 0}
-.rtbl{padding:0 8px 4px}
-.rtbl.a{border-right:1px solid rgba(255,255,255,.08)}
-.rthd{display:grid;grid-template-columns:1fr 140px 84px;align-items:center;height:34px;margin-top:6px}
-.rseg{position:relative;height:100%;display:flex;align-items:center;padding:0 14px;font-size:10px;font-weight:900;letter-spacing:1.5px;color:#fff}
-.rseg.pl{clip-path:polygon(0 0,100% 0,calc(100% - 15px) 100%,0 100%)}
-.rseg.kd{clip-path:polygon(15px 0,100% 0,calc(100% - 15px) 100%,0 100%);justify-content:center}
-.rseg.sch{color:#e5ecf3;text-shadow:0 1px 3px rgba(0,0,0,.9);justify-content:flex-end;font-weight:800}
-.rtbl.a .rseg.pl{background:linear-gradient(90deg,#f2b21a,#e79c00)}
-.rtbl.a .rseg.kd{background:linear-gradient(90deg,#7c3aed,#5a4fe0)}
-.rtbl.b .rseg.pl{background:linear-gradient(90deg,#2f7fe0,#2568c8)}
-.rtbl.b .rseg.kd{background:linear-gradient(90deg,#2f7fe0,#243f9c)}
-.rrow{position:relative;display:grid;grid-template-columns:1fr 140px 84px;align-items:center;height:44px;padding:0 4px;border-bottom:1px solid rgba(255,255,255,.06)}
+.rtables{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:6px 16px 0}
+.rtbl{padding:2px 12px 10px;background:linear-gradient(180deg,rgba(7,13,27,.66),rgba(7,13,27,.40));
+  border:1px solid rgba(255,255,255,.10);
+  clip-path:polygon(15px 0,100% 0,100% calc(100% - 15px),calc(100% - 15px) 100%,0 100%,0 15px)}
+.rtbl.a{border-color:rgba(242,178,26,.40)}
+.rtbl.b{border-color:rgba(63,146,238,.42)}
+.rthd{display:grid;grid-template-columns:1fr 140px 84px;align-items:center;height:36px;margin-top:4px;border-bottom:1px solid rgba(255,255,255,.13)}
+.rseg{position:relative;height:100%;display:flex;align-items:center;padding:0 4px;font-size:10px;font-weight:800;letter-spacing:2.5px;color:#9db4cd;text-shadow:0 1px 3px rgba(0,0,0,.85)}
+.rseg.kd{justify-content:center}
+.rseg.sch{justify-content:flex-end}
+.rtbl.a .rseg{color:#f0b93c}
+.rtbl.b .rseg{color:#5fb0ff}
+.rtbl.rsol .rseg{color:#c3b0ff}
+.rrow{position:relative;display:grid;grid-template-columns:1fr 140px 84px;align-items:center;height:46px;padding:0 4px;border-bottom:1px solid rgba(255,255,255,.075)}
+.rrow:last-child{border-bottom:none}
 .rpn{display:flex;align-items:center;gap:10px;padding-left:12px;min-width:0}
 .rpn .pn{font-size:15px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.95),0 0 3px rgba(0,0,0,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rtbl.a .rpn .pn{color:#ffe0a0}.rtbl.b .rpn .pn{color:#bfe1ff}
-.rkda{font-size:14px;font-weight:800;color:#eef3f8;text-shadow:0 1px 3px rgba(0,0,0,.9);text-align:center;letter-spacing:1px;font-variant-numeric:tabular-nums}
+.rkda{font-size:13.5px;font-weight:700;color:#c9d8e8;text-shadow:0 1px 3px rgba(0,0,0,.9);text-align:center;letter-spacing:1.5px;font-variant-numeric:tabular-nums}
 .rscn{font-size:15px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.95);text-align:right;padding-right:12px;font-variant-numeric:tabular-nums}
 .rtbl.a .rscn{color:#ffcf6a}.rtbl.b .rscn{color:#6fc8ff}
 .rmvpb{flex:none;display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-size:11px;font-weight:900;padding:3px 9px;border-radius:7px;letter-spacing:.5px;box-shadow:0 2px 6px rgba(0,0,0,.45)}
 .rmvpb .cr{font-size:12px;line-height:1}
+.rfoot{position:relative;display:flex;align-items:center;gap:12px;margin:16px 16px 0;padding:6px 0 14px}
+.rfoot .rbar{flex:1;height:9px;border-radius:2px;opacity:.92}
+.rfoot .rbar.a{background:linear-gradient(90deg,rgba(242,178,26,0),#e79c00 55%,#f2b21a);clip-path:polygon(0 0,100% 0,calc(100% - 9px) 100%,0 100%)}
+.rfoot .rbar.b{background:linear-gradient(270deg,rgba(63,146,238,0),#2568c8 55%,#3f92ee);clip-path:polygon(9px 0,100% 0,100% 100%,0 100%)}
+.rfoot .rhex{width:36px;height:32px;flex:none;background:rgba(109,40,217,.6);border:1px solid rgba(167,139,250,.5);
+  clip-path:polygon(50% 0,100% 26%,100% 74%,50% 100%,0 74%,0 26%);display:flex;align-items:center;justify-content:center;
+  color:#e9d8ff;font-size:13px;font-weight:900;letter-spacing:1px}
 /* ═ أنماط بلا فريقين: FREE FOR ALL (فردي) و SURVIVAL (تعاوني) ═ */
 .rgrp.rsolo{flex-direction:column;gap:12px;align-items:center;padding:4px 0}
 .rchip{font-size:11px;font-weight:900;letter-spacing:3.5px;color:#d9c9ff;background:rgba(109,40,217,.42);
@@ -513,6 +548,7 @@ tr.cancelled td{opacity:.5}
   <section id="tab-rep"   class="tab"></section>
   <section id="tab-res"   class="tab"></section>
   <section id="tab-top"   class="tab"></section>
+  <section id="tab-night" class="tab"></section>
 </main>
 <footer><span id="fStatus">…</span><span id="fClock" style="margin-inline-start:auto"></span></footer>
 
@@ -2300,7 +2336,7 @@ function printDoc(title,body,preview){
   const name=trText(title)+' · '+DAY+(USER?' · '+USER:'');
   const html=`<!doctype html><html lang="${en?'en':'ar'}" dir="${en?'ltr':'rtl'}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=794,initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <title>${trText(title)} — ${DAY}</title><style>${REP_CSS}</style></head><body>${full}
 </body></html>`;
   if(preview)return html;
@@ -2663,6 +2699,11 @@ async function reloadGms(){
 
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
+ '🏆 توب بلاير':'🏆 Top Player','🏆 مراسي توب بلاير':'🏆 Marassi Top Player','⭐ إيفا نايت':'⭐ EVA Night',
+ '🗺 إحصائية الخرائط':'🗺 Map stats','دومينيشن':'Domination','تيم دث ماتش':'Team Deathmatch','زومبي':'Zombies','فري فور أول':'Free for All',
+ 'آخر ٧ أيام':'Last 7 days','آخر ٣٠ يوماً':'Last 30 days','النتائج':'Results','الكافيه':'Cafe','التقرير':'Report','الموظفون':'Staff',
+ 'لا جولات من هذا النوع في هذه الفترة':'No rounds of this type in this period',
+ 'لا مباريات فرق في نافذة إيفا نايت لهذا التاريخ':'No team matches in the EVA Night window for this date',
  'الحجوزات':'Bookings','التشغيل':'Operations','الاستقبال':'Reception','التفاصيل':'Details','المبيعات':'Sales','التسجيلات':'Recordings','القيم ماستر':'Game Masters',
  'اليوم':'Today','اليوم — حجوزات ولعب':'Today — bookings & play','المجموع':'Total','مجموع الدفع':'Payment totals','الطريقة':'Method',
  'الوقت':'Time','رقم الطلب':'Order no.','الحساب':'Account','اللعبة':'Game','محجوز':'Booked','لعبوا':'Played','الفرد':'Rate','المبلغ':'Amount',
@@ -2997,7 +3038,9 @@ function resultCard(g,i){
      +'<div class="rdt"><div>'+cal+dstr+'</div><div>'+clk+rH12(fmtT(g.end))+'</div></div>'
    +'</div>'
    +'<div class="rscore">'+band+'</div>'
-   +tables+'</div>';
+   +tables
+   +'<div class="rfoot"><span class="rbar a"></span><span class="rhex">EM</span><span class="rbar b"></span></div>'
+   +'</div>';
 }
 
 /* عرض ثابت لصورة النتيجة — لا يتبع عرض الجوال إطلاقاً */
@@ -3031,6 +3074,36 @@ function rRoundPath(x,w,h,r){
   x.lineTo(r,h); x.quadraticCurveTo(0,h,0,h-r);
   x.lineTo(0,r); x.quadraticCurveTo(0,0,r,0); x.closePath();
 }
+/* الخطوط الخارجية لا تُحمَّل داخل SVG-كصورة، فنُضمّن ملفّ الخطّ نفسه base64.
+   يُستعمل في إطار القياس وفي الصورة معاً كي يتطابق الارتفاع المقاس بالمرسوم.
+   يُجلب مرّة واحدة ويُخزَّن؛ وإن فشل الجلب نرجع لـArial بلا أي عطل. */
+let R_FONT=null;
+function rFontCSS(cb){
+  if(R_FONT!==null){cb(R_FONT);return}
+  const done=v=>{R_FONT=v||'';cb(R_FONT)};
+  let timer=setTimeout(function(){timer=null;done('')},6000);
+  const ok=v=>{if(timer){clearTimeout(timer);timer=null;done(v)}};
+  try{
+    fetch('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap')
+      .then(r=>r.text())
+      .then(function(txt){
+        const faces=(txt.match(/@font-face\s*\{[^}]*\}/g)||[])
+          .filter(f=>/unicode-range:[^;]*U\+0000/i.test(f)||!/unicode-range/i.test(f));
+        const jobs=faces.map(function(f){
+          const u=/url\((https:[^)]+\.woff2)\)/.exec(f), w=/font-weight:\s*(\d+)/.exec(f);
+          if(!u)return Promise.resolve('');
+          return fetch(u[1]).then(r=>r.blob()).then(b=>new Promise(function(res){
+            const fr=new FileReader();
+            fr.onload=function(){res("@font-face{font-family:'Rajdhani';font-style:normal;font-weight:"
+              +((w&&w[1])||700)+";src:url("+fr.result+") format('woff2')}")};
+            fr.onerror=function(){res('')};
+            fr.readAsDataURL(b);
+          }));
+        });
+        return Promise.all(jobs).then(a=>ok(a.join('')));
+      }).catch(function(){ok('')});
+  }catch(e){ok('')}
+}
 function rDownload(idx){ rDownloadEl(document.querySelectorAll('#tab-res .rcard')[idx]) }
 function topDownload(){ rDownloadEl(document.querySelector('#tab-top .rtopc')) }
 function topDownloadMap(){ rDownloadEl(document.querySelector('#tab-top .rmapc')) }
@@ -3038,19 +3111,22 @@ function rDownloadEl(card){
   if(!card){status('⚠ لا توجد بطاقة');return}
   status('⏳ تجهيز الصورة…');
   const bgm=(card.style.backgroundImage||'').match(/url\(["']?([^"')]+)/);
-  const W=R_EXP_W, sc=R_EXP_SC;
-  const css=rCollectCSS()
+  rFontCSS(function(fc){
+  const W=R_EXP_W; let sc=R_EXP_SC;
+  const css=fc+rCollectCSS()
     +'*{box-sizing:border-box;margin:0;padding:0}'
-    +'.rcard{margin:0!important;width:'+W+'px;background:transparent!important}'
-    +'.rcard,.rcard *{font-family:Arial,Helvetica,sans-serif}';
-  let frame=null, clone=null, H=0;
+    +'.rcard{margin:0!important;width:'+W+'px'+(bgm?';background:transparent!important':'')+'}'
+    +'.rcard,.rcard *{font-family:Arial,Helvetica,sans-serif}'
+    +(fc?'.rcard .rpct,.rcard .rmid .mode,.rcard .rside .rnm,.rcard .rbrand .b2,'
+        +'.rcard .rwn,.rcard .rws,.rcard .rst b{font-family:Rajdhani,Arial,sans-serif}':'');
+  let frame=null, clone=null, H=0, fd=null;
   try{
     /* إطار مخفي بعرض ثابت ١٠٠٠px: يُقاس فيه الارتفاع الحقيقي بنفس التنسيق الذي سيُرسم به */
     frame=document.createElement('iframe');
     frame.setAttribute('aria-hidden','true');
     frame.style.cssText='position:fixed;left:-20000px;top:0;width:'+W+'px;height:600px;border:0;opacity:0;pointer-events:none';
     document.body.appendChild(frame);
-    const fd=frame.contentDocument;
+    fd=frame.contentDocument;
     fd.open();
     fd.write('<!doctype html><html dir="ltr"><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;width:'+W+'px;background:#0a1220}'+css+'</style></head><body></body></html>');
     fd.close();
@@ -3058,10 +3134,14 @@ function rDownloadEl(card){
     const dl=clone.querySelector('.rdl'); if(dl)dl.remove();
     clone.style.margin='0'; clone.style.width=W+'px'; clone.style.backgroundImage='none';
     fd.body.appendChild(clone);
+  }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message); return }
+  const measured=function(){
+   try{
     void fd.body.offsetHeight;                       /* فرض إعادة التخطيط قبل القياس */
     H=Math.ceil(clone.getBoundingClientRect().height)||Math.ceil(clone.offsetHeight)||420;
-  }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message); return }
-  rMapImg(bgm?bgm[1]:null,function(mapImg){
+    if(W*H*sc*sc>11e6)sc=1;      /* لوحة طويلة ⇒ ننزل لدقّة ×1 كي لا يرفضها الجوال */
+   }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message); return }
+   rMapImg(bgm?bgm[1]:null,function(mapImg){
     const nobg=(bgm&&!mapImg)?' (بلا خلفية خريطة)':'';
     try{
       const inner=new XMLSerializer().serializeToString(clone);
@@ -3099,6 +3179,11 @@ function rDownloadEl(card){
          («Tainted canvases may not be exported»). والـSVG صغير الآن لأن الخريطة لم تعد بداخله. */
       img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
     }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message) }
+   });
+  };
+  /* ننتظر جهوزية الخطّ داخل الإطار قبل القياس وإلا اختلف الارتفاع */
+  try{ if(fd.fonts&&fd.fonts.ready)fd.fonts.ready.then(measured).catch(measured); else measured() }
+  catch(e){ measured() }
   });
 }
 
@@ -3132,7 +3217,8 @@ function roundMode(g){
   const s1=g.team_one_score, s2=g.team_two_score;
   return (s1!=null&&s2!=null&&s1===kA&&s2===kB)?'tdm':'dom';
 }
-let TOPR='day', TOPM='dom';
+let TOPR='day', TOPM='dom', TOPALL=false;
+function topAll(){TOPALL=!TOPALL;renderTop()}
 const TOP_SPAN={day:1,week:7,month:30};
 const TOP_LBL={day:['اليوم','TODAY'],week:['آخر ٧ أيام','LAST 7 DAYS'],month:['آخر ٣٠ يوماً','LAST 30 DAYS']};
 function topRange(){
@@ -3176,6 +3262,8 @@ function renderTop(){
     +Object.keys(TOP_SPAN).map(r=>'<button class="catbtn '+(TOPR===r?'on':'')+'" onclick="topSet(&quot;'+r+'&quot;)">'+TOP_LBL[r][0]+'</button>').join('')
     +'</div><div class="catbar" style="margin-bottom:12px">'
     +MODES.map(m=>'<button class="catbtn '+(TOPM===m[0]?'on':'')+'" onclick="topMode(&quot;'+m[0]+'&quot;)">'+m[1]+'</button>').join('')
+    +'<span class="grow"></span>'
+    +'<button class="catbtn '+(TOPALL?'on':'')+'" onclick="topAll()">'+(TOPALL?'أفضل ٢٠':'كل اللاعبين')+'</button>'
     +'</div>';
   if(!rows.length){el.innerHTML=bar+'<div class="empty">لا جولات من هذا النوع في هذه الفترة</div>';sweep(el);return}
   const cal='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>';
@@ -3185,14 +3273,15 @@ function renderTop(){
     +'<div class="rmid"><div class="sub">'+sub+'</div><div class="mode">'+mode+'</div></div>'
     +'<div class="rdt"><div>'+cal+span+'</div><div>'+usr+c1+'</div></div>'
   +'</div>';
-  const body=rows.map((p,i)=>'<div class="rrow'+(i<3?' rw'+(i+1):'')+'">'
+  const shown=TOPALL?rows:rows.slice(0,20);
+  const body=shown.map((p,i)=>'<div class="rrow'+(i<3?' rw'+(i+1):'')+'">'
     +'<span class="rpn"><span class="rrk">'+(i+1)+'</span><span class="pn">'+rEsc(p.name)+'</span>'
     +'<span class="dim sm">'+p.games+' G</span></span>'
     +'<span class="rkda">'+p.kills+' / '+p.deaths+'</span>'
     +'<span class="rscn">'+(p.mvp?'♛ '+p.mvp:'—')+'</span></div>').join('');
-  const card='<div class="rcard rtopc">'
+  const card='<div class="rcard rgrad rtopc">'
     +'<button class="rdl" onclick="topDownload()">⬇ PNG</button>'
-    +head(MODE_LBL[TOPM],'TOP PLAYERS',rows.length+' PLAYERS')
+    +head(MODE_LBL[TOPM],'TOP PLAYERS',(TOPALL?rows.length:Math.min(20,rows.length))+(TOPALL?'':' OF '+rows.length)+' PLAYERS')
     +'<div class="rtables rone"><div class="rtbl rsol">'
       +'<div class="rthd"><div class="rseg pl">RANK · PLAYER</div><div class="rseg kd">KILLS / DEATHS</div><div class="rseg sch">MVP</div></div>'
       +body+'</div></div></div>';
@@ -3201,7 +3290,7 @@ function renderTop(){
     +'<span class="rpn"><span class="rrk">'+(i+1)+'</span><span class="pn">'+rEsc(String(m.map).toUpperCase())+'</span></span>'
     +'<span class="rkda">'+m.games+' · '+m.players+'</span>'
     +'<span class="rscn">'+(totG?Math.round(m.games*100/totG):0)+'%</span></div>').join('');
-  const mapCard='<div class="rcard rmapc">'
+  const mapCard='<div class="rcard rgrad rmapc">'
     +'<button class="rdl" onclick="topDownloadMap()">⬇ PNG</button>'
     +'<div class="rhead">'
       +'<div class="rbrand"><div class="b1">EVA<i>·</i>MARASSI</div><div class="b2">MAPS</div><div class="b3">MOST PLAYED</div></div>'
@@ -3215,17 +3304,155 @@ function renderTop(){
   sweep(el);
 }
 
+/* ═════════ إيفا نايت ═════════ */
+/* بطولة ليلة الجمعة: ٥ فرق × ٤ لاعبين · دومينيشن · لكل فريق ٤ مباريات · كل مباراة «بست أوف ٣».
+   إيفا لا تحفظ أسماء الفرق (ALLIANCE/REBELS فقط) — فتُستنبط الفرق من أطقم اللاعبين:
+   طرفٌ يشترك في ٣ لاعبين فأكثر مع طقم سابق = نفس الفريق. */
+const NIGHT_FROM=22, NIGHT_TO=4;                 /* ١٠م → ٤ص بتوقيت البحرين */
+function nightWindow(){
+  const base=Date.parse(DAY+'T00:00:00Z')-SHIFT;  /* منتصف الليل المحلي */
+  return {from:base+NIGHT_FROM*3600e3, to:base+(24+NIGHT_TO)*3600e3};
+}
+function nightData(){
+  const W=nightWindow();
+  const rounds=(S.rounds||[]).filter(r=>{
+    const t=+new Date(r.played_at); if(!(t>=W.from&&t<W.to))return false;
+    const m=roundMode(r); return (m==='dom'||m==='tdm')&&rPlayers(r).length>=2;
+  }).sort((a,b)=>+new Date(a.played_at)-+new Date(b.played_at));
+  const kOf=p=>(p.id!=null?'u'+p.id:'n'+String(p.name).toLowerCase());
+  const sq=[];
+  const place=side=>{
+    const ks=side.map(kOf);
+    let best=null,bn=0;
+    for(const s of sq){const n=ks.filter(k=>s.mem.has(k)).length; if(n>bn){bn=n;best=s}}
+    if(!best||bn<Math.min(3,ks.length)){best={mem:new Map(),mw:0,ml:0,w:0,l:0,f:0,a:0};sq.push(best)}
+    for(const p of side){const k=kOf(p);const e=best.mem.get(k)||{name:p.name,n:0};e.n++;e.name=p.name;best.mem.set(k,e)}
+    return sq.indexOf(best);
+  };
+  const maps=[];
+  for(const r of rounds){
+    const ps=rPlayers(r);
+    const tms=[...new Set(ps.map(p=>p.team).filter(t=>t!=null&&t!==''))];
+    const k1=r.team_one!=null?r.team_one:tms[0], k2=r.team_two!=null?r.team_two:tms[1];
+    const A=ps.filter(p=>p.team===k1), B=ps.filter(p=>p.team===k2);
+    if(!A.length||!B.length)continue;
+    maps.push({t:+new Date(r.played_at),map:roundMap(r),a:place(A),b:place(B),
+      sa:+r.team_one_score||0,sb:+r.team_two_score||0});
+  }
+  const matches=[]; let cur=null;
+  for(const m of maps){
+    const pair=[m.a,m.b].slice().sort().join('-');
+    if(!cur||cur.pair!==pair||cur.w[0]>=2||cur.w[1]>=2){cur={pair,tm:[m.a,m.b],w:[0,0],maps:[]};matches.push(cur)}
+    const i=(m.a===cur.tm[0])?0:1, sc=[0,0]; sc[i]=m.sa; sc[1-i]=m.sb;
+    cur.maps.push({map:m.map,t:m.t,sc:sc.slice()});
+    if(sc[0]>sc[1])cur.w[0]++; else if(sc[1]>sc[0])cur.w[1]++;
+    const A=sq[cur.tm[0]], B=sq[cur.tm[1]];
+    A.f+=sc[0];A.a+=sc[1];B.f+=sc[1];B.a+=sc[0];
+    if(sc[0]>sc[1]){A.mw++;B.ml++}else if(sc[1]>sc[0]){B.mw++;A.ml++}
+  }
+  for(const mt of matches){
+    if(mt.w[0]===mt.w[1])continue;
+    const win=mt.w[0]>mt.w[1]?0:1;
+    sq[mt.tm[win]].w++; sq[mt.tm[1-win]].l++;
+  }
+  /* اسم الفريق = أكثر لاعبيه قتلاً */
+  const pl=new Map();
+  for(const r of rounds) for(const p of rPlayers(r)){
+    const k=kOf(p), e=pl.get(k)||{name:p.name,kills:0,deaths:0,mvp:0,games:0,team:-1};
+    e.name=p.name;e.kills+=+p.kills||0;e.deaths+=+p.deaths||0;e.games++;if(p.mvp)e.mvp++;
+    pl.set(k,e);
+  }
+  sq.forEach((s,i)=>{
+    for(const k of s.mem.keys()){const p=pl.get(k); if(p)p.team=i}
+    s.name='TEAM '+String.fromCharCode(65+i);            /* TEAM A · B · C · D · E */
+    s.roster=[...s.mem.entries()].sort((a,b)=>b[1].n-a[1].n).slice(0,5).map(x=>x[1].name);
+  });
+  const table=sq.map((s,i)=>({i,...s})).sort((a,b)=>b.w-a.w||a.a-b.a||b.f-a.f||b.mw-a.mw);
+  const players=[...pl.values()].sort((a,b)=>b.kills-a.kills||a.deaths-b.deaths||b.mvp-a.mvp);
+  return {rounds,sq,matches,table,players,W};
+}
+function renderNight(){
+  const el=document.getElementById('tab-night'); if(!el)return;
+  /* البطولة ليلة الجمعة فقط — بقيّة الأيام لعب عادي لا يُحسب بطولة */
+  const isFri=new Date(Date.parse(DAY+'T12:00:00Z')).getUTCDay()===5;
+  if(!isFri){
+    el.innerHTML='<div class="row" style="margin-bottom:12px"><h2 style="margin:0">⭐ إيفا نايت</h2></div>'
+      +'<div class="empty">إيفا نايت ليلة الجمعة فقط — اختر تاريخ جمعة من أعلى الصفحة</div>';
+    sweep(el); return;
+  }
+  const D=nightData();
+  const dd=new Date(Date.parse(DAY+'T12:00:00Z'));
+  const dow=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'][dd.getUTCDay()];
+  const dstr=(dd.getUTCMonth()+1)+'/'+dd.getUTCDate()+'/'+String(dd.getUTCFullYear()).slice(2);
+  const bar='<div class="row" style="margin-bottom:12px;align-items:center">'
+    +'<h2 style="margin:0">⭐ إيفا نايت</h2>'
+    +'<span class="dim sm">ليلة '+DAY+' · من ١٠ مساءً حتى ٤ فجراً — غيّر التاريخ من أعلى الصفحة</span>'
+    +'<span class="grow"></span></div>';
+  if(!D.matches.length){el.innerHTML=bar+'<div class="empty">لا مباريات فرق في نافذة إيفا نايت لهذا التاريخ</div>';sweep(el);return}
+  const cal='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>';
+  const usr='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
+  const win=D.table[0], mvp=D.players[0];
+  const champ='<div class="rgrp rsolo" style="padding:2px 0 6px">'
+    +'<div class="rchip">CHAMPION</div>'
+    +'<div class="rwin">'+rEmblem('gold')
+      +'<div><div class="rwl">WINNER</div><div class="rwn">'+rEsc(win.name)+'</div></div>'
+      +'<div class="rws">'+win.w+'<span style="font-size:16px"> W</span></div></div>'
+    +'<div class="rsts">'
+      +'<div class="rst"><b>'+(mvp?rEsc(mvp.name):'—')+'</b><i>BEST PLAYER</i></div>'
+      +'<div class="rst"><b>'+(mvp?mvp.kills:0)+'</b><i>KILLS</i></div>'
+      +'<div class="rst"><b>'+D.matches.length+'</b><i>MATCHES</i></div>'
+    +'</div></div>';
+  const stand=D.table.map((s,i)=>'<div class="rrow'+(i<3?' rw'+(i+1):'')+'">'
+    +'<span class="rpn"><span class="rrk">'+(i+1)+'</span><span class="pn">'+rEsc(s.name)+'</span>'
+    +'<span class="dim sm">'+rEsc(s.roster.join(' · '))+'</span></span>'
+    +'<span class="rkda">'+s.w+' - '+s.l+' · '+s.mw+'/'+(s.mw+s.ml)+'</span>'
+    +'<span class="rscn">'+s.f+' : '+s.a+'</span></div>').join('');
+  const mt=D.matches.map(m=>{
+    const A=D.sq[m.tm[0]], B=D.sq[m.tm[1]], w0=m.w[0]>m.w[1];
+    return '<div class="rrow" style="height:auto;padding:9px 4px;align-items:flex-start">'
+      +'<span class="rpn" style="flex-direction:column;align-items:flex-start;gap:3px">'
+        +'<span class="pn" style="color:'+(w0?'#ffcf6a':'#cfe0ff')+'">'+rEsc(A.name)+'</span>'
+        +'<span class="pn" style="color:'+(!w0?'#ffcf6a':'#cfe0ff')+'">'+rEsc(B.name)+'</span></span>'
+      +'<span class="rkda" style="flex-direction:column;display:flex;gap:3px">'
+        +m.maps.map(x=>'<span>'+String(x.map).toUpperCase()+' · '+x.sc[0]+'-'+x.sc[1]+'</span>').join('')+'</span>'
+      +'<span class="rscn">'+m.w[0]+' - '+m.w[1]+'</span></div>';
+  }).join('');
+  const pls=D.players.slice(0,20).map((p,i)=>'<div class="rrow'+(i<3?' rw'+(i+1):'')+'">'
+    +'<span class="rpn"><span class="rrk">'+(i+1)+'</span><span class="pn">'+rEsc(p.name)+'</span>'
+    +'<span class="dim sm">'+(p.team>=0&&D.sq[p.team]?rEsc(D.sq[p.team].name):'')+'</span></span>'
+    +'<span class="rkda">'+p.kills+' / '+p.deaths+'</span>'
+    +'<span class="rscn">'+(p.mvp?'♛ '+p.mvp:'—')+'</span></div>').join('');
+  const tbl=(t1,t2,t3,rows)=>'<div class="rtables rone"><div class="rtbl rsol">'
+    +'<div class="rthd"><div class="rseg pl">'+t1+'</div><div class="rseg kd">'+t2+'</div><div class="rseg sch">'+t3+'</div></div>'
+    +rows+'</div></div>';
+  const card='<div class="rcard rgrad rnightc">'
+    +'<button class="rdl" onclick="nightDownload()">⬇ PNG</button>'
+    +'<div class="rhead">'
+      +'<div class="rbrand"><div class="b1">EVA<i>·</i>MARASSI</div><div class="b2">EVA NIGHT</div><div class="b3">TOURNAMENT</div></div>'
+      +'<div class="rmid"><div class="sub">'+dow+'</div><div class="mode">EVA NIGHT</div></div>'
+      +'<div class="rdt"><div>'+cal+dstr+'</div><div>'+usr+D.players.length+' PLAYERS</div></div>'
+    +'</div>'
+    +'<div class="rscore">'+champ+'</div>'
+    +'<div class="rsec">STANDINGS</div>'+tbl('RANK · TEAM','MATCHES · MAPS','FOR : AGAINST',stand)
+    +'<div class="rsec">MATCHES · BEST OF 3</div>'+tbl('TEAMS','MAPS · SCORES','RESULT',mt)
+    +'<div class="rsec">PLAYERS</div>'+tbl('RANK · PLAYER','KILLS / DEATHS','MVP',pls)
+    +'</div>';
+  el.innerHTML=bar+'<div class="rwrap">'+card+'</div>';
+  sweep(el);
+}
+function nightDownload(){ rDownloadEl(document.querySelector('#tab-night .rcard')) }
+
 /* ═════════ التبويبات ═════════ */
-const TABS=[['rcp','الاستقبال'],['ana','التشغيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون'],['res','النتائج'],['top','🏆 توب بلاير']];
+const TABS=[['rcp','الاستقبال'],['ana','التشغيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون'],['res','النتائج'],['top','🏆 توب بلاير'],['night','⭐ إيفا نايت']];
 function buildTabs(){
   document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>
     `<button id="tb-${k}" class="${k===TAB?'on':''}" onclick="switchTab('${k}')">${n}${k==='rec'?' <span class="badge" id="recBadge" style="display:none"></span>':''}</button>`).join('');
 }
 function switchTab(k){TAB=k;
   for(const [t] of TABS){document.getElementById('tb-'+t).classList.toggle('on',t===k);document.getElementById('tab-'+t).classList.toggle('on',t===k)}
-  document.body.classList.toggle('wide',k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res'||k==='top');   // الجداول تأخذ عرض الشاشة
+  document.body.classList.toggle('wide',k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res'||k==='top'||k==='night');   // الجداول تأخذ عرض الشاشة
 }
-function renderAll(){renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();renderTop();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
+function renderAll(){renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();renderTop();renderNight();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
 function setDay(d){if(!d)return;DAY=d;ANA_INIT=false;RCP_INIT=false;document.getElementById('datePick').value=d;load(true)}
 function shiftDay(n){const d=new Date(DAY+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);setDay(d.toISOString().slice(0,10))}
 function status(t){document.getElementById('fStatus').textContent=trText(t)}
