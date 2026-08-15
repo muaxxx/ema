@@ -2682,7 +2682,7 @@ function renderGm(){
     +'<button class="btn" onclick="gmCopyYesterday()">📋 انسخ طاقم أمس</button>'
   +'</div></div>';
 
-  h+='<h2>طاقم يوم '+DAY+' · '+DAYS[dow]+'</h2>';
+  h+='<h2>طاقم يوم '+DAY+' · '+dayNameOf(DAY)+'</h2>';
   if(!staff.length) h+='<div class="empty">القائمة فارغة — أضف الموظفين أدناه</div>';
   else h+='<div class="stafflist">'+staff.map(p=>{
     const g=byName.get(p.name), on=!!g;
@@ -2862,6 +2862,13 @@ async function reloadGms(){
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
  '— + طريقة ثانية —':'— + 2nd method —',
+ 'كافيه':'Cafe','يجلب…':'Loading…','يحدّث…':'Refreshing…','ضيف':'Guest','🎮 لعب جارٍ بدون حجز!':'🎮 Playing with no booking!',
+ 'لا حجوزات ولا لعب مرصود في هذا اليوم':'No bookings or play recorded for this day','(تشغيلي)':'(operational)','(العميل)':'(client)',
+ 'تسجيل لم يُرسَل':'recording not sent','لم يحضر':'No-show','لعب بدون حجز':'Played without booking',
+ 'تجهيز زائد':'Extra setup','تجاوز':'Overrun','نقص':'Short','بلا ختم':'No stamp','مجاني':'Free',
+
+ 'الحجز السابق تجاوز وقته':'previous booking overran','لم يُسأل أحد':'Nobody asked','أُخِّر التالي':'next delayed',
+ 'جلسات اللعب':'Play sessions','لم يُسأل أحد اليوم — السؤال في تبويب «الاستقبال» لكل حجز':'Nobody asked today — the question is in the Reception tab for each booking',
  'أعداد تقديرية':'Estimated counts','لم يُسجَّل':'Not recorded','لُعب':'Played','نقص':'Short','⏸ توقف':'⏸ Paused',
  'تقسيم الدفع — حجز':'Split payment — booking','الجلسات':'Sessions','عدد':'Count','لُعبت':'Played','بدء':'Start',
  'مقسّم ↓':'Split ↓','فواتير':'Invoices','لا موظفين بعد':'No staff yet','جدول الأسبوع يُحفظ تلقائياً':'Week schedule saves automatically',
@@ -3029,6 +3036,19 @@ const EN={
  '٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)':'9.50 std · 12.50 peak (17:00–21:40)','الأحد — ٩٫٥٠ لليوم كامل':'Sunday — 9.50 all day','٩٫٥٠ لليوم كامل':'9.50 all day',
 };
 const EN_RX=[
+ [/^— نقص (d+)د$/,'— short $1m'],[/^— تجاوز (d+)د$/,'— overrun $1m'],[/^— تجهيز زائد (d+)د$/,'— extra setup $1m'],
+ [/^— لعب بدون حجز ((d+) لاعب · (d+)د)$/,'— played without booking ($1 players · $2m)'],
+ [/^(d+)د وأخّر الحجز التالي$/,'$1m and delayed the next booking'],[/^(d+) تسجيل لم يُرسَل$/,'$1 recordings not sent'],
+
+ [/^طاقم يوم (.+) · (.+)$/,'Crew for $1 · $2'],
+ [/^⏳ تأخير في بدء الحجز (\d+)د — الحجز السابق تجاوز وقته$/,'⏳ Booking start delayed $1m — previous booking overran'],
+ [/^(\d+) فاتورة$/,'$1 invoices'],[/^(\d+) صنف$/,'$1 items'],[/^(\d+) حجز$/,'$1 bookings'],
+ [/^(\d+) جولة$/,'$1 rounds'],[/^(\d+) مباراة · (.+)$/,'$1 matches · $2'],
+ [/^أُجيب عن (\d+) من (\d+) حجز(.*)$/,'Answered $1 of $2 bookings$3'],
+ [/^لم يُسأل: (.+)$/,'Not asked: $1'],[/^(\d+) لاعب$/,'$1 players'],[/^(\d+) لاعبون$/,'$1 players'],
+ [/^(.+) · (\d+)د \(أُخِّر التالي\)$/,'$1 · $2m (next delayed)'],[/^\(أُخِّر التالي\)$/,'(next delayed)'],
+ [/^(\d+)د \((.+)\)$/,'$1m ($2)'],[/^\+(\d+)د \((.+)\)$/,'+$1m ($2)'],
+ [/^(.+): (\d+) حجز \/ (\d+) 👤$/,'$1: $2 bookings / $3 👤'],
  [/^المحجوز (\d+) · رصد إيفا (\d+)$/,'Booked $1 · EVA $2'],[/^\(المحجوز (\d+) · رصد إيفا (\d+)\)$/,'(Booked $1 · EVA $2)'],
  [/^\(المحجوز (\d+)\)$/,'(Booked $1)'],[/^باقٍ (\d+)$/,'Left $1'],[/^زائد (\d+)$/,'Over $1'],
  [/^\+(\d+)د$/,'+$1m'],[/^−(\d+)د$/,'−$1m'],[/^(\d+)د$/,'$1m'],[/^مقسّم على (\d+)$/,'Split into $1'],
