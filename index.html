@@ -610,6 +610,7 @@ tr.cancelled td{opacity:.5}
   <section id="tab-res"   class="tab"></section>
   <section id="tab-top"   class="tab"></section>
   <section id="tab-night" class="tab"></section>
+  <section id="tab-per"   class="tab"></section>
 </main>
 <footer><span id="fStatus">…</span><span id="fClock" style="margin-inline-start:auto"></span></footer>
 
@@ -2841,7 +2842,7 @@ async function reloadGms(){
 
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
- '— + طريقة ثانية —':'— + 2nd method —', '— دفع متعدد —':'— multi payment —','ارجع لوسيلة واحدة':'Back to single method','— الأولى —':'— 1st —','— الثانية —':'— 2nd —','— طريقة الدفع —':'— payment method —','المبلغ':'Amount',
+ '— + طريقة ثانية —':'— + 2nd method —','📊 المبيعات الكليّة':'📊 Period sales','المبيعات الكليّة':'Period sales','من':'From','إلى':'To','احسب':'Calculate','آخر ٧ أيام':'Last 7 days','آخر ٣٠ يوماً':'Last 30 days','هذا الشهر':'This month','الشهر الماضي':'Last month','اختر الفترة ثم اضغط «احسب»':'Pick a period then press Calculate','يحسب…':'Calculating…','حسب اليوم':'By day','وسائل الدفع':'Payment methods','حجوزات':'Bookings','لاعبون':'Players','مبيعات إضافية':'Extra sales','كافيه وإضافات':'Cafe & extras', '— دفع متعدد —':'— multi payment —','ارجع لوسيلة واحدة':'Back to single method','— الأولى —':'— 1st —','— الثانية —':'— 2nd —','— طريقة الدفع —':'— payment method —','المبلغ':'Amount',
  'مقسّم على':'Split into','تقسيم الدفع':'Split payment','لاعب':'player',
  '🏆 توب بلاير':'🏆 Top Player','🏆 مراسي توب بلاير':'🏆 Marassi Top Player','⭐ إيفا نايت':'⭐ EVA Night',
  '🗺 إحصائية الخرائط':'🗺 Map stats','دومينيشن':'Domination','تيم دث ماتش':'Team Deathmatch','زومبي':'Zombies','فري فور أول':'Free for All',
@@ -3643,17 +3644,122 @@ function renderNight(){
 }
 function nightDownload(n){ rDownloadEl(document.querySelector('#tab-night .rn'+(n||1))) }
 
+/* ═════════ المبيعات الكليّة لفترة ═════════ */
+/* أي مدى تواريخ: يجلب حجوزات الفترة ومبيعاتها الإضافية ويحسبها بنفس منطق اليوم
+   (السعر يتبع يوم كل حجز — لذلك نُبدّل DAY مؤقّتاً أثناء الحساب). */
+const PER={from:'',to:'',data:null,busy:false};
+function perShift(d,n){const t=Date.parse(d+'T00:00:00Z')+n*86400e3;return new Date(t).toISOString().slice(0,10)}
+function perMonth1(d){return d.slice(0,8)+'01'}
+function perSet(f,t){PER.from=f;PER.to=t;PER.data=null;renderPeriod();perRun()}
+function perQuick(k){
+  const t=opDay();
+  if(k==='w')perSet(perShift(t,-6),t);
+  else if(k==='m')perSet(perMonth1(t),t);
+  else if(k==='30')perSet(perShift(t,-29),t);
+  else if(k==='pm'){const first=perMonth1(t), last=perShift(first,-1); perSet(perMonth1(last),last)}
+}
+function perField(which,v){if(!v)return;PER[which]=v;PER.data=null;renderPeriod()}
+async function perRun(){
+  if(!PER.from||!PER.to||PER.busy)return;
+  if(PER.from>PER.to){const a=PER.from;PER.from=PER.to;PER.to=a}
+  PER.busy=true;renderPeriod();
+  try{
+    const [slots,extras]=await Promise.all([
+      sbGet('slots?slot_date=gte.'+PER.from+'&slot_date=lte.'+PER.to+'&order=start_at&select=*'),
+      sbGet('extra_sales?day=gte.'+PER.from+'&day=lte.'+PER.to+'&order=created_at&select=*').catch(()=>[])
+    ]);
+    const days=new Map(), pay=new Map(PAYMENTS.map(p=>[p,0]));
+    const D={gross:0,disc:0,net:0,books:0,players:0,cafe:0,sales:0,unpaid:0,pay,days};
+    const dayOf=k=>{let e=days.get(k); if(!e){e={day:k,books:0,players:0,gross:0,disc:0,net:0,extra:0};days.set(k,e)} return e};
+    const old=DAY;
+    try{
+      for(const s of (slots||[])){
+        if((s.booked_players||0)<=0||s.state==='cancelled')continue;
+        DAY=s.slot_date; s._cancelled=false;
+        const c=saleCalc(s), e=dayOf(s.slot_date);
+        D.gross+=c.amt; D.disc+=c.disc; D.net+=c.net; D.books++; D.players+=c.total;
+        e.books++; e.players+=c.total; e.gross+=c.amt; e.disc+=c.disc; e.net+=c.net;
+        for(const p of c.parts){
+          if(p.pay)paySpread(p.pay,p.net,function(m,v){if(pay.has(m))pay.set(m,pay.get(m)+v)});
+          else D.unpaid+=p.net;
+        }
+      }
+    }finally{DAY=old}
+    for(const x of (extras||[])){
+      const a=+x.amount||0, dv=itemDisc(a,x.discount_code,x.label), v=Math.max(0,a-dv);
+      const e=dayOf(x.day||PER.from);
+      D.gross+=a; D.disc+=dv; D.net+=v; e.gross+=a; e.disc+=dv; e.net+=v; e.extra+=v;
+      if(isSaleExtra(x))D.sales+=v; else D.cafe+=v;
+      if(x.pay_method)paySpread(x.pay_method,v,function(m,val){if(pay.has(m))pay.set(m,pay.get(m)+val)});
+      else D.unpaid+=v;
+    }
+    PER.data=D;
+  }catch(e){status('⚠ '+e.message)}
+  PER.busy=false;renderPeriod();
+}
+function perBody(){
+  const D=PER.data; if(!D)return '';
+  const days=[...D.days.values()].sort((a,b)=>a.day.localeCompare(b.day));
+  const rows=days.map(d=>'<tr><td>'+d.day+'</td><td>'+d.books+'</td><td>'+d.players+'</td>'
+    +'<td>'+d.gross.toFixed(2)+'</td><td>'+(d.disc?'−'+d.disc.toFixed(2):'')+'</td>'
+    +'<td>'+d.extra.toFixed(2)+'</td><td><b>'+d.net.toFixed(2)+'</b></td></tr>').join('');
+  const payRows=PAYMENTS.filter(p=>D.pay.get(p)>0.004).map(p=>
+    '<tr><td class="r">'+p+'</td><td><b>'+D.pay.get(p).toFixed(2)+'</b></td></tr>').join('')
+    ||'<tr><td colspan="2">—</td></tr>';
+  return repHead('المبيعات الكليّة','من '+PER.from+' إلى '+PER.to+' · '+days.length+' يوم')
+   +'<div class="tiles">'
+    +'<div class="tile"><div class="v">'+D.gross.toFixed(2)+'</div><div class="l">الإجمالي (BD)</div></div>'
+    +'<div class="tile"><div class="v" style="color:#a97b0a">−'+D.disc.toFixed(2)+'</div><div class="l">الخصومات</div></div>'
+    +'<div class="tile"><div class="v" style="color:#127a48">'+D.net.toFixed(2)+'</div><div class="l">الصافي (BD)</div></div>'
+    +'<div class="tile"><div class="v">'+D.books+'</div><div class="l">حجوزات</div></div>'
+    +'<div class="tile"><div class="v">'+D.players+'</div><div class="l">لاعبون</div></div>'
+    +'<div class="tile"><div class="v">'+D.cafe.toFixed(2)+'</div><div class="l">الكافيه</div></div>'
+    +'<div class="tile"><div class="v">'+D.sales.toFixed(2)+'</div><div class="l">مبيعات إضافية</div></div>'
+   +'</div>'
+   +'<h2>حسب اليوم</h2><table><thead><tr><th>اليوم</th><th>حجوزات</th><th>لاعبون</th><th>الإجمالي</th><th>الخصم</th><th>كافيه وإضافات</th><th>الصافي</th></tr></thead>'
+    +rows
+    +'<tr class="tot"><th>المجموع</th><th>'+D.books+'</th><th>'+D.players+'</th><th>'+D.gross.toFixed(2)+'</th>'
+      +'<th>−'+D.disc.toFixed(2)+'</th><th>'+(D.cafe+D.sales).toFixed(2)+'</th><th>'+D.net.toFixed(2)+'</th></tr></table>'
+   +'<h2>وسائل الدفع</h2><table><thead><tr><th>الطريقة</th><th>المبلغ (BD)</th></tr></thead>'+payRows
+    +(D.unpaid>0.004?'<tr><td class="r bad">بلا طريقة دفع</td><td class="bad">'+D.unpaid.toFixed(2)+'</td></tr>':'')
+    +'</table>';
+}
+function perPrint(){ if(PER.data)printDoc('المبيعات الكليّة',perBody()) }
+function renderPeriod(){
+  const el=document.getElementById('tab-per'); if(!el)return;
+  if(!PER.from||!PER.to){const t=opDay();PER.from=perMonth1(t);PER.to=t}
+  const D=PER.data;
+  const bar='<div class="row" style="margin-bottom:10px;align-items:center;flex-wrap:wrap">'
+    +'<h2 style="margin:0">📊 المبيعات الكليّة</h2>'
+    +'<span class="dim sm">من</span><input class="disc-sel" type="date" value="'+PER.from+'" onchange="perField(&quot;from&quot;,this.value)">'
+    +'<span class="dim sm">إلى</span><input class="disc-sel" type="date" value="'+PER.to+'" onchange="perField(&quot;to&quot;,this.value)">'
+    +'<button class="btn primary" onclick="perRun()">احسب</button>'
+    +(D?'<button class="btn" onclick="perPrint()">🖨 طباعة</button>':'')
+    +'</div>'
+    +'<div class="catbar" style="margin-bottom:12px">'
+      +'<button class="catbtn" onclick="perQuick(&quot;w&quot;)">آخر ٧ أيام</button>'
+      +'<button class="catbtn" onclick="perQuick(&quot;30&quot;)">آخر ٣٠ يوماً</button>'
+      +'<button class="catbtn" onclick="perQuick(&quot;m&quot;)">هذا الشهر</button>'
+      +'<button class="catbtn" onclick="perQuick(&quot;pm&quot;)">الشهر الماضي</button>'
+    +'</div>';
+  if(PER.busy){el.innerHTML=bar+'<div class="empty">يحسب…</div>';sweep(el);return}
+  if(!D){el.innerHTML=bar+'<div class="empty">اختر الفترة ثم اضغط «احسب»</div>';sweep(el);return}
+  el.innerHTML=bar+'<div class="tblwrap"><div style="background:#fff;color:#1a2b38;padding:14px;border-radius:12px">'
+    +'<style>'+scopeCss(REP_CSS,'#perDoc')+'</style><div id="perDoc">'+perBody()+'</div></div></div>';
+  sweep(el);
+}
+
 /* ═════════ التبويبات ═════════ */
-const TABS=[['rcp','الاستقبال'],['ana','التشغيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون'],['res','النتائج'],['top','🏆 توب بلاير'],['night','⭐ إيفا نايت']];
+const TABS=[['rcp','الاستقبال'],['ana','التشغيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون'],['res','النتائج'],['top','🏆 توب بلاير'],['night','⭐ إيفا نايت'],['per','📊 المبيعات الكليّة']];
 function buildTabs(){
   document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>
     `<button id="tb-${k}" class="${k===TAB?'on':''}" onclick="switchTab('${k}')">${n}${k==='rec'?' <span class="badge" id="recBadge" style="display:none"></span>':''}</button>`).join('');
 }
 function switchTab(k){TAB=k;
   for(const [t] of TABS){document.getElementById('tb-'+t).classList.toggle('on',t===k);document.getElementById('tab-'+t).classList.toggle('on',t===k)}
-  document.body.classList.toggle('wide',k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res'||k==='top'||k==='night');   // الجداول تأخذ عرض الشاشة
+  document.body.classList.toggle('wide',k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res'||k==='top'||k==='night'||k==='per');   // الجداول تأخذ عرض الشاشة
 }
-function renderAll(){renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();renderTop();renderNight();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
+function renderAll(){renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();renderTop();renderNight();renderPeriod();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
 function setDay(d){if(!d)return;DAY=d;ANA_INIT=false;RCP_INIT=false;document.getElementById('datePick').value=d;load(true)}
 function shiftDay(n){const d=new Date(DAY+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);setDay(d.toISOString().slice(0,10))}
 function status(t){document.getElementById('fStatus').textContent=trText(t)}
