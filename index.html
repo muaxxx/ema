@@ -31,6 +31,14 @@ header{position:sticky;top:0;z-index:50;background:#ffffffd9;border-bottom:1px s
 .hrow{display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap}
 .brand{font-weight:800;font-size:18px;color:var(--teal-d)}
 .brand small{color:var(--dim);font-weight:500}
+.daypick{display:inline-flex;align-items:center;gap:2px;background:var(--card2);border:1px solid var(--line2);
+  border-radius:12px;padding:3px;overflow:hidden}
+.daypick button{background:none;border:none;color:var(--ink);font:800 17px/1 'Tajawal';padding:7px 11px;border-radius:9px;cursor:pointer}
+.daypick button:hover{background:var(--line)}
+.daypick #todayBtn{font-size:13px;padding:7px 12px;color:var(--teal-d)}
+.daypick input[type=date]{background:none;border:none;color:var(--ink);font:800 13.5px 'Tajawal';padding:4px 2px}
+.daypick .dnm{font:800 12.5px 'Tajawal';color:var(--dim);padding:0 6px;white-space:nowrap;min-width:52px;text-align:center}
+.daypick .dnm.today{color:var(--teal);}
 .datenav{display:flex;align-items:center;gap:5px;margin-inline-start:auto}
 .datenav button,.btn{background:#fff;color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:5px 12px;cursor:pointer;font:700 13px 'Tajawal',system-ui;transition:.15s;box-shadow:0 1px 2px rgba(27,42,56,.05)}
 .datenav input{background:#fff;color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:4px 8px;font:700 13px 'Tajawal',system-ui}
@@ -588,10 +596,13 @@ tr.cancelled td{opacity:.5}
     <span class="brand">EM · نظام مراسي <small>v5.5 · بناء 11-08 14:40</small></span>
     <div class="datenav">
       <button id="langBtn" onclick="toggleLang()" style="font-weight:800">EN</button>
-      <button onclick="shiftDay(-1)" title="اليوم السابق">▶</button>
-      <input type="date" id="datePick" onchange="setDay(this.value)">
-      <button onclick="shiftDay(1)" title="اليوم التالي">◀</button>
-      <button onclick="setDay(opDay())">اليوم</button>
+      <span class="daypick">
+        <button onclick="shiftDay(-1)" title="اليوم السابق">‹</button>
+        <input type="date" id="datePick" lang="en-GB" dir="ltr" onchange="setDay(this.value)">
+        <span id="dayName" class="dnm"></span>
+        <button onclick="shiftDay(1)" title="اليوم التالي">›</button>
+        <button id="todayBtn" onclick="setDay(opDay())">اليوم</button>
+      </span>
       <button class="btn primary" onclick="load(true)">↻</button>
       <span id="who"></span>
       <button class="btn ghost" onclick="logout()" title="خروج">⎋</button>
@@ -2842,7 +2853,11 @@ async function reloadGms(){
 
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
- '— + طريقة ثانية —':'— + 2nd method —','📊 المبيعات الكليّة':'📊 Period sales','المبيعات الكليّة':'Period sales','من':'From','إلى':'To','احسب':'Calculate','آخر ٧ أيام':'Last 7 days','آخر ٣٠ يوماً':'Last 30 days','هذا الشهر':'This month','الشهر الماضي':'Last month','اختر الفترة ثم اضغط «احسب»':'Pick a period then press Calculate','يحسب…':'Calculating…','حسب اليوم':'By day','وسائل الدفع':'Payment methods','حجوزات':'Bookings','لاعبون':'Players','مبيعات إضافية':'Extra sales','كافيه وإضافات':'Cafe & extras', '— دفع متعدد —':'— multi payment —','ارجع لوسيلة واحدة':'Back to single method','— الأولى —':'— 1st —','— الثانية —':'— 2nd —','— طريقة الدفع —':'— payment method —','المبلغ':'Amount',
+ '— + طريقة ثانية —':'— + 2nd method —','التاريخ':'Date','لم يلعب هنا':"Didn't play here",
+ 'ملغي':'Cancelled','تقسيم الدفع':'Split payment','حجز':'booking','لاعب':'player','أضف صفاً بالباقي':'Add row with remainder',
+ 'عدد اللاعبين المحاسَبين':'Charged players count','صافي الحجز':'Booking net','مسح التقسيم':'Clear split','إضافة صف':'Add row',
+ 'حفظ':'Save','إلغاء':'Cancel','اليوم التالي':'Next day','اليوم السابق':'Previous day','تحديث':'Refresh','باقٍ':'Left',
+ 'موزّع بالكامل':'Fully allocated','المبيعات الكليّة':'Period sales','يحسب…':'Calculating…','📊 المبيعات الكليّة':'📊 Period sales','المبيعات الكليّة':'Period sales','من':'From','إلى':'To','احسب':'Calculate','آخر ٧ أيام':'Last 7 days','آخر ٣٠ يوماً':'Last 30 days','هذا الشهر':'This month','الشهر الماضي':'Last month','اختر الفترة ثم اضغط «احسب»':'Pick a period then press Calculate','يحسب…':'Calculating…','حسب اليوم':'By day','وسائل الدفع':'Payment methods','حجوزات':'Bookings','لاعبون':'Players','مبيعات إضافية':'Extra sales','كافيه وإضافات':'Cafe & extras', '— دفع متعدد —':'— multi payment —','ارجع لوسيلة واحدة':'Back to single method','— الأولى —':'— 1st —','— الثانية —':'— 2nd —','— طريقة الدفع —':'— payment method —','المبلغ':'Amount',
  'مقسّم على':'Split into','تقسيم الدفع':'Split payment','لاعب':'player',
  '🏆 توب بلاير':'🏆 Top Player','🏆 مراسي توب بلاير':'🏆 Marassi Top Player','⭐ إيفا نايت':'⭐ EVA Night',
  '🗺 إحصائية الخرائط':'🗺 Map stats','دومينيشن':'Domination','تيم دث ماتش':'Team Deathmatch','زومبي':'Zombies','فري فور أول':'Free for All',
@@ -2996,6 +3011,10 @@ const EN={
  '٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)':'9.50 std · 12.50 peak (17:00–21:40)','الأحد — ٩٫٥٠ لليوم كامل':'Sunday — 9.50 all day','٩٫٥٠ لليوم كامل':'9.50 all day',
 };
 const EN_RX=[
+ [/^المحجوز (\d+) · رصد إيفا (\d+)$/,'Booked $1 · EVA $2'],[/^\(المحجوز (\d+) · رصد إيفا (\d+)\)$/,'(Booked $1 · EVA $2)'],
+ [/^\(المحجوز (\d+)\)$/,'(Booked $1)'],[/^باقٍ (\d+)$/,'Left $1'],[/^زائد (\d+)$/,'Over $1'],
+ [/^\+(\d+)د$/,'+$1m'],[/^−(\d+)د$/,'−$1m'],[/^(\d+)د$/,'$1m'],[/^مقسّم على (\d+)$/,'Split into $1'],
+ [/^أضف صفاً بالباقي \((\d+)\)$/,'Add row with remainder ($1)'],[/^(\d+) يوم$/,'$1 days'],
  [/^بعد (\d+)د$/,'in $1m'],[/^نقص (\d+)د$/,'Short $1m'],[/^لُعب (\d+)د من (\d+)$/,'Played $1m of $2'],
  [/^إجمالي النقص اليوم: (\d+) دقيقة$/,'Total deficit today: $1 minutes'],
  [/^(\d+) جلسة ملعوبة من (\d+) حجز(.*)$/,'$1 played of $2 bookings$3'],
@@ -3706,7 +3725,9 @@ function perBody(){
   const payRows=PAYMENTS.filter(p=>D.pay.get(p)>0.004).map(p=>
     '<tr><td class="r">'+p+'</td><td><b>'+D.pay.get(p).toFixed(2)+'</b></td></tr>').join('')
     ||'<tr><td colspan="2">—</td></tr>';
-  return repHead('المبيعات الكليّة','من '+PER.from+' إلى '+PER.to+' · '+days.length+' يوم')
+  const en=LANG==='en';
+  return repHead('المبيعات الكليّة',en?('From '+PER.from+' to '+PER.to+' · '+days.length+' days')
+    :('من '+PER.from+' إلى '+PER.to+' · '+days.length+' يوم'))
    +'<div class="tiles">'
     +'<div class="tile"><div class="v">'+D.gross.toFixed(2)+'</div><div class="l">الإجمالي (BD)</div></div>'
     +'<div class="tile"><div class="v" style="color:#a97b0a">−'+D.disc.toFixed(2)+'</div><div class="l">الخصومات</div></div>'
@@ -3716,13 +3737,20 @@ function perBody(){
     +'<div class="tile"><div class="v">'+D.cafe.toFixed(2)+'</div><div class="l">الكافيه</div></div>'
     +'<div class="tile"><div class="v">'+D.sales.toFixed(2)+'</div><div class="l">مبيعات إضافية</div></div>'
    +'</div>'
-   +'<h2>حسب اليوم</h2><table><thead><tr><th>اليوم</th><th>حجوزات</th><th>لاعبون</th><th>الإجمالي</th><th>الخصم</th><th>كافيه وإضافات</th><th>الصافي</th></tr></thead>'
+   +'<h2>حسب اليوم</h2><table><thead><tr><th>التاريخ</th><th>حجوزات</th><th>لاعبون</th><th>الإجمالي</th><th>الخصم</th><th>كافيه وإضافات</th><th>الصافي</th></tr></thead>'
     +rows
     +'<tr class="tot"><th>المجموع</th><th>'+D.books+'</th><th>'+D.players+'</th><th>'+D.gross.toFixed(2)+'</th>'
       +'<th>−'+D.disc.toFixed(2)+'</th><th>'+(D.cafe+D.sales).toFixed(2)+'</th><th>'+D.net.toFixed(2)+'</th></tr></table>'
    +'<h2>وسائل الدفع</h2><table><thead><tr><th>الطريقة</th><th>المبلغ (BD)</th></tr></thead>'+payRows
     +(D.unpaid>0.004?'<tr><td class="r bad">بلا طريقة دفع</td><td class="bad">'+D.unpaid.toFixed(2)+'</td></tr>':'')
     +'</table>';
+}
+/* عزل مستند التقرير عن ثيم التطبيق: تصفير ثم قواعد REP_CSS مقيَّدة بالمحدِّد */
+function repDocCss(sel){
+  return sel+','+sel+' *{background:none;box-shadow:none;text-shadow:none;border-radius:0;opacity:1;'
+    +'color:inherit;border-color:#e9eff3;font-family:\'Tajawal\',system-ui,Tahoma,sans-serif}'
+    +sel+'{color:#1a2b38;background:#fff}'
+    +scopeCss(REP_CSS,sel);
 }
 function perPrint(){ if(PER.data)printDoc('المبيعات الكليّة',perBody()) }
 function renderPeriod(){
@@ -3731,8 +3759,8 @@ function renderPeriod(){
   const D=PER.data;
   const bar='<div class="row" style="margin-bottom:10px;align-items:center;flex-wrap:wrap">'
     +'<h2 style="margin:0">📊 المبيعات الكليّة</h2>'
-    +'<span class="dim sm">من</span><input class="disc-sel" type="date" value="'+PER.from+'" onchange="perField(&quot;from&quot;,this.value)">'
-    +'<span class="dim sm">إلى</span><input class="disc-sel" type="date" value="'+PER.to+'" onchange="perField(&quot;to&quot;,this.value)">'
+    +'<span class="dim sm">من</span><input class="disc-sel" type="date" lang="en-GB" dir="ltr" value="'+PER.from+'" onchange="perField(&quot;from&quot;,this.value)">'
+    +'<span class="dim sm">إلى</span><input class="disc-sel" type="date" lang="en-GB" dir="ltr" value="'+PER.to+'" onchange="perField(&quot;to&quot;,this.value)">'
     +'<button class="btn primary" onclick="perRun()">احسب</button>'
     +(D?'<button class="btn" onclick="perPrint()">🖨 طباعة</button>':'')
     +'</div>'
@@ -3744,8 +3772,8 @@ function renderPeriod(){
     +'</div>';
   if(PER.busy){el.innerHTML=bar+'<div class="empty">يحسب…</div>';sweep(el);return}
   if(!D){el.innerHTML=bar+'<div class="empty">اختر الفترة ثم اضغط «احسب»</div>';sweep(el);return}
-  el.innerHTML=bar+'<div class="tblwrap"><div style="background:#fff;color:#1a2b38;padding:14px;border-radius:12px">'
-    +'<style>'+scopeCss(REP_CSS,'#perDoc')+'</style><div id="perDoc">'+perBody()+'</div></div></div>';
+  el.innerHTML=bar+'<div class="tblwrap" style="background:#fff;border-radius:14px;padding:16px;overflow-x:auto">'
+    +'<style>'+repDocCss('#perDoc')+'</style><div id="perDoc">'+perBody()+'</div></div>';
   sweep(el);
 }
 
@@ -3759,8 +3787,16 @@ function switchTab(k){TAB=k;
   for(const [t] of TABS){document.getElementById('tb-'+t).classList.toggle('on',t===k);document.getElementById('tab-'+t).classList.toggle('on',t===k)}
   document.body.classList.toggle('wide',k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res'||k==='top'||k==='night'||k==='per');   // الجداول تأخذ عرض الشاشة
 }
-function renderAll(){renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();renderTop();renderNight();renderPeriod();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
-function setDay(d){if(!d)return;DAY=d;ANA_INIT=false;RCP_INIT=false;document.getElementById('datePick').value=d;load(true)}
+function renderAll(){paintDayName();renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();renderTop();renderNight();renderPeriod();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
+const DAY_AR=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const DAY_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function dayNameOf(d){const i=new Date(Date.parse(d+'T12:00:00Z')).getUTCDay();return (LANG==='en'?DAY_EN:DAY_AR)[i]}
+function paintDayName(){
+  const el=document.getElementById('dayName'); if(!el)return;
+  el.textContent=dayNameOf(DAY);
+  el.classList.toggle('today',DAY===opDay());
+}
+function setDay(d){if(!d)return;DAY=d;ANA_INIT=false;RCP_INIT=false;document.getElementById('datePick').value=d;paintDayName();load(true)}
 function shiftDay(n){const d=new Date(DAY+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);setDay(d.toISOString().slice(0,10))}
 function status(t){document.getElementById('fStatus').textContent=trText(t)}
 
