@@ -36,6 +36,13 @@ header{position:sticky;top:0;z-index:50;background:#ffffffd9;border-bottom:1px s
 .daypick button{background:none;border:none;color:var(--ink);font:800 17px/1 'Tajawal';padding:7px 11px;border-radius:9px;cursor:pointer}
 .daypick button:hover{background:var(--line)}
 .daypick #todayBtn{font-size:13px;padding:7px 12px;color:var(--teal-d)}
+/* كروم يعرض حقل التاريخ بلغة المتصفّح (أرقام عربية) — نُخفي عرضه ونكتب القيمة بأنفسنا */
+.dwrapdate{position:relative;display:inline-flex;align-items:center}
+.dwrapdate input[type=date]{background:none;border:none;color:transparent;font:800 13.5px 'Tajawal';
+  padding:4px 2px;width:118px;cursor:pointer}
+.dwrapdate input[type=date]::-webkit-datetime-edit{color:transparent}
+.dwrapdate .dtxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font:800 13.5px 'Tajawal';color:var(--ink);pointer-events:none;letter-spacing:.4px}
 .daypick input[type=date]{background:none;border:none;color:var(--ink);font:800 13.5px 'Tajawal';padding:4px 2px}
 .daypick .dnm{font:800 12.5px 'Tajawal';color:var(--dim);padding:0 6px;white-space:nowrap;min-width:52px;text-align:center}
 .daypick .dnm.today{color:var(--teal);}
@@ -598,7 +605,8 @@ tr.cancelled td{opacity:.5}
       <button id="langBtn" onclick="toggleLang()" style="font-weight:800">EN</button>
       <span class="daypick">
         <button onclick="shiftDay(-1)" title="اليوم السابق">‹</button>
-        <input type="date" id="datePick" lang="en-GB" dir="ltr" onchange="setDay(this.value)">
+        <span class="dwrapdate"><input type="date" id="datePick" lang="en-GB" dir="ltr" onchange="setDay(this.value)">
+          <span class="dtxt" id="dateTxt"></span></span>
         <span id="dayName" class="dnm"></span>
         <button onclick="shiftDay(1)" title="اليوم التالي">›</button>
         <button id="todayBtn" onclick="setDay(opDay())">اليوم</button>
@@ -2853,7 +2861,17 @@ async function reloadGms(){
 
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
- '— + طريقة ثانية —':'— + 2nd method —','التاريخ':'Date','لم يلعب هنا':"Didn't play here",
+ '— + طريقة ثانية —':'— + 2nd method —',
+ 'أعداد تقديرية':'Estimated counts','لم يُسجَّل':'Not recorded','لُعب':'Played','نقص':'Short','⏸ توقف':'⏸ Paused',
+ 'تقسيم الدفع — حجز':'Split payment — booking','الجلسات':'Sessions','عدد':'Count','لُعبت':'Played','بدء':'Start',
+ 'مقسّم ↓':'Split ↓','فواتير':'Invoices','لا موظفين بعد':'No staff yet','جدول الأسبوع يُحفظ تلقائياً':'Week schedule saves automatically',
+ 'لا مواعيد مُدخَلة بعد — اختر ورديات الموظفين في الجدول أدناه':'No shifts yet — pick staff shifts in the table below',
+ '⭐ إيفا نايت — البطولات':'⭐ EVA Night — Tournaments','لا مباريات فرق في هذه الليلة':'No team matches this night',
+ 'ليلة الجمعة · من ١٠ مساءً حتى ٤ فجراً':'Friday night · 10 PM to 4 AM','لا نتائج مرصودة في هذه الفترة':'No results in this period',
+
+ '🚫 لم يلعب هنا':"🚫 Didn't play here",'🚫 لا يريد التسجيل':'🚫 Recording refused','🚫 لا يريد':'🚫 Refused',
+ '÷ تقسيم':'÷ Split','🖨 طباعة':'🖨 Print','📝 ملاحظة':'📝 Note','🖨 تقرير المخزون':'🖨 Stock report',
+ '🖨 طباعة المخزون':'🖨 Print stock','🖨 الجدول الأسبوعي':'🖨 Weekly schedule','⬇ تصدير Excel':'⬇ Export Excel','التاريخ':'Date','لم يلعب هنا':"Didn't play here",
  'ملغي':'Cancelled','تقسيم الدفع':'Split payment','حجز':'booking','لاعب':'player','أضف صفاً بالباقي':'Add row with remainder',
  'عدد اللاعبين المحاسَبين':'Charged players count','صافي الحجز':'Booking net','مسح التقسيم':'Clear split','إضافة صف':'Add row',
  'حفظ':'Save','إلغاء':'Cancel','اليوم التالي':'Next day','اليوم السابق':'Previous day','تحديث':'Refresh','باقٍ':'Left',
@@ -3667,6 +3685,7 @@ function nightDownload(n){ rDownloadEl(document.querySelector('#tab-night .rn'+(
 /* أي مدى تواريخ: يجلب حجوزات الفترة ومبيعاتها الإضافية ويحسبها بنفس منطق اليوم
    (السعر يتبع يوم كل حجز — لذلك نُبدّل DAY مؤقّتاً أثناء الحساب). */
 const PER={from:'',to:'',data:null,busy:false};
+function perTxt(d){const p=String(d||"").split("-");return p.length===3?(p[2]+"/"+p[1]+"/"+p[0]):""}
 function perShift(d,n){const t=Date.parse(d+'T00:00:00Z')+n*86400e3;return new Date(t).toISOString().slice(0,10)}
 function perMonth1(d){return d.slice(0,8)+'01'}
 function perSet(f,t){PER.from=f;PER.to=t;PER.data=null;renderPeriod();perRun()}
@@ -3750,7 +3769,20 @@ function repDocCss(sel){
   return sel+','+sel+' *{background:none;box-shadow:none;text-shadow:none;border-radius:0;opacity:1;'
     +'color:inherit;border-color:#e9eff3;font-family:\'Tajawal\',system-ui,Tahoma,sans-serif}'
     +sel+'{color:#1a2b38;background:#fff}'
-    +scopeCss(REP_CSS,sel);
+    +scopeCss(REP_CSS,sel)
+    /* تكبير للعرض على الشاشة — الطباعة تبقى بمقاس A4 لأنها مستند مستقلّ */
+    +sel+'{font-size:13.5px;line-height:1.5}'
+    +sel+' table{font-size:12.5px}'
+    +sel+' th{font-size:11.5px;padding:8px 6px;letter-spacing:.3px}'
+    +sel+' td{font-size:12.5px;padding:8px 6px}'
+    +sel+' h2{font-size:14.5px;margin:16px 0 7px;padding-bottom:4px}'
+    +sel+' .tile{padding:10px 6px;border-radius:9px}'
+    +sel+' .tile .v{font-size:22px}'+sel+' .tile .l{font-size:11px;margin-top:3px}'
+    +sel+' .tiles{gap:8px;margin-bottom:14px}'
+    +sel+' .hd{padding:14px 18px;border-radius:12px;margin-bottom:14px}'
+    +sel+' .hd h1{font-size:20px}'+sel+' .hd .sub{font-size:12.5px;margin-top:4px}'
+    +sel+' .hd .iss{font-size:11px}'+sel+' .hd .iss b{font-size:14px}'
+    +sel+' .ft{font-size:11px;margin-top:14px;padding-top:8px}';
 }
 function perPrint(){ if(PER.data)printDoc('المبيعات الكليّة',perBody()) }
 function renderPeriod(){
@@ -3759,8 +3791,8 @@ function renderPeriod(){
   const D=PER.data;
   const bar='<div class="row" style="margin-bottom:10px;align-items:center;flex-wrap:wrap">'
     +'<h2 style="margin:0">📊 المبيعات الكليّة</h2>'
-    +'<span class="dim sm">من</span><input class="disc-sel" type="date" lang="en-GB" dir="ltr" value="'+PER.from+'" onchange="perField(&quot;from&quot;,this.value)">'
-    +'<span class="dim sm">إلى</span><input class="disc-sel" type="date" lang="en-GB" dir="ltr" value="'+PER.to+'" onchange="perField(&quot;to&quot;,this.value)">'
+    +'<span class="dim sm">من</span><span class="dwrapdate"><input class="disc-sel" type="date" lang="en-GB" dir="ltr" value="'+PER.from+'" onchange="perField(&quot;from&quot;,this.value)"><span class="dtxt">'+perTxt(PER.from)+'</span></span>'
+    +'<span class="dim sm">إلى</span><span class="dwrapdate"><input class="disc-sel" type="date" lang="en-GB" dir="ltr" value="'+PER.to+'" onchange="perField(&quot;to&quot;,this.value)"><span class="dtxt">'+perTxt(PER.to)+'</span></span>'
     +'<button class="btn primary" onclick="perRun()">احسب</button>'
     +(D?'<button class="btn" onclick="perPrint()">🖨 طباعة</button>':'')
     +'</div>'
@@ -3792,7 +3824,10 @@ const DAY_AR=['الأحد','الاثنين','الثلاثاء','الأربعاء
 const DAY_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 function dayNameOf(d){const i=new Date(Date.parse(d+'T12:00:00Z')).getUTCDay();return (LANG==='en'?DAY_EN:DAY_AR)[i]}
 function paintDayName(){
-  const el=document.getElementById('dayName'); if(!el)return;
+  const el=document.getElementById('dayName');
+  const tx=document.getElementById('dateTxt');
+  if(tx){const p=String(DAY).split('-');tx.textContent=p[2]+'/'+p[1]+'/'+p[0]}
+  if(!el)return;
   el.textContent=dayNameOf(DAY);
   el.classList.toggle('today',DAY===opDay());
 }
