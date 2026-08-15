@@ -3309,12 +3309,27 @@ function renderTop(){
    إيفا لا تحفظ أسماء الفرق (ALLIANCE/REBELS فقط) — فتُستنبط الفرق من أطقم اللاعبين:
    طرفٌ يشترك في ٣ لاعبين فأكثر مع طقم سابق = نفس الفريق. */
 const NIGHT_FROM=22, NIGHT_TO=4;                 /* ١٠م → ٤ص بتوقيت البحرين */
-function nightWindow(){
-  const base=Date.parse(DAY+'T00:00:00Z')-SHIFT;  /* منتصف الليل المحلي */
+function nightWindow(day){
+  const base=Date.parse(day+'T00:00:00Z')-SHIFT;  /* منتصف الليل المحلي */
   return {from:base+NIGHT_FROM*3600e3, to:base+(24+NIGHT_TO)*3600e3};
 }
-function nightData(){
-  const W=nightWindow();
+/* أرشيف: كل ليالي الجمعة التي فيها مباريات فرق — تتراكم بالتاريخ بلا حاجة لتغيير تاريخ الصفحة */
+let NIGHT_DAY='';
+function nightPick(d){NIGHT_DAY=d;renderNight()}
+function nightList(){
+  const out=new Map();
+  for(const r of (S.rounds||[])){
+    const loc=+new Date(r.played_at)+SHIFT, h=new Date(loc).getUTCHours();
+    if(!(h>=NIGHT_FROM||h<NIGHT_TO))continue;
+    const day=new Date(loc-(h<NIGHT_TO?86400e3:0)).toISOString().slice(0,10);
+    if(new Date(Date.parse(day+'T12:00:00Z')).getUTCDay()!==5)continue;   /* ليلة الجمعة فقط */
+    const m=roundMode(r); if(m!=='dom'&&m!=='tdm')continue;
+    out.set(day,(out.get(day)||0)+1);
+  }
+  return [...out.keys()].sort((a,b)=>b.localeCompare(a));
+}
+function nightData(day){
+  const W=nightWindow(day);
   const rounds=(S.rounds||[]).filter(r=>{
     const t=+new Date(r.played_at); if(!(t>=W.from&&t<W.to))return false;
     const m=roundMode(r); return (m==='dom'||m==='tdm')&&rPlayers(r).length>=2;
@@ -3339,10 +3354,15 @@ function nightData(){
     maps.push({t:+new Date(r.played_at),map:roundMap(r),a:place(A),b:place(B),
       sa:+r.team_one_score||0,sb:+r.team_two_score||0});
   }
-  const matches=[]; let cur=null;
+  /* المباراة = ثلاث خرائط بين نفس الفريقين، ومن يفوز بخريطتين حسمها.
+     نجمع خرائط كل زوج في مباراة واحدة (كل فريقين يلتقيان مرّة في الليلة)،
+     وأي خريطة تُلعب بعد الحسم استعراضية فلا تُحتسب في النتيجة ولا في الفروق. */
+  const byPair=new Map();
   for(const m of maps){
-    const pair=[m.a,m.b].slice().sort().join('-');
-    if(!cur||cur.pair!==pair||cur.w[0]>=2||cur.w[1]>=2){cur={pair,tm:[m.a,m.b],w:[0,0],maps:[]};matches.push(cur)}
+    const key=[m.a,m.b].slice().sort().join('-');
+    let cur=byPair.get(key);
+    if(!cur){cur={pair:key,tm:[m.a,m.b],w:[0,0],maps:[],t:m.t};byPair.set(key,cur)}
+    if(cur.w[0]>=2||cur.w[1]>=2)continue;
     const i=(m.a===cur.tm[0])?0:1, sc=[0,0]; sc[i]=m.sa; sc[1-i]=m.sb;
     cur.maps.push({map:m.map,t:m.t,sc:sc.slice()});
     if(sc[0]>sc[1])cur.w[0]++; else if(sc[1]>sc[0])cur.w[1]++;
@@ -3350,6 +3370,7 @@ function nightData(){
     A.f+=sc[0];A.a+=sc[1];B.f+=sc[1];B.a+=sc[0];
     if(sc[0]>sc[1]){A.mw++;B.ml++}else if(sc[1]>sc[0]){B.mw++;A.ml++}
   }
+  const matches=[...byPair.values()].sort((x,y)=>x.t-y.t);
   for(const mt of matches){
     if(mt.w[0]===mt.w[1])continue;
     const win=mt.w[0]>mt.w[1]?0:1;
@@ -3367,28 +3388,33 @@ function nightData(){
     s.name='TEAM '+String.fromCharCode(65+i);            /* TEAM A · B · C · D · E */
     s.roster=[...s.mem.entries()].sort((a,b)=>b[1].n-a[1].n).slice(0,5).map(x=>x[1].name);
   });
-  const table=sq.map((s,i)=>({i,...s})).sort((a,b)=>b.w-a.w||a.a-b.a||b.f-a.f||b.mw-a.mw);
+  /* قاعدة المؤسّس: عدد الفوز أولاً، فإن تساوى فالفرق في الخرائط، فإن تساوى ففرق النقاط */
+  const table=sq.map((s,i)=>({i,...s}))
+    .sort((a,b)=>b.w-a.w || (b.mw-b.ml)-(a.mw-a.ml) || (b.f-b.a)-(a.f-a.a) || b.f-a.f);
   const players=[...pl.values()].sort((a,b)=>b.kills-a.kills||a.deaths-b.deaths||b.mvp-a.mvp);
   return {rounds,sq,matches,table,players,W};
 }
 function renderNight(){
   const el=document.getElementById('tab-night'); if(!el)return;
-  /* البطولة ليلة الجمعة فقط — بقيّة الأيام لعب عادي لا يُحسب بطولة */
-  const isFri=new Date(Date.parse(DAY+'T12:00:00Z')).getUTCDay()===5;
-  if(!isFri){
+  const nights=nightList();
+  if(!nights.length){
     el.innerHTML='<div class="row" style="margin-bottom:12px"><h2 style="margin:0">⭐ إيفا نايت</h2></div>'
-      +'<div class="empty">إيفا نايت ليلة الجمعة فقط — اختر تاريخ جمعة من أعلى الصفحة</div>';
+      +'<div class="empty">لا توجد بطولة إيفا نايت مسجّلة بعد — تظهر تلقائياً بعد أول ليلة جمعة فيها مباريات فرق</div>';
     sweep(el); return;
   }
-  const D=nightData();
-  const dd=new Date(Date.parse(DAY+'T12:00:00Z'));
+  if(nights.indexOf(NIGHT_DAY)<0)NIGHT_DAY=nights[0];
+  const ND=NIGHT_DAY;
+  const D=nightData(ND);
+  const dd=new Date(Date.parse(ND+'T12:00:00Z'));
   const dow=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'][dd.getUTCDay()];
   const dstr=(dd.getUTCMonth()+1)+'/'+dd.getUTCDate()+'/'+String(dd.getUTCFullYear()).slice(2);
-  const bar='<div class="row" style="margin-bottom:12px;align-items:center">'
-    +'<h2 style="margin:0">⭐ إيفا نايت</h2>'
-    +'<span class="dim sm">ليلة '+DAY+' · من ١٠ مساءً حتى ٤ فجراً — غيّر التاريخ من أعلى الصفحة</span>'
-    +'<span class="grow"></span></div>';
-  if(!D.matches.length){el.innerHTML=bar+'<div class="empty">لا مباريات فرق في نافذة إيفا نايت لهذا التاريخ</div>';sweep(el);return}
+  const bar='<div class="row" style="margin-bottom:8px;align-items:center">'
+    +'<h2 style="margin:0">⭐ إيفا نايت — البطولات</h2>'
+    +'<span class="dim sm">ليلة الجمعة · من ١٠ مساءً حتى ٤ فجراً</span><span class="grow"></span></div>'
+    +'<div class="catbar" style="margin-bottom:12px">'
+    +nights.map(d=>'<button class="catbtn '+(d===ND?'on':'')+'" onclick="nightPick(&quot;'+d+'&quot;)">'+d+'</button>').join('')
+    +'</div>';
+  if(!D.matches.length){el.innerHTML=bar+'<div class="empty">لا مباريات فرق في هذه الليلة</div>';sweep(el);return}
   const cal='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>';
   const usr='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
   const win=D.table[0], mvp=D.players[0];
