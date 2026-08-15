@@ -393,6 +393,38 @@ tr.cancelled td{opacity:.5}
   .rnightc .rrow{min-height:44px;padding:7px 3px}
   .rsec{margin:12px 10px 0;font-size:10px;letter-spacing:2px}
 }
+/* جدول المباريات — تصميم مستقلّ يُظهر الفائز بلا تفكير */
+.rmthd{display:grid;grid-template-columns:38px 1fr 330px;gap:12px;align-items:center;height:36px;padding:0 6px;
+  border-bottom:1px solid rgba(255,255,255,.13);font-size:10px;font-weight:800;letter-spacing:2.5px;color:#c3b0ff}
+.rmthd span:last-child{text-align:right}
+.rmt{display:grid;grid-template-columns:38px 1fr 330px;gap:12px;align-items:center;padding:12px 6px;
+  border-bottom:1px solid rgba(255,255,255,.075)}
+.rmt:last-child{border-bottom:none}
+.rmtn{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;
+  justify-content:center;font-weight:900;font-size:13px;color:#dfe9f5}
+.rmts{display:grid;gap:6px;min-width:0}
+.rmtt{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:9px;background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.07)}
+.rmtt .nm{flex:1;min-width:0;font-size:16px;font-weight:800;color:#cfe0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rmtt b{flex:none;font-size:19px;font-weight:900;color:#dbe6f2;font-variant-numeric:tabular-nums;line-height:1}
+.rmtt.win{background:linear-gradient(90deg,rgba(242,178,26,.24),rgba(242,178,26,.05));border-color:rgba(242,178,26,.5)}
+.rmtt.win .nm{color:#ffd77a}
+.rmtt.win b{color:#ffcf6a}
+.rmtw{flex:none;font-size:9.5px;font-weight:900;letter-spacing:1.5px;color:#3a2500;
+  background:linear-gradient(135deg,#ffd97a,#e79c00);padding:3px 8px;border-radius:6px}
+.rmtm{display:grid;gap:6px;justify-items:end}
+.rmtm span{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#94aac2;font-variant-numeric:tabular-nums}
+.rmtm i{font-style:normal;font-size:11px;letter-spacing:1.5px;color:#8fa8c2;margin-inline-end:6px}
+.rmtm b{font-weight:900;color:#8ea6bf}
+.rmtm b.t{color:#fff}
+.rmtm em{font-style:normal;color:#6b8098}
+@media(max-width:520px){
+  .rmthd,.rmt{grid-template-columns:26px 1fr;gap:8px}
+  .rmthd span:last-child{display:none}
+  .rmtm{grid-column:1 / -1;justify-items:start;padding-left:34px}
+  .rmtt .nm{font-size:13px}.rmtt b{font-size:16px}
+  .rmtn{width:24px;height:24px;font-size:11px}
+}
 .rren{flex:none;background:rgba(255,255,255,.10);border:none;color:#cfe0ff;font-size:11px;line-height:1;
   padding:4px 7px;border-radius:6px;cursor:pointer}
 .rren:hover{background:rgba(255,255,255,.2)}
@@ -3468,16 +3500,21 @@ function renderNight(){
     +'<span class="dim sm">'+rEsc(s.roster.join(' · '))+'</span></span>'
     +'<span class="rkda">'+s.w+' - '+s.l+' · '+s.mw+'/'+(s.mw+s.ml)+'</span>'
     +'<span class="rscn">'+s.f+' : '+s.a+'</span></div>').join('');
+  /* الفائز يُعرض أوّلاً بشارة WIN وخلفية ذهبية، وكل خريطة يُبرَز فيها الرقم الفائز */
   const mt=D.matches.map((m,mi)=>{
-    const A=D.sq[m.tm[0]], B=D.sq[m.tm[1]], w0=m.w[0]>m.w[1];
-    return '<div class="rrow" style="height:auto;padding:9px 4px;align-items:flex-start">'
-      +'<span class="rrk" style="align-self:flex-start;margin-top:2px">'+(mi+1)+'</span>'
-      +'<span class="rpn" style="flex-direction:column;align-items:flex-start;gap:3px">'
-        +'<span class="pn" style="color:'+(w0?'#ffcf6a':'#cfe0ff')+'">'+rEsc(A.name)+'</span>'
-        +'<span class="pn" style="color:'+(!w0?'#ffcf6a':'#cfe0ff')+'">'+rEsc(B.name)+'</span></span>'
-      +'<span class="rkda" style="flex-direction:column;display:flex;gap:3px">'
-        +m.maps.map(x=>'<span>'+String(x.map).toUpperCase()+' · '+x.sc[0]+'-'+x.sc[1]+'</span>').join('')+'</span>'
-      +'<span class="rscn">'+m.w[0]+' - '+m.w[1]+'</span></div>';
+    const w=(m.w[0]>=m.w[1])?0:1;
+    const A=D.sq[m.tm[w]], B=D.sq[m.tm[1-w]];
+    const line=(sq,win,n)=>'<div class="rmtt'+(win?' win':'')+'">'
+      +'<span class="nm">'+rEsc(sq.name)+'</span>'
+      +(win?'<span class="rmtw">WIN</span>':'')+'<b>'+n+'</b></div>';
+    const maps=m.maps.map(function(x){
+      const a=x.sc[w], b=x.sc[1-w];
+      return '<span><i>'+rEsc(String(x.map).toUpperCase())+'</i>'
+        +'<b class="'+(a>b?'t':'')+'">'+a+'</b><em>-</em><b class="'+(b>a?'t':'')+'">'+b+'</b></span>';
+    }).join('');
+    return '<div class="rmt"><span class="rmtn">'+(mi+1)+'</span>'
+      +'<div class="rmts">'+line(A,1,m.w[w])+line(B,0,m.w[1-w])+'</div>'
+      +'<div class="rmtm">'+maps+'</div></div>';
   }).join('');
   const pls=D.players.map((p,i)=>'<div class="rrow'+(i<3?' rw'+(i+1):'')+'">'
     +'<span class="rpn"><span class="rrk">'+(i+1)+'</span><span class="pn">'+rEsc(p.name)+'</span>'
@@ -3503,7 +3540,10 @@ function renderNight(){
     '<div class="rscore">'+champ+'</div>'
     +'<div class="rsec">STANDINGS</div>'+tbl('RANK · TEAM','MATCHES · MAPS','FOR : AGAINST',stand));
   const c2=cardOf('rn2',2,'MATCHES · BEST OF 3',D.matches.length+' MATCHES',
-    '<div class="rsec">MATCHES · BEST OF 3</div>'+tbl('# · TEAMS','MAPS · SCORES','RESULT',mt));
+    '<div class="rsec">MATCHES · BEST OF 3</div>'
+    +'<div class="rtables rone"><div class="rtbl rsol">'
+      +'<div class="rmthd"><span></span><span>MATCH · WINNER</span><span>MAPS · SCORES</span></div>'
+      +mt+'</div></div>');
   const c3=cardOf('rn3',3,'PLAYER RANKING',D.players.length+' PLAYERS',
     '<div class="rsec">ALL PLAYERS</div>'+tbl('RANK · PLAYER','KILLS / DEATHS','MVP',pls));
   el.innerHTML=bar+'<div class="rwrap">'+c1+c2+c3+'</div>';
