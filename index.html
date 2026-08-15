@@ -1620,7 +1620,7 @@ function splitRender(){
   o.innerHTML=`<div class="dlg">
     <h3>تقسيم الدفع — حجز <span class="t">${fmtT(s._t)}</span> · ${shortGame(s.game)}</h3>
     <div class="dim sm">لكل صفّ: العدد وطريقة الدفع والخصم — مثال: ٢ سوبر نوفا · ٥ كاش · ٣ كارد.<br>
-      وللدفع بعدة طرق لشخص واحد: اكتب <b>المبلغ</b> في كل صفّ (١٠ كاش + ١٠ بطاقة) واجعل عدد الصفّ الثاني <b>صفراً</b>.</div>
+      وللدفع بعدة طرق لشخص واحد: اضغط <b>⇄ قسّم المبلغ</b> على الصفّ واكتب الدفعة الأولى — يُنشأ صفّ ثانٍ بالباقي، ثم اختر طريقة دفع لكلٍّ منهما.</div>
     <div class="rem" style="margin-top:10px">
       <div class="row">
         <b>عدد اللاعبين المحاسَبين</b>
@@ -1636,7 +1636,7 @@ function splitRender(){
       ${SPL.arr.map((x,i)=>`<div class="splitrow">
         <input class="cnt n" type="number" min="0" max="40" value="${x.n}" onchange="splitSet(${i},'n',this.value)">
         <span class="dim sm">لاعب</span>
-        <input class="cnt" type="number" min="0" step="0.25" style="width:76px" placeholder="${((+x.n||0)*rate).toFixed(2)}"
+        <input class="cnt" type="number" min="0" step="any" style="width:82px" placeholder="${((+x.n||0)*rate).toFixed(2)}"
           value="${x.pv==null||x.pv===''?'':x.pv}" title="مبلغ هذا الصفّ (فارغ = العدد × السعر)"
           onchange="splitSet(${i},'pv',this.value)">
         <span class="dim sm">د.ب</span>
@@ -1645,6 +1645,7 @@ function splitRender(){
         ${discSel(x.code,`splitSet(${i},'code',this.value)`)}
         <span class="grow"></span>
         <span class="t">${rowNet(x).toFixed(2)}</span>
+        <button class="btn ghost" title="قسّم مبلغ هذا الصفّ على دفعتين" onclick="splitPay(${i})">⇄ قسّم المبلغ</button>
         <button class="btn ghost" style="color:var(--red)" onclick="splitDel(${i})">✕</button>
       </div>`).join('')}
     </div>
@@ -1667,6 +1668,21 @@ function splitSet(i,field,v){
   if(field==='n')SPL.arr[i].n=Math.max(0,+v||0);
   else if(field==='pv')SPL.arr[i].pv=(String(v).trim()===''?'':Math.max(0,+v||0));
   else SPL.arr[i][field]=v;
+  splitRender();
+}
+/* ١٢٫٥٠ ⇒ ٧٫٥٠ كاش + ٥٫٠٠ بطاقة: صفّ ثانٍ بلا لاعبين كي لا يتضاعف العدد */
+function splitPay(i){
+  if(!SPL||!SPL.arr[i])return;
+  const s=S.slots.find(x=>x.id===SPL.id); if(!s)return;
+  const rate=rateFor(s.start_at,DAY), x=SPL.arr[i];
+  const full=(+x.pv>0)?+x.pv:(+x.n||0)*rate;
+  if(!(full>0)){status("لا مبلغ في هذا الصفّ");return}
+  const v=prompt("مبلغ الدفعة الأولى بالدينار (الإجمالي "+full.toFixed(2)+")",(full/2).toFixed(2));
+  if(v==null)return;
+  const a=+(+v||0).toFixed(3), b=+(full-a).toFixed(3);
+  if(!(a>0&&b>0)){status("⚠ اكتب مبلغاً أصغر من الإجمالي");return}
+  x.pv=a;
+  SPL.arr.splice(i+1,0,{n:0,pay:"",code:x.code||"",name:"",pv:b});
   splitRender();
 }
 function splitTotal(v){if(SPL){SPL.total=Math.max(0,+v||0);splitRender()}}
