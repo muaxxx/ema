@@ -3160,7 +3160,7 @@ function rDownloadEl(card){
    try{
     void fd.body.offsetHeight;                       /* فرض إعادة التخطيط قبل القياس */
     H=Math.ceil(clone.getBoundingClientRect().height)||Math.ceil(clone.offsetHeight)||420;
-    if(W*H*sc*sc>11e6)sc=1;      /* لوحة طويلة ⇒ ننزل لدقّة ×1 كي لا يرفضها الجوال */
+    if(W*H*sc*sc>14e6)sc=1;      /* حدّ سفاري ١٦٫٧ مليون بكسل — نبقى تحته بأمان */
    }catch(e){ if(frame)frame.remove(); status('⚠ '+e.message); return }
    rMapImg(bgm?bgm[1]:null,function(mapImg){
     const nobg=(bgm&&!mapImg)?' (بلا خلفية خريطة)':'';
@@ -3468,9 +3468,10 @@ function renderNight(){
     +'<span class="dim sm">'+rEsc(s.roster.join(' · '))+'</span></span>'
     +'<span class="rkda">'+s.w+' - '+s.l+' · '+s.mw+'/'+(s.mw+s.ml)+'</span>'
     +'<span class="rscn">'+s.f+' : '+s.a+'</span></div>').join('');
-  const mt=D.matches.map(m=>{
+  const mt=D.matches.map((m,mi)=>{
     const A=D.sq[m.tm[0]], B=D.sq[m.tm[1]], w0=m.w[0]>m.w[1];
     return '<div class="rrow" style="height:auto;padding:9px 4px;align-items:flex-start">'
+      +'<span class="rrk" style="align-self:flex-start;margin-top:2px">'+(mi+1)+'</span>'
       +'<span class="rpn" style="flex-direction:column;align-items:flex-start;gap:3px">'
         +'<span class="pn" style="color:'+(w0?'#ffcf6a':'#cfe0ff')+'">'+rEsc(A.name)+'</span>'
         +'<span class="pn" style="color:'+(!w0?'#ffcf6a':'#cfe0ff')+'">'+rEsc(B.name)+'</span></span>'
@@ -3478,7 +3479,7 @@ function renderNight(){
         +m.maps.map(x=>'<span>'+String(x.map).toUpperCase()+' · '+x.sc[0]+'-'+x.sc[1]+'</span>').join('')+'</span>'
       +'<span class="rscn">'+m.w[0]+' - '+m.w[1]+'</span></div>';
   }).join('');
-  const pls=D.players.slice(0,12).map((p,i)=>'<div class="rrow'+(i<3?' rw'+(i+1):'')+'">'
+  const pls=D.players.map((p,i)=>'<div class="rrow'+(i<3?' rw'+(i+1):'')+'">'
     +'<span class="rpn"><span class="rrk">'+(i+1)+'</span><span class="pn">'+rEsc(p.name)+'</span>'
     +'<span class="dim sm">'+(p.team>=0&&D.sq[p.team]?rEsc(D.sq[p.team].name):'')+'</span></span>'
     +'<span class="rkda">'+p.kills+' / '+p.deaths+'</span>'
@@ -3486,22 +3487,29 @@ function renderNight(){
   const tbl=(t1,t2,t3,rows)=>'<div class="rtables rone"><div class="rtbl rsol">'
     +'<div class="rthd"><div class="rseg pl">'+t1+'</div><div class="rseg kd">'+t2+'</div><div class="rseg sch">'+t3+'</div></div>'
     +rows+'</div></div>';
-  const card='<div class="rcard rgrad rnightc">'
-    +'<button class="rdl" onclick="nightDownload()">⬇ PNG</button>'
-    +'<div class="rhead">'
+  /* ثلاث بطاقات: البطولة · المباريات · اللاعبون — لكل واحدة زرّ صورة مستقلّ
+     (البطاقة الواحدة العملاقة كانت تخرج صورة طويلة مضغوطة) */
+  const head=(sub,right)=>'<div class="rhead">'
       +'<div class="rbrand"><div class="b1">EVA<i>·</i>MARASSI</div><div class="b2">EVA NIGHT</div><div class="b3">TOURNAMENT</div></div>'
-      +'<div class="rmid"><div class="sub">'+dow+'</div><div class="mode">EVA NIGHT</div></div>'
-      +'<div class="rdt"><div>'+cal+dstr+'</div><div>'+usr+D.players.length+' PLAYERS</div></div>'
-    +'</div>'
-    +'<div class="rscore">'+champ+'</div>'
-    +'<div class="rsec">STANDINGS</div>'+tbl('RANK · TEAM','MATCHES · MAPS','FOR : AGAINST',stand)
-    +'<div class="rsec">MATCHES · BEST OF 3</div>'+tbl('TEAMS','MAPS · SCORES','RESULT',mt)
-    +'<div class="rsec">PLAYERS</div>'+tbl('RANK · PLAYER','KILLS / DEATHS','MVP',pls)
+      +'<div class="rmid"><div class="sub">'+sub+'</div><div class="mode">EVA NIGHT</div></div>'
+      +'<div class="rdt"><div>'+cal+dstr+'</div><div>'+usr+right+'</div></div>'
     +'</div>';
-  el.innerHTML=bar+'<div class="rwrap">'+card+'</div>';
+  const cardOf=(cls,n,sub,right,body)=>'<div class="rcard rgrad rnightc '+cls+'">'
+    +'<button class="rdl" onclick="nightDownload('+n+')">⬇ PNG</button>'
+    +head(sub,right)+body
+    +'<div class="rfoot"><span class="rbar a"></span><span class="rhex">EM</span><span class="rbar b"></span></div>'
+    +'</div>';
+  const c1=cardOf('rn1',1,dow,D.table.length+' TEAMS',
+    '<div class="rscore">'+champ+'</div>'
+    +'<div class="rsec">STANDINGS</div>'+tbl('RANK · TEAM','MATCHES · MAPS','FOR : AGAINST',stand));
+  const c2=cardOf('rn2',2,'MATCHES · BEST OF 3',D.matches.length+' MATCHES',
+    '<div class="rsec">MATCHES · BEST OF 3</div>'+tbl('# · TEAMS','MAPS · SCORES','RESULT',mt));
+  const c3=cardOf('rn3',3,'PLAYER RANKING',D.players.length+' PLAYERS',
+    '<div class="rsec">ALL PLAYERS</div>'+tbl('RANK · PLAYER','KILLS / DEATHS','MVP',pls));
+  el.innerHTML=bar+'<div class="rwrap">'+c1+c2+c3+'</div>';
   sweep(el);
 }
-function nightDownload(){ rDownloadEl(document.querySelector('#tab-night .rcard')) }
+function nightDownload(n){ rDownloadEl(document.querySelector('#tab-night .rn'+(n||1))) }
 
 /* ═════════ التبويبات ═════════ */
 const TABS=[['rcp','الاستقبال'],['ana','التشغيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون'],['res','النتائج'],['top','🏆 توب بلاير'],['night','⭐ إيفا نايت']];
