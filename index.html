@@ -640,6 +640,24 @@ const DISCOUNTS=[
 ];
 /* طرق الدفع — من ملف الإكسل (مجاميع اليوم تُحسب لكل طريقة). Super Nova = مجاني بلا مبلغ */
 const PAYMENTS=['Card','Cash','Benefit','Online Tap','Battle Pass','Bank Transfer','Gift Card','24 Sessions','10 Sessions','Coupon','Super Nova','ملغي','لم يلعب هنا'];
+/* الحجز قد يُدفَع بوسيلة واحدة أو بوسيلتين، ومبلغ كل وسيلة يكتبه الموظّف:
+   القيمة المحفوظة "Card:7.5 + Cash:5" — والمبلغ غير المكتوب يأخذ الباقي. */
+function payParts(v){
+  return String(v||"").split("+").map(x=>x.trim()).filter(Boolean).map(function(t){
+    const i=t.lastIndexOf(":");
+    if(i>0){const a=+t.slice(i+1); if(!isNaN(a))return {m:t.slice(0,i).trim(),a:a}}
+    return {m:t,a:null};
+  });
+}
+function payJoin(ps){return ps.filter(p=>p&&p.m).map(p=>p.m+(p.a!=null?":"+p.a:"")).join(" + ")}
+function payLabel(v){return payParts(v).map(p=>p.m+(p.a!=null?" "+(+p.a).toFixed(2):"")).join(" + ")||""}
+function paySpread(pay,val,add){
+  const ps=payParts(pay); if(!ps.length)return false;
+  const known=ps.filter(p=>p.a!=null).reduce((a,p)=>a+p.a,0);
+  const open=ps.filter(p=>p.a==null).length;
+  const each=open?Math.max(0,val-known)/open:0;
+  ps.forEach((p,i)=>add(p.m,(p.a!=null?p.a:each),i===0)); return true;
+}
 const FREE_PAY=['Super Nova','Battle Pass','ملغي','لم يلعب هنا'];
 const VOID_PAY=['ملغي','لم يلعب هنا'];
 const isVoidPay=p=>VOID_PAY.includes(p);
@@ -1431,14 +1449,12 @@ function partiesOf(s){
 function saleCalc(s){
   const rate=rateFor(s.start_at,DAY);
   const total=s.actual_players??s._actual??s.booked_players??0;
-  /* الصفّ إمّا بعدد لاعبين (المبلغ = العدد×السعر) وإمّا بمبلغ صريح pv
-     (شخص واحد يدفع ١٠ كاش و١٠ بطاقة = صفّان بمبلغين، وثانيهما بلا لاعبين) */
-  const splits=Array.isArray(s.pay_splits)?s.pay_splits.filter(x=>+x.n>0||+x.pv>0):[];
+  const splits=Array.isArray(s.pay_splits)?s.pay_splits.filter(x=>+x.n>0):[];
   const used=splits.reduce((a,x)=>a+(+x.n||0),0);
   const restN=Math.max(0,total-used);
   const parts=[];
-  const lineOf=(n,pay,code,manual,name,pv)=>{
-    const amt=(+pv>0)?+(+pv).toFixed(2):+(n*rate).toFixed(2);
+  const lineOf=(n,pay,code,manual,name)=>{
+    const amt=+(n*rate).toFixed(2);
     const p=slotPct(code);
     let disc=(p!=null&&code)?+(amt*p/100).toFixed(2):(+manual||0);
     if(isFreePay(pay))disc=amt;                     // سوبر نوفا: مجاني بالكامل
@@ -1454,7 +1470,7 @@ function saleCalc(s){
     }
   }else{
     if(restN>0||!splits.length)parts.push(lineOf(restN,s.pay_method||'',discCode(s),s.discount,pt.length===1?pt[0].name:''));
-    for(const x of splits)parts.push(lineOf(+x.n||0,x.pay,x.code,x.amount,x.name,x.pv));
+    for(const x of splits)parts.push(lineOf(+x.n,x.pay,x.code,x.amount,x.name));
   }
   return {rate,total,restN,splits,parts,multi:parts.length>1,
     amt:+parts.reduce((a,p)=>a+p.amt,0).toFixed(2),
@@ -1489,7 +1505,8 @@ function renderSales(){
     gross+=c.amt; discT+=c.disc;
     const parts=c.parts.filter(p=>p.n>0);
     for(const p of parts){
-      if(p.pay&&payT.has(p.pay)){payT.set(p.pay,payT.get(p.pay)+p.net);payN.set(p.pay,payN.get(p.pay)+p.n)}
+      if(p.pay)paySpread(p.pay,p.net,function(m,v,first){
+        if(payT.has(m)){payT.set(m,payT.get(m)+v); if(first)payN.set(m,payN.get(m)+p.n)}});
       else if(!p.pay)unpaid+=p.net;
     }
     const due=parts.some(p=>!p.pay);
@@ -1505,10 +1522,16 @@ function renderSales(){
     }).join('');
     const tools=c.multi
       ? '<span class="chip info">مقسّم على '+parts.length+'</span>'
-      : '<select class="disc-sel" onchange="setSaleField(\''+s.id+'\',\'pay_method\',this.value)">'
-        +'<option value="">— طريقة الدفع —</option>'
-        +PAYMENTS.map(p=>'<option '+((s.pay_method||'')===p?'selected':'')+'>'+p+'</option>').join('')
-        +'</select>'
+      : (function(){
+          const pp=payParts(s.pay_method), two=pp.length>1;
+          const one=(k,ph)=>'<select class="disc-sel" onchange="setPayPart(\''+s.id+'\','+k+',this.value)">'
+            +'<option value="">'+ph+'</option>'
+            +PAYMENTS.map(p=>'<option '+((pp[k]&&pp[k].m)===p?'selected':'')+'>'+p+'</option>').join('')+'</select>';
+          const amt=k=>'<input class="cnt" type="number" min="0" step="any" style="width:72px" title="المبلغ"'
+            +' placeholder="'+c.net.toFixed(2)+'" value="'+((pp[k]&&pp[k].a!=null)?pp[k].a:'')+'"'
+            +' onchange="setPayAmt(\''+s.id+'\','+k+',this.value)">';
+          return one(0,'— طريقة الدفع —')+(two?amt(0):'')+one(1,'— + طريقة ثانية —')+(two?amt(1):'');
+        })()
         +'<select class="disc-sel" onchange="setDiscCode(\''+s.id+'\',this.value)">'
         +DISCOUNTS.map(d=>'<option value="'+d.code+'" '+(discCode(s)===d.code?'selected':'')+'>'+d.label+'</option>').join('')
         +'</select>';
@@ -1614,13 +1637,10 @@ function splitRender(){
       ${DISCOUNTS.map(d=>`<option value="${d.code}" ${v===d.code?'selected':''}>${d.label}</option>`).join('')}</select>`;
   let o=document.getElementById('splitOvl');
   if(!o){o=document.createElement('div');o.id='splitOvl';o.className='ovl';o.onclick=e=>{if(e.target===o)splitClose()};document.body.appendChild(o)}
-  const rowAmt=x=>(+x.pv>0)?+x.pv:(+x.n||0)*rate;
-  const rowNet=x=>isFreePay(x.pay)?0:rowAmt(x)*(1-(slotPct(x.code)||0)/100);
-  const totalNet=SPL.arr.reduce((a,x)=>a+rowNet(x),0);
+  const totalNet=SPL.arr.reduce((a,x)=>a+(isFreePay(x.pay)?0:(x.n*rate*(1-(slotPct(x.code)||0)/100))),0);
   o.innerHTML=`<div class="dlg">
     <h3>تقسيم الدفع — حجز <span class="t">${fmtT(s._t)}</span> · ${shortGame(s.game)}</h3>
-    <div class="dim sm">لكل صفّ: العدد وطريقة الدفع والخصم — مثال: ٢ سوبر نوفا · ٥ كاش · ٣ كارد.<br>
-      وللدفع بعدة طرق لشخص واحد: اضغط <b>⇄ قسّم المبلغ</b> على الصفّ واكتب الدفعة الأولى — يُنشأ صفّ ثانٍ بالباقي، ثم اختر طريقة دفع لكلٍّ منهما.</div>
+    <div class="dim sm">اكتب لكل مجموعة: العدد وطريقة الدفع والخصم. مثال: ٢ سوبر نوفا · ٥ كاش · ٣ كارد</div>
     <div class="rem" style="margin-top:10px">
       <div class="row">
         <b>عدد اللاعبين المحاسَبين</b>
@@ -1634,18 +1654,13 @@ function splitRender(){
     </div>
     <div style="margin-top:12px">
       ${SPL.arr.map((x,i)=>`<div class="splitrow">
-        <input class="cnt n" type="number" min="0" max="40" value="${x.n}" onchange="splitSet(${i},'n',this.value)">
+        <input class="cnt n" type="number" min="1" max="40" value="${x.n}" onchange="splitSet(${i},'n',this.value)">
         <span class="dim sm">لاعب</span>
-        <input class="cnt" type="number" min="0" step="any" style="width:82px" placeholder="${((+x.n||0)*rate).toFixed(2)}"
-          value="${x.pv==null||x.pv===''?'':x.pv}" title="مبلغ هذا الصفّ (فارغ = العدد × السعر)"
-          onchange="splitSet(${i},'pv',this.value)">
-        <span class="dim sm">د.ب</span>
         ${x.name?`<b style="min-width:92px">${x.name}</b>`:''}
         ${paySel(x.pay,`splitSet(${i},'pay',this.value)`)}
         ${discSel(x.code,`splitSet(${i},'code',this.value)`)}
         <span class="grow"></span>
-        <span class="t">${rowNet(x).toFixed(2)}</span>
-        <button class="btn ghost" title="قسّم مبلغ هذا الصفّ على دفعتين" onclick="splitPay(${i})">⇄ قسّم المبلغ</button>
+        <span class="t">${(isFreePay(x.pay)?0:(x.n*rate*(1-(slotPct(x.code)||0)/100))).toFixed(2)}</span>
         <button class="btn ghost" style="color:var(--red)" onclick="splitDel(${i})">✕</button>
       </div>`).join('')}
     </div>
@@ -1665,35 +1680,17 @@ function splitRender(){
 }
 function splitSet(i,field,v){
   if(!SPL||!SPL.arr[i])return;
-  if(field==='n')SPL.arr[i].n=Math.max(0,+v||0);
-  else if(field==='pv')SPL.arr[i].pv=(String(v).trim()===''?'':Math.max(0,+v||0));
-  else SPL.arr[i][field]=v;
-  splitRender();
-}
-/* ١٢٫٥٠ ⇒ ٧٫٥٠ كاش + ٥٫٠٠ بطاقة: صفّ ثانٍ بلا لاعبين كي لا يتضاعف العدد */
-function splitPay(i){
-  if(!SPL||!SPL.arr[i])return;
-  const s=S.slots.find(x=>x.id===SPL.id); if(!s)return;
-  const rate=rateFor(s.start_at,DAY), x=SPL.arr[i];
-  const full=(+x.pv>0)?+x.pv:(+x.n||0)*rate;
-  if(!(full>0)){status("لا مبلغ في هذا الصفّ");return}
-  const v=prompt("مبلغ الدفعة الأولى بالدينار (الإجمالي "+full.toFixed(2)+")",(full/2).toFixed(2));
-  if(v==null)return;
-  const a=+(+v||0).toFixed(3), b=+(full-a).toFixed(3);
-  if(!(a>0&&b>0)){status("⚠ اكتب مبلغاً أصغر من الإجمالي");return}
-  x.pv=a;
-  SPL.arr.splice(i+1,0,{n:0,pay:"",code:x.code||"",name:"",pv:b});
+  SPL.arr[i][field]=field==='n'?Math.max(1,+v||1):v;
   splitRender();
 }
 function splitTotal(v){if(SPL){SPL.total=Math.max(0,+v||0);splitRender()}}
-function splitAddRow(n){if(SPL){SPL.arr.push({n:Math.max(0,+n||1),pay:'',code:'',name:'',pv:''});splitRender()}}
+function splitAddRow(n){if(SPL){SPL.arr.push({n:Math.max(1,+n||1),pay:'',code:'',name:''});splitRender()}}
 function splitDel(i){if(SPL){SPL.arr.splice(i,1);splitRender()}}
 function splitClear(){if(SPL){SPL.arr=[];splitSave()}}
 async function splitSave(){
   if(!SPL)return;
   const {id,arr,total}=SPL;
-  const clean=arr.filter(x=>+x.n>0||+x.pv>0).map(x=>({n:+x.n||0,pay:x.pay||'',code:x.code||'',
-    name:x.name||'',amount:x.amount,pv:(+x.pv>0?+x.pv:undefined)}));
+  const clean=arr.filter(x=>+x.n>0);
   const sum=clean.reduce((a,x)=>a+(+x.n||0),0);
   const body={pay_splits:clean.length?clean:null};
   // العدد المحاسَب = مجموع الصفوف (فلا يبقى «باقٍ» غامض)
@@ -1719,6 +1716,20 @@ function voidBooking(id){
 async function setSaleField(id,field,v){
   try{await sbPatch('slots',id,{[field]:String(v).trim()||null});const s=S.slots.find(x=>x.id===id);if(s)s[field]=String(v).trim()||null;renderSales();renderRec();renderRep();status('✓ حُفظ')}
   catch(e){status(new RegExp(field).test(e.message)?'⚠ شغّل eva_v3.sql في Supabase أولاً (أعمدة المبيعات)':'⚠ '+e.message)}
+}
+/* اختيار وسيلة الدفع (٠ الأولى · ١ الثانية) */
+async function setPayPart(id,k,v){
+  const s=S.slots.find(x=>x.id===id); if(!s)return;
+  const pp=payParts(s.pay_method);
+  if(!v){pp.splice(k,1)} else {pp[k]=pp[k]?{m:v,a:pp[k].a}:{m:v,a:null}}
+  await setSaleField(id,"pay_method",payJoin(pp));
+}
+/* مبلغ كل وسيلة كما يكتبه الموظّف — بلا أي توزيع تلقائي */
+async function setPayAmt(id,k,v){
+  const s=S.slots.find(x=>x.id===id); if(!s)return;
+  const pp=payParts(s.pay_method); if(!pp[k])return;
+  pp[k].a=(String(v).trim()===""?null:Math.max(0,+v||0));
+  await setSaleField(id,"pay_method",payJoin(pp));
 }
 async function setDiscCode(id,code){
   const s=S.slots.find(x=>x.id===id); if(!s)return;
@@ -1751,7 +1762,8 @@ function exportCSV(){
     const playedN=s.actual_players??s._actual??'';
     const parts=c.parts.filter(p=>p.n>0);
     parts.forEach((p,i)=>{
-      if(p.pay&&payTotals.has(p.pay))payTotals.set(p.pay,payTotals.get(p.pay)+p.net);else if(!p.pay)payUnset+=p.net;
+      if(p.pay)paySpread(p.pay,p.net,function(m,v){if(payTotals.has(m))payTotals.set(m,payTotals.get(m)+v)});
+      else payUnset+=p.net;
       const d=DISCOUNTS.find(x=>x.code===p.code);
       out.push([i===0?idx:'',fmtT(s._t),i===0?(s.order_no||''):'',i===0?(s.account_name||''):'↳ تقسيم',
         i===0?shortGame(s.game):'',i===0?(s.booked_players||0):'',p.n,c.rate,p.amt.toFixed(2),
@@ -1783,7 +1795,8 @@ function sessionTotals(){
     if(s._swallowed&&Date.now()>s._endT&&!s.pay_method)continue;
     const c=saleCalc(s); gross+=c.amt; disc+=c.disc; n++;
     for(const p of c.parts){ if(!p.n)continue;
-      if(p.pay&&byPay.has(p.pay))byPay.set(p.pay,byPay.get(p.pay)+p.net); else if(!p.pay)unset+=p.net; }
+      if(p.pay)paySpread(p.pay,p.net,function(m,v){if(byPay.has(m))byPay.set(m,byPay.get(m)+v)});
+      else unset+=p.net; }
   }
   return {byPay,gross,disc,net:gross-disc,unset,n};
 }
@@ -2542,11 +2555,12 @@ function printSales(preview){
       <td class="r mut">${s.sale_note||'—'}</td></tr>`;
     for(const p of c.parts){
       if(!p.n)continue;
-      if(p.pay&&payT.has(p.pay)){payT.set(p.pay,payT.get(p.pay)+p.net);payN.set(p.pay,payN.get(p.pay)+p.n)}
+      if(p.pay)paySpread(p.pay,p.net,function(m,v,first){
+        if(payT.has(m)){payT.set(m,payT.get(m)+v); if(first)payN.set(m,payN.get(m)+p.n)}});
       else if(!p.pay)unset+=p.net;
       if(c.multi){
         const dd=DISCOUNTS.find(x=>x.code===p.code);
-        rows+=`<tr class="sub"><td></td><td colspan="4" class="r">↳ ${p.name?'<b>'+p.name+'</b> · ':''}${p.n?p.n+' لاعب':'دفعة'} · ${p.pay||'بلا طريقة دفع'}${dd&&dd.code?' · '+dd.label:''}</td>
+        rows+=`<tr class="sub"><td></td><td colspan="4" class="r">↳ ${p.name?'<b>'+p.name+'</b> · ':''}${p.n} لاعب · ${payLabel(p.pay)||'بلا طريقة دفع'}${dd&&dd.code?' · '+dd.label:''}</td>
           <td>${p.n}</td><td>${c.rate.toFixed(2)}</td><td>${p.amt.toFixed(2)}</td><td>${p.disc?'−'+p.disc.toFixed(2):''}</td>
           <td>${p.net.toFixed(2)}</td><td>${p.pay||'—'}</td><td></td></tr>`;
       }
@@ -2783,6 +2797,8 @@ async function reloadGms(){
 
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
+ '— + طريقة ثانية —':'— + 2nd method —','— طريقة الدفع —':'— payment method —','المبلغ':'Amount',
+ 'مقسّم على':'Split into','تقسيم الدفع':'Split payment','لاعب':'player',
  '🏆 توب بلاير':'🏆 Top Player','🏆 مراسي توب بلاير':'🏆 Marassi Top Player','⭐ إيفا نايت':'⭐ EVA Night',
  '🗺 إحصائية الخرائط':'🗺 Map stats','دومينيشن':'Domination','تيم دث ماتش':'Team Deathmatch','زومبي':'Zombies','فري فور أول':'Free for All',
  'آخر ٧ أيام':'Last 7 days','آخر ٣٠ يوماً':'Last 30 days','النتائج':'Results','الكافيه':'Cafe','التقرير':'Report','الموظفون':'Staff',
