@@ -428,6 +428,11 @@ tr.cancelled td{opacity:.5}
   .rmtt .tn{font-size:13px}.rmtt .tr{font-size:9px}.rmtt b{font-size:16px}
   .rmtn{width:24px;height:24px;font-size:11px}
 }
+.paymulti{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap;
+  background:rgba(109,40,217,.16);border:1px solid rgba(167,139,250,.5);border-radius:10px;padding:7px 10px}
+.paymulti .pml{font-size:10px;font-weight:900;letter-spacing:2px;color:#c3b0ff}
+.paymulti .pmp{font-size:15px;font-weight:900;color:#9fb4c8;padding:0 2px}
+.paymulti .pmv{width:86px}
 .rren{flex:none;background:rgba(255,255,255,.10);border:none;color:#cfe0ff;font-size:11px;line-height:1;
   padding:4px 7px;border-radius:6px;cursor:pointer}
 .rren:hover{background:rgba(255,255,255,.2)}
@@ -1637,13 +1642,21 @@ function splitRender(){
   /* دفع متعدد: وسيلتان بمبلغين يكتبهما الموظّف */
   const payMulti=(i,x)=>{
     const ps=payParts(x.pay); while(ps.length<2)ps.push({m:"",a:null});
-    const sel=(k)=>`<select class="disc-sel" style="min-width:104px" onchange="splitPaySet(${i},${k},'m',this.value)">`
-      +`<option value="">— ${k?"الثانية":"الأولى"} —</option>`
+    const net=rowNet(x);
+    const put=ps.reduce((a,p)=>a+(p.a!=null?+p.a:0),0);
+    const left=+(net-put).toFixed(3);
+    const sel=(k)=>`<select class="disc-sel" style="min-width:112px" onchange="splitPaySet(${i},${k},'m',this.value)">`
+      +`<option value="">— طريقة الدفع —</option>`
       +PAYMENTS.map(p=>`<option ${ps[k].m===p?"selected":""}>${p}</option>`).join("")+"</select>";
-    const amt=(k)=>`<input class="cnt" type="number" min="0" step="any" style="width:72px" title="المبلغ"
-      placeholder="0.00" value="${ps[k].a!=null?ps[k].a:""}"
+    const amt=(k)=>`<input class="cnt pmv" type="number" min="0" step="any" title="المبلغ"
+      placeholder="0.000" value="${ps[k].a!=null?ps[k].a:""}"
       onchange="splitPaySet(${i},${k},'a',this.value)">`;
-    return sel(0)+amt(0)+sel(1)+amt(1);
+    return `<span class="paymulti">`
+      +`<b class="pml">MULTI PAYMENT</b>`
+      +sel(0)+amt(0)+`<span class="pmp">+</span>`+sel(1)+amt(1)
+      +`<span class="${Math.abs(left)<0.005?"chip ok sm":"chip warn sm"}">${Math.abs(left)<0.005?"✓":"باقٍ "+left.toFixed(3)}</span>`
+      +`<button class="btn ghost" title="ارجع لوسيلة واحدة" onclick="splitPaySingle(${i})">↺</button>`
+      +`</span>`;
   };
   const discSel=(v,on)=>`<select class="disc-sel" style="min-width:130px" onchange="${on}">
       ${DISCOUNTS.map(d=>`<option value="${d.code}" ${v===d.code?'selected':''}>${d.label}</option>`).join('')}</select>`;
@@ -1695,6 +1708,14 @@ function splitSet(i,field,v){
   if(!SPL||!SPL.arr[i])return;
   if(field==='pay'&&v==="__multi"){SPL.arr[i].multi=true;splitRender();return}
   SPL.arr[i][field]=field==='n'?Math.max(1,+v||1):v;
+  splitRender();
+}
+/* الرجوع من الدفع المتعدد إلى وسيلة واحدة */
+function splitPaySingle(i){
+  if(!SPL||!SPL.arr[i])return;
+  const ps=payParts(SPL.arr[i].pay);
+  SPL.arr[i].pay=(ps[0]&&ps[0].m)||"";
+  SPL.arr[i].multi=false;
   splitRender();
 }
 /* وسيلة/مبلغ داخل صفّ الدفع المتعدد */
@@ -2820,7 +2841,7 @@ async function reloadGms(){
 
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
- '— + طريقة ثانية —':'— + 2nd method —','— دفع متعدد —':'— multi payment —','— الأولى —':'— 1st —','— الثانية —':'— 2nd —','— طريقة الدفع —':'— payment method —','المبلغ':'Amount',
+ '— + طريقة ثانية —':'— + 2nd method —', '— دفع متعدد —':'— multi payment —','ارجع لوسيلة واحدة':'Back to single method','— الأولى —':'— 1st —','— الثانية —':'— 2nd —','— طريقة الدفع —':'— payment method —','المبلغ':'Amount',
  'مقسّم على':'Split into','تقسيم الدفع':'Split payment','لاعب':'player',
  '🏆 توب بلاير':'🏆 Top Player','🏆 مراسي توب بلاير':'🏆 Marassi Top Player','⭐ إيفا نايت':'⭐ EVA Night',
  '🗺 إحصائية الخرائط':'🗺 Map stats','دومينيشن':'Domination','تيم دث ماتش':'Team Deathmatch','زومبي':'Zombies','فري فور أول':'Free for All',
