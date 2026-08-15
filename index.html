@@ -1632,12 +1632,25 @@ function splitRender(){
   const rest=total-used;
   const paySel=(v,on)=>`<select class="disc-sel" style="min-width:118px" onchange="${on}">
       <option value="">— طريقة الدفع —</option>
-      ${PAYMENTS.map(p=>`<option ${v===p?'selected':''}>${p}</option>`).join('')}</select>`;
+      ${PAYMENTS.map(p=>`<option ${v===p?'selected':''}>${p}</option>`).join('')}
+      <option value="__multi">— دفع متعدد —</option></select>`;
+  /* دفع متعدد: وسيلتان بمبلغين يكتبهما الموظّف */
+  const payMulti=(i,x)=>{
+    const ps=payParts(x.pay); while(ps.length<2)ps.push({m:"",a:null});
+    const sel=(k)=>`<select class="disc-sel" style="min-width:104px" onchange="splitPaySet(${i},${k},'m',this.value)">`
+      +`<option value="">— ${k?"الثانية":"الأولى"} —</option>`
+      +PAYMENTS.map(p=>`<option ${ps[k].m===p?"selected":""}>${p}</option>`).join("")+"</select>";
+    const amt=(k)=>`<input class="cnt" type="number" min="0" step="any" style="width:72px" title="المبلغ"
+      placeholder="0.00" value="${ps[k].a!=null?ps[k].a:""}"
+      onchange="splitPaySet(${i},${k},'a',this.value)">`;
+    return sel(0)+amt(0)+sel(1)+amt(1);
+  };
   const discSel=(v,on)=>`<select class="disc-sel" style="min-width:130px" onchange="${on}">
       ${DISCOUNTS.map(d=>`<option value="${d.code}" ${v===d.code?'selected':''}>${d.label}</option>`).join('')}</select>`;
   let o=document.getElementById('splitOvl');
   if(!o){o=document.createElement('div');o.id='splitOvl';o.className='ovl';o.onclick=e=>{if(e.target===o)splitClose()};document.body.appendChild(o)}
-  const totalNet=SPL.arr.reduce((a,x)=>a+(isFreePay(x.pay)?0:(x.n*rate*(1-(slotPct(x.code)||0)/100))),0);
+  const rowNet=x=>isFreePay(x.pay)?0:(x.n*rate*(1-(slotPct(x.code)||0)/100));
+  const totalNet=SPL.arr.reduce((a,x)=>a+rowNet(x),0);
   o.innerHTML=`<div class="dlg">
     <h3>تقسيم الدفع — حجز <span class="t">${fmtT(s._t)}</span> · ${shortGame(s.game)}</h3>
     <div class="dim sm">اكتب لكل مجموعة: العدد وطريقة الدفع والخصم. مثال: ٢ سوبر نوفا · ٥ كاش · ٣ كارد</div>
@@ -1657,10 +1670,10 @@ function splitRender(){
         <input class="cnt n" type="number" min="1" max="40" value="${x.n}" onchange="splitSet(${i},'n',this.value)">
         <span class="dim sm">لاعب</span>
         ${x.name?`<b style="min-width:92px">${x.name}</b>`:''}
-        ${paySel(x.pay,`splitSet(${i},'pay',this.value)`)}
+        ${(payParts(x.pay).length>1||x.multi)?payMulti(i,x):paySel((payParts(x.pay)[0]||{}).m||'',`splitSet(${i},'pay',this.value)`)}
         ${discSel(x.code,`splitSet(${i},'code',this.value)`)}
         <span class="grow"></span>
-        <span class="t">${(isFreePay(x.pay)?0:(x.n*rate*(1-(slotPct(x.code)||0)/100))).toFixed(2)}</span>
+        <span class="t">${rowNet(x).toFixed(2)}</span>
         <button class="btn ghost" style="color:var(--red)" onclick="splitDel(${i})">✕</button>
       </div>`).join('')}
     </div>
@@ -1680,7 +1693,17 @@ function splitRender(){
 }
 function splitSet(i,field,v){
   if(!SPL||!SPL.arr[i])return;
+  if(field==='pay'&&v==="__multi"){SPL.arr[i].multi=true;splitRender();return}
   SPL.arr[i][field]=field==='n'?Math.max(1,+v||1):v;
+  splitRender();
+}
+/* وسيلة/مبلغ داخل صفّ الدفع المتعدد */
+function splitPaySet(i,k,f,v){
+  if(!SPL||!SPL.arr[i])return;
+  const x=SPL.arr[i], ps=payParts(x.pay);
+  while(ps.length<2)ps.push({m:"",a:null});
+  if(f==="m")ps[k].m=v; else ps[k].a=(String(v).trim()===""?null:Math.max(0,+v||0));
+  x.pay=payJoin(ps); x.multi=true;
   splitRender();
 }
 function splitTotal(v){if(SPL){SPL.total=Math.max(0,+v||0);splitRender()}}
@@ -2797,7 +2820,7 @@ async function reloadGms(){
 
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
- '— + طريقة ثانية —':'— + 2nd method —','— طريقة الدفع —':'— payment method —','المبلغ':'Amount',
+ '— + طريقة ثانية —':'— + 2nd method —','— دفع متعدد —':'— multi payment —','— الأولى —':'— 1st —','— الثانية —':'— 2nd —','— طريقة الدفع —':'— payment method —','المبلغ':'Amount',
  'مقسّم على':'Split into','تقسيم الدفع':'Split payment','لاعب':'player',
  '🏆 توب بلاير':'🏆 Top Player','🏆 مراسي توب بلاير':'🏆 Marassi Top Player','⭐ إيفا نايت':'⭐ EVA Night',
  '🗺 إحصائية الخرائط':'🗺 Map stats','دومينيشن':'Domination','تيم دث ماتش':'Team Deathmatch','زومبي':'Zombies','فري فور أول':'Free for All',
