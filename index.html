@@ -1059,11 +1059,11 @@ function walkinCard(w,rich){
   return `<div class="evablock" style="--gc:#e8a13c">
     <div class="row"><span class="t" style="font-size:16px">${fmtT(w.start)}–${fmtT(w.end)}</span>
       <span style="font-weight:800">⚠ لعب بدون حجز</span>
-      <span class="dim">${w.players}👤 · ${w.games.length} جولة · ${w.net}د</span>
+      <span class="dim">${w.players}👤</span><span class="dim">·</span><span class="dim">${w.games.length} جولة</span><span class="dim">·</span><span class="dim">${w.net}د</span>
       <span class="grow"></span>
       ${w.overCancelled?'<span class="wchip alarm">بعد حجز ملغى — تحقّق من التحصيل</span>':''}</div>
     <div class="rounds" style="border-color:rgba(255,255,255,.35)">${w.games.map(g=>roundLine(g,true,'#fff')).join('')}</div>
-    ${rich?`<div class="sm" style="margin-top:6px;opacity:.9">اللاعبون: ${[...new Set(w.games.flatMap(g=>g.players.map(p=>p.name)))].join('، ')||'—'}</div>`:''}
+    ${rich?`<div class="sm" style="margin-top:6px;opacity:.9"><span>اللاعبون</span>: ${[...new Set(w.games.flatMap(g=>g.players.map(p=>p.name)))].join(' · ')||'—'}</div>`:''}
   </div>`;
 }
 
@@ -2862,6 +2862,8 @@ async function reloadGms(){
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
  '— + طريقة ثانية —':'— + 2nd method —',
+ 'اللاعبون':'Players','⚠ لعب بدون حجز':'⚠ Play without booking','بعد حجز ملغى — تحقّق من التحصيل':'After a cancelled booking — check collection',
+
  'كافيه':'Cafe','يجلب…':'Loading…','يحدّث…':'Refreshing…','ضيف':'Guest','🎮 لعب جارٍ بدون حجز!':'🎮 Playing with no booking!',
  'لا حجوزات ولا لعب مرصود في هذا اليوم':'No bookings or play recorded for this day','(تشغيلي)':'(operational)','(العميل)':'(client)',
  'تسجيل لم يُرسَل':'recording not sent','لم يحضر':'No-show','لعب بدون حجز':'Played without booking',
@@ -3036,6 +3038,8 @@ const EN={
  '٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)':'9.50 std · 12.50 peak (17:00–21:40)','الأحد — ٩٫٥٠ لليوم كامل':'Sunday — 9.50 all day','٩٫٥٠ لليوم كامل':'9.50 all day',
 };
 const EN_RX=[
+ [/^(d+) جولة$/,'$1 rounds'],[/^(d+)د$/,'$1m'],[/^(d+)👤$/,'$1 👤'],
+
  [/^— نقص (d+)د$/,'— short $1m'],[/^— تجاوز (d+)د$/,'— overrun $1m'],[/^— تجهيز زائد (d+)د$/,'— extra setup $1m'],
  [/^— لعب بدون حجز ((d+) لاعب · (d+)د)$/,'— played without booking ($1 players · $2m)'],
  [/^(d+)د وأخّر الحجز التالي$/,'$1m and delayed the next booking'],[/^(d+) تسجيل لم يُرسَل$/,'$1 recordings not sent'],
