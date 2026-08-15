@@ -916,12 +916,30 @@ function compute(){
     }
     sessions.push({start:g.start,end:g.end,games:[g],ids:new Set(g._ids)});
   }
+  /* لعبٌ قبل موعد الحجز بأكثر من EARLY: ليس «بلا حجز» إن كان اللاعبون هم أصحاب حجز قادم.
+     نطابق بقائمة لاعبي الحجز (roster) أو باسم الحساب مقابل أسماء اللاعبين. */
+  const EARLY_OWNER=120;   /* دقيقة قبل موعد الحجز */
+  function earlyOwner(act,sess){
+    const names=new Set(sess.games.flatMap(g=>g.players.map(p=>String(p.name||"").trim().toLowerCase())).filter(Boolean));
+    const cands=act.filter(s=>s._t>sess.start&&s._t-sess.start<=EARLY_OWNER*60000&&!s._games.length)
+                   .sort((a,b)=>a._t-b._t);
+    for(const s of cands){
+      if(s._rIds.size&&sess.ids.size&&[...sess.ids].some(id=>s._rIds.has(id)))return s;
+      const acc=String(s.account_name||"").trim().toLowerCase();
+      if(!acc)continue;
+      if(names.has(acc))return s;
+      for(const n of names)if(n.length>=4&&acc.length>=4&&(n.includes(acc)||acc.includes(n)))return s;
+    }
+    return null;
+  }
   S.orphanSessions=[];
   for(const sess of sessions){
     /* صاحب الجلسة = الحجز الذي **يحتوي** وقت بدايتها؛ ولا نستعمل نافذة البدء المبكر
        إلا إن لم يحتوِها أيّ حجز (درس: جولة 21:33 داخل حجز 21:00 كانت تُنسب لـ21:40). */
     let anchor=act.find(s=>s._t<=sess.start&&sess.start<s._endT)
-            || act.find(s=>sess.start<s._t&&s._t-sess.start<=EARLY*60000);
+            || act.find(s=>sess.start<s._t&&s._t-sess.start<=EARLY*60000)
+            || earlyOwner(act,sess);        /* دخل مبكّراً وهو صاحب حجز قادم */
+    if(anchor&&anchor._t>sess.start){anchor._early=true;anchor._earlyBy=Math.max(anchor._earlyBy||0,mins(anchor._t-sess.start))}
     if(!anchor){S.orphanSessions.push(sess);continue}
     const sameKey=act.filter(s=>s._key===anchor._key&&s._t>=anchor._t).sort((a,b)=>a._t-b._t);
     for(const g of sess.games){
@@ -1355,6 +1373,7 @@ function renderAna(){
         s._setup>0?faultChip(s):'',
         (s._breaks&&s._breaks.length)?`<span class="chip warn">☕ أثناء بريك: ${s._breaks.join('، ')}</span>`:'',
         s._delayedBy?`<span class="chip bad">⏳ تأخير في بدء الحجز ${s._delayedBy}د — الحجز السابق تجاوز وقته</span>`:'',
+        s._earlyBy?`<span class="chip info">⏱ بدأ قبل موعده بـ ${s._earlyBy}د</span>`:'',
         s._mismatch?'<span class="chip warn">⚠ أُسند بالوقت — اللاعبون لا يطابقون قائمة الحجز</span>':'',
         s._surplus?`<span class="chip ok">لعب زيادة +${s._surplus}د</span>`:'',
         s._over?`<span class="chip ${s._delaysNext?'bad':'warn'}">تجاوز وقت الحجز ${s._over}د${s._delaysNext?' — أخّر الحجز التالي!':''}</span>`:'',
@@ -3038,6 +3057,7 @@ const EN={
  '٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)':'9.50 std · 12.50 peak (17:00–21:40)','الأحد — ٩٫٥٠ لليوم كامل':'Sunday — 9.50 all day','٩٫٥٠ لليوم كامل':'9.50 all day',
 };
 const EN_RX=[
+ [/^⏱ بدأ قبل موعده بـ (\d+)د$/,'⏱ Started $1m before its time'],
  [/^(d+) جولة$/,'$1 rounds'],[/^(d+)د$/,'$1m'],[/^(d+)👤$/,'$1 👤'],
 
  [/^— نقص (d+)د$/,'— short $1m'],[/^— تجاوز (d+)د$/,'— overrun $1m'],[/^— تجهيز زائد (d+)د$/,'— extra setup $1m'],
