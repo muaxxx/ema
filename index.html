@@ -405,10 +405,13 @@ tr.cancelled td{opacity:.5}
 .rmts{display:grid;gap:6px;min-width:0}
 .rmtt{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:9px;background:rgba(255,255,255,.055);
   border:1px solid rgba(255,255,255,.07)}
-.rmtt .nm{flex:1;min-width:0;font-size:16px;font-weight:800;color:#cfe0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rmtt .nm{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rmtt .tn{font-size:16px;font-weight:800;color:#cfe0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1}
+.rmtt .tr{font-size:11px;font-weight:600;color:#8ba2ba;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
 .rmtt b{flex:none;font-size:19px;font-weight:900;color:#dbe6f2;font-variant-numeric:tabular-nums;line-height:1}
 .rmtt.win{background:linear-gradient(90deg,rgba(242,178,26,.24),rgba(242,178,26,.05));border-color:rgba(242,178,26,.5)}
-.rmtt.win .nm{color:#ffd77a}
+.rmtt.win .tn{color:#ffd77a}
+.rmtt.win .tr{color:#d9b97e}
 .rmtt.win b{color:#ffcf6a}
 .rmtw{flex:none;font-size:9.5px;font-weight:900;letter-spacing:1.5px;color:#3a2500;
   background:linear-gradient(135deg,#ffd97a,#e79c00);padding:3px 8px;border-radius:6px}
@@ -422,7 +425,7 @@ tr.cancelled td{opacity:.5}
   .rmthd,.rmt{grid-template-columns:26px 1fr;gap:8px}
   .rmthd span:last-child{display:none}
   .rmtm{grid-column:1 / -1;justify-items:start;padding-left:34px}
-  .rmtt .nm{font-size:13px}.rmtt b{font-size:16px}
+  .rmtt .tn{font-size:13px}.rmtt .tr{font-size:9px}.rmtt b{font-size:16px}
   .rmtn{width:24px;height:24px;font-size:11px}
 }
 .rren{flex:none;background:rgba(255,255,255,.10);border:none;color:#cfe0ff;font-size:11px;line-height:1;
@@ -3505,7 +3508,8 @@ function renderNight(){
     const w=(m.w[0]>=m.w[1])?0:1;
     const A=D.sq[m.tm[w]], B=D.sq[m.tm[1-w]];
     const line=(sq,win,n)=>'<div class="rmtt'+(win?' win':'')+'">'
-      +'<span class="nm">'+rEsc(sq.name)+'</span>'
+      +'<span class="nm"><span class="tn">'+rEsc(sq.name)+'</span>'
+        +'<span class="tr">'+rEsc(sq.roster.slice(0,4).join(' · '))+'</span></span>'
       +(win?'<span class="rmtw">WIN</span>':'')+'<b>'+n+'</b></div>';
     const maps=m.maps.map(function(x){
       const a=x.sc[w], b=x.sc[1-w];
