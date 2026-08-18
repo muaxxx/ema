@@ -4616,6 +4616,8 @@ setInterval(()=>{
 <script>
 /* تسجيل خدمة العامل (PWA) — يتجاهل الأخطاء بصمت */
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+/* الزرّ العائم وقائمته مكتوبان بعد السكربت، فلم يكونا موجودين وقت الترجمة الأولى */
+window.addEventListener('load',function(){try{sweep(document.body)}catch(e){}});
 </script>
 <button class="qabtn" id="qaBtn" onclick="toggleQA()" title="إجراء سريع">+</button>
 <div class="qamenu" id="qaMenu">
