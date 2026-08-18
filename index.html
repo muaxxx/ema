@@ -1467,7 +1467,14 @@ function discCode(s){return s.discount_code??''}
    (80+ العادي ١٠٪ على كل شيء فلا قيد له.) */
 const DISC_CAFE={'80plus':1,'80staff':1};                 /* أكواد الكافيه فقط — لا تخصم على الحجوزات */
 const DISC_ITEMS={'80staff':/AMERICANO|FILTER *COFFEE/i};  /* وقيدُ أصناف داخل الكافيه */
-function discOf(code){return DISCOUNTS.find(x=>x.code===(code||''))||null}
+/* خصم يدوي: "manual" = مبلغ يكتبه الموظّف في s.discount · "manual:N%" = نسبة يكتبها
+   (النسبة تُحسب من مبلغ الحجز فتتحدّث تلقائياً إن تغيّر عدد اللاعبين) */
+function manualPct(code){const m=/^manual:(\d+(?:\.\d+)?)%$/.exec(String(code||""));return m?+m[1]:null}
+function discOf(code){
+  const p=manualPct(code);
+  if(p!=null)return {code:String(code),label:"يدوي "+p+"%",pct:p};
+  return DISCOUNTS.find(x=>x.code===(code||""))||null;
+}
 /* نسبة الحجز — الأكواد المقصورة على أصناف الكافيه تُعامل كمبلغ يدوي (لا تُحسب على اللعب) */
 function slotPct(code){const d=discOf(code); return (!d||!d.code||DISC_CAFE[d.code])?null:d.pct}
 /* نسبة صنف الكافيه — تُطبَّق فقط إن طابق اسم الصنف قيد الكود */
@@ -1577,8 +1584,14 @@ function renderSales(){
           return one(0,'— طريقة الدفع —')+(two?amt(0):'')+one(1,'— + طريقة ثانية —')+(two?amt(1):'');
         })()
         +'<select class="disc-sel" onchange="setDiscCode(\''+s.id+'\',this.value)">'
-        +DISCOUNTS.map(d=>'<option value="'+d.code+'" '+(discCode(s)===d.code?'selected':'')+'>'+d.label+'</option>').join('')
-        +'</select>';
+        +DISCOUNTS.map(d=>'<option value="'+d.code+'" '
+            +((discCode(s)===d.code||(d.code==='manual'&&/^manual/.test(discCode(s))))?'selected':'')+'>'+d.label+'</option>').join('')
+        +'</select>'
+        +(/^manual/.test(discCode(s))
+          ? '<input class="cnt" style="width:104px" placeholder="10% أو 5" title="خصم يدوي: اكتب نسبة مثل 10% أو مبلغاً مثل 5"'
+            +' value="'+(manualPct(discCode(s))!=null?manualPct(discCode(s))+'%':(+s.discount||''))+'"'
+            +' onchange="setManualDisc(\''+s.id+'\',this.value)">'
+          : '');
     cards+='<div class="inv '+(due?'due':'paidok')+'" style="--gc:'+gameColor(s.game)+'">'
       +'<div class="invh"><span class="num">#'+idx+'</span><span class="t">'+fmtT(s._t)+'</span>'
       +'<span class="gtag" style="background:'+gameColor(s.game)+'">'+shortGame(s.game)+'</span>'
@@ -1826,6 +1839,22 @@ async function setDiscCode(id,code){
     await sbPatch('slots',id,{discount_code:code||null,discount:val});
     s.discount_code=code||null;s.discount=val;renderSales();status('✓ حُفظ الخصم');
   }catch(e){status(/discount_code/.test(e.message)?'⚠ شغّل eva_v3.sql في Supabase أولاً (عمود كود الخصم)':'⚠ '+e.message)}
+}
+/* يقبل "10%" أو "10 %" أو مبلغاً "5" — الفارغ يلغي الخصم اليدوي */
+async function setManualDisc(id,v){
+  const s=S.slots.find(x=>x.id===id); if(!s)return;
+  const t=String(v||"").trim().replace(/٪/g,"%");
+  let code=null,val=null;
+  if(t){
+    const m=/^(\d+(?:\.\d+)?)\s*%$/.exec(t);
+    if(m){const p=Math.min(100,+m[1]); code="manual:"+p+"%"; val=null}
+    else{const a=Math.max(0,+t.replace(/[^\d.]/g,"")||0); if(a>0){code="manual"; val=+a.toFixed(3)}}
+  }
+  try{
+    await sbPatch("slots",id,{discount_code:code,discount:val});
+    s.discount_code=code; s.discount=val;
+    renderSales(); renderRep(); status(code?"✓ حُفظ الخصم":"أُلغي الخصم اليدوي");
+  }catch(e){status("⚠ "+e.message)}
 }
 async function setDiscount(id,v){
   try{await sbPatch('slots',id,{discount:v===''?null:+v});const s=S.slots.find(x=>x.id===id);if(s)s.discount=v===''?null:+v;renderSales();status('✓ حُفظ الخصم')}
@@ -2880,7 +2909,9 @@ async function reloadGms(){
 
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
- '— + طريقة ثانية —':'— + 2nd method —',
+ '— + طريقة ثانية —':'— + 2nd method —','10% أو 5':'10% or 5',
+ 'خصم يدوي: اكتب نسبة مثل 10% أو مبلغاً مثل 5':'Manual discount: type a percent like 10% or an amount like 5',
+ '✓ حُفظ الخصم':'✓ Discount saved','أُلغي الخصم اليدوي':'Manual discount cleared','مبلغ يدوي…':'Manual amount…',
  'اللاعبون':'Players','⚠ لعب بدون حجز':'⚠ Play without booking','بعد حجز ملغى — تحقّق من التحصيل':'After a cancelled booking — check collection',
 
  'كافيه':'Cafe','يجلب…':'Loading…','يحدّث…':'Refreshing…','ضيف':'Guest','🎮 لعب جارٍ بدون حجز!':'🎮 Playing with no booking!',
@@ -3057,6 +3088,7 @@ const EN={
  '٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)':'9.50 std · 12.50 peak (17:00–21:40)','الأحد — ٩٫٥٠ لليوم كامل':'Sunday — 9.50 all day','٩٫٥٠ لليوم كامل':'9.50 all day',
 };
 const EN_RX=[
+ [/^يدوي (\d+(?:\.\d+)?)%$/,'Manual $1%'],
  [/^⏱ بدأ قبل موعده بـ (\d+)د$/,'⏱ Started $1m before its time'],
  [/^(d+) جولة$/,'$1 rounds'],[/^(d+)د$/,'$1m'],[/^(d+)👤$/,'$1 👤'],
 
