@@ -603,7 +603,9 @@ tr.cancelled td{opacity:.5}
 .dashcard.blue{border-inline-start:5px solid var(--blue)}
 
 /* شريط اليوم المرئي */
-.daybar{display:flex;height:38px;border-radius:10px;overflow:hidden;background:var(--card2);border:1px solid var(--line2);margin:12px 0;position:relative}
+.daybar{display:flex;height:76px;border-radius:14px;overflow:hidden;background:var(--card2);border:1px solid var(--line2);margin:14px 0 18px;position:relative}
+.daybar>*{font-size:12.5px!important;font-weight:800}
+@media(max-width:640px){.daybar{height:64px}.daybar>*{font-size:11px!important}}
 .daybar .seg{flex:1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;position:relative;cursor:pointer;transition:.15s}
 .daybar .seg:hover{filter:brightness(1.15)}
 .daybar .seg span{z-index:2;position:relative}
@@ -1855,7 +1857,7 @@ function splitRender(){
       +`</span>`;
   };
   const discSel=(v,on)=>`<select class="disc-sel" style="min-width:130px" onchange="${on}">
-      ${DISCOUNTS.map(d=>`<option value="${d.code}" ${v===d.code?'selected':''}>${d.label}</option>`).join('')}</select>`;
+      ${DISCOUNTS.map(d=>`<option value="${d.code}" ${(v===d.code||(d.code==='manual'&&/^manual/.test(v||'')))?'selected':''}>${d.label}</option>`).join('')}</select>`;
   let o=document.getElementById('splitOvl');
   if(!o){o=document.createElement('div');o.id='splitOvl';o.className='ovl';o.onclick=e=>{if(e.target===o)splitClose()};document.body.appendChild(o)}
   const rowNet=x=>isFreePay(x.pay)?0:(x.n*rate*(1-(slotPct(x.code)||0)/100));
@@ -1881,6 +1883,9 @@ function splitRender(){
         ${x.name?`<b style="min-width:92px">${x.name}</b>`:''}
         ${(payParts(x.pay).length>1||x.multi)?payMulti(i,x):paySel((payParts(x.pay)[0]||{}).m||'',`splitSet(${i},'pay',this.value)`)}
         ${discSel(x.code,`splitSet(${i},'code',this.value)`)}
+        ${/^manual/.test(x.code||'')?`<input class="cnt" style="width:104px" placeholder="10% أو 5" title="خصم يدوي"
+           value="${manualPct(x.code)!=null?manualPct(x.code)+'%':(+x.amount||'')}"
+           onchange="splitManual(${i},this.value)">`:''}
         <span class="grow"></span>
         <span class="t">${rowNet(x).toFixed(2)}</span>
         <button class="btn ghost" style="color:var(--red)" onclick="splitDel(${i})">✕</button>
@@ -1921,6 +1926,15 @@ function splitPaySet(i,k,f,v){
   while(ps.length<2)ps.push({m:"",a:null});
   if(f==="m")ps[k].m=v; else ps[k].a=(String(v).trim()===""?null:Math.max(0,+v||0));
   x.pay=payJoin(ps); x.multi=true;
+  splitRender();
+}
+/* خصم يدوي لصفّ التقسيم: نسبة "10%" تُحفظ في الكود · مبلغ يُحفظ في amount */
+function splitManual(i,v){
+  if(!SPL||!SPL.arr[i])return;
+  const x=SPL.arr[i], t=String(v||"").trim().replace(/٪/g,"%");
+  const m=/^(\d+(?:\.\d+)?)\s*%$/.exec(t);
+  if(m){x.code="manual:"+Math.min(100,+m[1])+"%"; x.amount=null}
+  else{const a=Math.max(0,+t.replace(/[^\d.]/g,"")||0); x.code="manual"; x.amount=a>0?+a.toFixed(3):null}
   splitRender();
 }
 function splitTotal(v){if(SPL){SPL.total=Math.max(0,+v||0);splitRender()}}
@@ -3066,7 +3080,16 @@ async function reloadGms(){
 
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
- '— + طريقة ثانية —':'— + 2nd method —','10% أو 5':'10% or 5',
+ '— + طريقة ثانية —':'— + 2nd method —',
+ '🏠 الرئيسية':'🏠 Home','صافي المبيعات اليوم':'Net sales today','⏱ توزيع اليوم':'⏱ Day distribution',
+ '🎯 الحالة الآن':'🎯 Status now','⚠️ يحتاج انتباهك':'⚠️ Needs your attention','🏆 نجوم اليوم':'🏆 Stars of the day',
+ 'حجز سريع (Walk-in)':'Quick walk-in','طلب كافيه':'Cafe order','مصروف/إضافة':'Expense / extra','لاعب جديد':'New player',
+ 'بلا دفع':'Unpaid','كلها محصّلة':'all collected','حجوزات لم تُحدد طريقة الدفع':'bookings with no payment method',
+ 'كلها أُرسلت':'all sent','لا حجوزات قادمة اليوم':'No upcoming bookings today','لا نتائج':'No results',
+ 'الحجز القادم':'Next booking','· لم يصل بعد':'· not arrived yet','اضغط للذهاب لتبويب التسجيلات':'Tap to open Recordings',
+ 'مخزون منخفض':'Low stock','تأخير تجهيز':'Setup delay','تجاوز وأخّر التالي':'Overran and delayed next',
+ 'الملعب':'Arena','اللعب':'Play','موظف':'staff','التسجيلات':'Recordings','الجولات':'Rounds','اللاعبون':'Players',
+ 'إجراء سريع':'Quick action','١٢م':'12PM','١٢ص':'12AM','بحث…':'Search…','10% أو 5':'10% or 5',
  'خصم يدوي: اكتب نسبة مثل 10% أو مبلغاً مثل 5':'Manual discount: type a percent like 10% or an amount like 5',
  '✓ حُفظ الخصم':'✓ Discount saved','أُلغي الخصم اليدوي':'Manual discount cleared','مبلغ يدوي…':'Manual amount…',
  'اللاعبون':'Players','⚠ لعب بدون حجز':'⚠ Play without booking','بعد حجز ملغى — تحقّق من التحصيل':'After a cancelled booking — check collection',
@@ -3245,6 +3268,14 @@ const EN={
  '٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)':'9.50 std · 12.50 peak (17:00–21:40)','الأحد — ٩٫٥٠ لليوم كامل':'Sunday — 9.50 all day','٩٫٥٠ لليوم كامل':'9.50 all day',
 };
 const EN_RX=[
+ [/^BD · جلسات ([\d.]+) \+ كافيه ([\d.]+)$/,'BD · sessions $1 + cafe $2'],
+ [/^لُعبت (\d+) · بدون حجز (\d+)$/,'played $1 · walk-in $2'],
+ [/^من (\d+) محجوز$/,'of $1 booked'],[/^(\d+) دقيقة لعب$/,'$1 minutes of play'],
+ [/^(\d+) لم تُرسَل · اضغط للذهاب$/,'$1 not sent · tap to open'],
+ [/^(\d+) قتل · (\d+) نقطة$/,'$1 kills · $2 points'],[/^شوهد اليوم · (.+)$/,'Seen today · $1'],
+ [/^(\d+)ص$/,'$1AM'],[/^(\d+)م$/,'$1PM'],[/^(\d+) موظف$/,'$1 staff'],
+ [/^— نقص (\d+)د$/,'— short $1m'],[/^— تأخير تجهيز (\d+)د$/,'— setup delay $1m'],
+ [/^— تجاوز وأخّر التالي$/,'— overran and delayed next'],
  [/^يدوي (\d+(?:\.\d+)?)%$/,'Manual $1%'],
  [/^⏱ بدأ قبل موعده بـ (\d+)د$/,'⏱ Started $1m before its time'],
  [/^(d+) جولة$/,'$1 rounds'],[/^(d+)د$/,'$1m'],[/^(d+)👤$/,'$1 👤'],
