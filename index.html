@@ -3081,6 +3081,15 @@ async function reloadGms(){
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
  '— + طريقة ثانية —':'— + 2nd method —',
+ 'اللعبة:':'Game:',
+
+ 'لا تنبيهات حالياً ✓':'No alerts right now ✓','📅 هذا الأسبوع':'📅 This week','📅 الأسبوع الماضي':'📅 Last week',
+ 'بريفنق مقترح':'Briefing suggested','اسم اللاعب/المجموعة:':'Player / group name:','عدد اللاعبين:':'Players count:',
+ 'الوقت (HH:MM):':'Time (HH:MM):','وقت غير صحيح':'Invalid time','(البحرين)':'(Bahrain)','نقطة':'points','قتل':'kills',
+
+ 'الحجوزات':'Bookings','اللاعبون':'Players','الجولات':'Rounds','التسجيلات':'Recordings',
+ 'لم تُرسَل · اضغط للذهاب':'not sent · tap to open','لم تُرسَل':'not sent',
+ 'حجوزات لم تُحدد طريقة الدفع':'bookings with no payment method','كلها محصّلة':'all collected','كلها أُرسلت':'all sent',
  '🏠 الرئيسية':'🏠 Home','صافي المبيعات اليوم':'Net sales today','⏱ توزيع اليوم':'⏱ Day distribution',
  '🎯 الحالة الآن':'🎯 Status now','⚠️ يحتاج انتباهك':'⚠️ Needs your attention','🏆 نجوم اليوم':'🏆 Stars of the day',
  'حجز سريع (Walk-in)':'Quick walk-in','طلب كافيه':'Cafe order','مصروف/إضافة':'Expense / extra','لاعب جديد':'New player',
@@ -3268,6 +3277,19 @@ const EN={
  '٩٫٥٠ عادي · ١٢٫٥٠ بيك (17:00–21:40)':'9.50 std · 12.50 peak (17:00–21:40)','الأحد — ٩٫٥٠ لليوم كامل':'Sunday — 9.50 all day','٩٫٥٠ لليوم كامل':'9.50 all day',
 };
 const EN_RX=[
+ [/^شوهد اليوم · (.+)$/,'Seen today · $1'],[/^(d+) قتل · (d+) نقطة$/,'$1 kills · $2 points'],
+ [/^(d+) نقطة$/,'$1 points'],[/^(d+) قتل$/,'$1 kills'],
+
+ [/^(\d+)\s*لُعبت\s*·\s*(\d+)\s*بدون حجز$/,'$1 played · $2 walk-in'],
+ [/^لُعبت\s*(\d+)\s*·\s*بدون حجز\s*(\d+)$/,'played $1 · walk-in $2'],
+ [/^(\d+) لُعبت · (\d+) بدون حجز$/,'$1 played · $2 walk-in'],
+ [/^(\d+:\d+) — نقص (\d+)د$/,'$1 — short $2m'],
+ [/^(\d+:\d+) — تأخير تجهيز (\d+)د$/,'$1 — setup delay $2m'],
+ [/^(\d+:\d+) — تجاوز وأخّر التالي$/,'$1 — overran and delayed next'],
+ [/^🧑 (.+) · (\d+)\/(\d+) لاعب$/,'🧑 $1 · $2/$3 players'],
+ [/^🧑 (.+) · (\d+) لاعب$/,'🧑 $1 · $2 players'],
+ [/^(\d+) لاعب$/,'$1 players'],[/^(\d+) دقيقة لعب$/,'$1 minutes of play'],
+ [/^(\d+) لم تُرسَل · اضغط للذهاب$/,'$1 not sent · tap to open'],
  [/^BD · جلسات ([\d.]+) \+ كافيه ([\d.]+)$/,'BD · sessions $1 + cafe $2'],
  [/^لُعبت (\d+) · بدون حجز (\d+)$/,'played $1 · walk-in $2'],
  [/^من (\d+) محجوز$/,'of $1 booked'],[/^(\d+) دقيقة لعب$/,'$1 minutes of play'],
@@ -4293,16 +4315,16 @@ function toggleQA(){
 }
 function qaWalkin(){
   toggleQA();
-  const name=prompt('اسم اللاعب/المجموعة:');if(!name)return;
-  const game=prompt('اللعبة:\n1-Battle Arena\n2-Zombies\n3-Mars\n4-Arcade\n5-Moon of Dead\n6-Darts\n7-Zombies Initiation\n8-Moon Survival\n9-Karting\n10-Rabbids','1');
+  const name=prompt(trText('اسم اللاعب/المجموعة:'));if(!name)return;
+  const game=prompt(trText('اللعبة:')+'\n1-Battle Arena\n2-Zombies\n3-Mars\n4-Arcade\n5-Moon of Dead\n6-Darts\n7-Zombies Initiation\n8-Moon Survival\n9-Karting\n10-Rabbids','1');
   const gmap={'1':'gameId 1','2':'gameId 2','3':'gameId 3','4':'gameId 4','5':'gameId 5','6':'gameId 6','7':'gameId 7','8':'gameId 8','9':'gameId 9','10':'gameId 10'};
   const gid=gmap[game]||'gameId 1';
-  const players=parseInt(prompt('عدد اللاعبين:',4)||4);
-  const time=prompt('الوقت (HH:MM):',fmtT(Date.now()).slice(0,5));if(!time)return;
-  const ts=hmToTs(time);if(!ts){alert('وقت غير صحيح');return}
+  const players=parseInt(prompt(trText('عدد اللاعبين:'),4)||4);
+  const time=prompt(trText('الوقت (HH:MM):'),fmtT(Date.now()).slice(0,5));if(!time)return;
+  const ts=hmToTs(time);if(!ts){alert(trText('وقت غير صحيح'));return}
   const end=ts+BLOCK*60000;
   // نضيف walkin مؤقت (يظهر فقط محلياً حتى يُدخل في النظام)
-  alert('Walk-in: '+name+' · '+players+' لاعب · '+fmtT(ts)+'\n\nملاحظة: Walk-ins تُرصد تلقائياً من إيفا. هذا للتسجيل اليدوي فقط.');
+  alert('Walk-in: '+name+' · '+players+' players · '+fmtT(ts)+'\n\nNote: walk-ins are detected automatically from EVA. This is for manual logging only.');
 }
 function qaCafe(){
   toggleQA();switchTab('cafe');
@@ -4313,7 +4335,7 @@ function qaExpense(){
 }
 function qaPlayer(){
   toggleQA();switchTab('dash');
-  alert('اللاعب الجديد يُسجّل تلقائياً عند أول جولة يلعبها في إيفا.\nللتسجيل اليدوي: اذهب لتبويب الاستقبال → حجز جديد.');
+  alert('New players are registered automatically on their first EVA round.\nFor manual entry: go to Reception → new booking.');
 }
 
 /* ═════════ Heatmap في التقرير ═════════ */
