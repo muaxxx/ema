@@ -3092,6 +3092,7 @@ async function reloadGms(){
 /* ═════════ الترجمة (ع/EN) — قاموس يُطبَّق على النص المعروض بعد كل رسم ═════════ */
 const EN={
  '— + طريقة ثانية —':'— + 2nd method —',
+ 'سوبر نوفا':'Super Nova','لاعبو سوبر نوفا':'Super Nova players','اشتراكات مباعة':'Subscriptions sold',
  'اللعبة:':'Game:',
 
  'لا تنبيهات حالياً ✓':'No alerts right now ✓','📅 هذا الأسبوع':'📅 This week','📅 الأسبوع الماضي':'📅 Last week',
@@ -4005,7 +4006,9 @@ async function perRun(){
     ]);
     const days=new Map(), pay=new Map(PAYMENTS.map(p=>[p,0]));
     const D={gross:0,disc:0,net:0,books:0,players:0,cafe:0,sales:0,unpaid:0,pay,days};
-    const dayOf=k=>{let e=days.get(k); if(!e){e={day:k,books:0,players:0,gross:0,disc:0,net:0,extra:0};days.set(k,e)} return e};
+    const dayOf=k=>{let e=days.get(k); if(!e){e={day:k,books:0,players:0,gross:0,disc:0,net:0,extra:0,snP:0,snB:0,snSold:0};days.set(k,e)} return e};
+    D.sn={players:0,books:0,sold:0,soldAmt:0};      /* لعبوا بسوبر نوفا · واشتراكات بيعت */
+    const isSN=p=>payParts(p).some(x=>/super\s*nova/i.test(x.m||''));
     const old=DAY;
     try{
       for(const s of (slots||[])){
@@ -4014,10 +4017,13 @@ async function perRun(){
         const c=saleCalc(s), e=dayOf(s.slot_date);
         D.gross+=c.amt; D.disc+=c.disc; D.net+=c.net; D.books++; D.players+=c.total;
         e.books++; e.players+=c.total; e.gross+=c.amt; e.disc+=c.disc; e.net+=c.net;
+        let snHere=0;
         for(const p of c.parts){
           if(p.pay)paySpread(p.pay,p.net,function(m,v){if(pay.has(m))pay.set(m,pay.get(m)+v)});
           else D.unpaid+=p.net;
+          if(isSN(p.pay)){snHere+=(+p.n||0)}
         }
+        if(snHere){D.sn.players+=snHere;D.sn.books++;e.snP+=snHere;e.snB++}
       }
     }finally{DAY=old}
     for(const x of (extras||[])){
@@ -4025,6 +4031,7 @@ async function perRun(){
       const e=dayOf(x.day||PER.from);
       D.gross+=a; D.disc+=dv; D.net+=v; e.gross+=a; e.disc+=dv; e.net+=v; e.extra+=v;
       if(isSaleExtra(x))D.sales+=v; else D.cafe+=v;
+      if(/سوبرنوفا/.test(x.label||'')){const q=+x.qty||1;D.sn.sold+=q;D.sn.soldAmt+=v;e.snSold+=q}
       if(x.pay_method)paySpread(x.pay_method,v,function(m,val){if(pay.has(m))pay.set(m,pay.get(m)+val)});
       else D.unpaid+=v;
     }
@@ -4052,11 +4059,16 @@ function perBody(){
     +'<div class="tile"><div class="v">'+D.players+'</div><div class="l">لاعبون</div></div>'
     +'<div class="tile"><div class="v">'+D.cafe.toFixed(2)+'</div><div class="l">الكافيه</div></div>'
     +'<div class="tile"><div class="v">'+D.sales.toFixed(2)+'</div><div class="l">مبيعات إضافية</div></div>'
+    +'<div class="tile"><div class="v" style="color:#7c3aed">'+D.sn.players+'</div><div class="l">لاعبو سوبر نوفا</div></div>'
    +'</div>'
    +'<h2>حسب اليوم</h2><table><thead><tr><th>التاريخ</th><th>حجوزات</th><th>لاعبون</th><th>الإجمالي</th><th>الخصم</th><th>كافيه وإضافات</th><th>الصافي</th></tr></thead>'
     +rows
     +'<tr class="tot"><th>المجموع</th><th>'+D.books+'</th><th>'+D.players+'</th><th>'+D.gross.toFixed(2)+'</th>'
       +'<th>−'+D.disc.toFixed(2)+'</th><th>'+(D.cafe+D.sales).toFixed(2)+'</th><th>'+D.net.toFixed(2)+'</th></tr></table>'
+   +'<h2>سوبر نوفا</h2>'
+   +'<table><thead><tr><th>التاريخ</th><th>لاعبون</th><th>حجوزات</th><th>اشتراكات مباعة</th></tr></thead>'
+    +days.filter(d=>d.snP||d.snSold).map(d=>'<tr><td>'+d.day+'</td><td><b>'+d.snP+'</b></td><td>'+d.snB+'</td><td>'+(d.snSold||'')+'</td></tr>').join('')
+    +'<tr class="tot"><th>المجموع</th><th>'+D.sn.players+'</th><th>'+D.sn.books+'</th><th>'+D.sn.sold+'</th></tr></table>'
    +'<h2>وسائل الدفع</h2><table><thead><tr><th>الطريقة</th><th>المبلغ (BD)</th></tr></thead>'+payRows
     +(D.unpaid>0.004?'<tr><td class="r bad">بلا طريقة دفع</td><td class="bad">'+D.unpaid.toFixed(2)+'</td></tr>':'')
     +'</table>';
