@@ -583,6 +583,140 @@ tr.cancelled td{opacity:.5}
   img,svg,table,input,select,.xmail{max-width:100%}
   footer{font-size:11px;padding:6px 10px;padding-bottom:max(6px,env(safe-area-inset-bottom))}
 }
+/* ═══ الرئيسية · البحث · التنبيهات · إجراءات سريعة ═══ */
+/* ═══ Dashboard رئيسي ═══ */
+.dashgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+.dashcard{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--line2);border-radius:16px;padding:16px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.25);transition:.2s}
+.dashcard:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.dashcard .icn{position:absolute;top:10px;left:10px;font-size:42px;opacity:.08;line-height:1}
+.dashcard .num{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;margin:4px 0 2px}
+.dashcard .lbl{font-size:12px;color:var(--dim);font-weight:700}
+.dashcard .sub{font-size:11px;color:var(--dim);margin-top:4px}
+.dashcard .trend{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;display:inline-block;margin-top:6px}
+.dashcard .trend.up{background:rgba(31,174,104,.15);color:var(--green)}
+.dashcard .trend.down{background:rgba(224,75,89,.15);color:var(--red)}
+.dashcard.hl{border-inline-start:5px solid var(--teal);background:linear-gradient(135deg,#13202b,#161d26)}
+.dashcard.warn{border-inline-start:5px solid var(--amber)}
+.dashcard.good{border-inline-start:5px solid var(--green)}
+.dashcard.pink{border-inline-start:5px solid var(--pink)}
+.dashcard.purple{border-inline-start:5px solid var(--purple)}
+.dashcard.blue{border-inline-start:5px solid var(--blue)}
+
+/* شريط اليوم المرئي */
+.daybar{display:flex;height:38px;border-radius:10px;overflow:hidden;background:var(--card2);border:1px solid var(--line2);margin:12px 0;position:relative}
+.daybar .seg{flex:1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;position:relative;cursor:pointer;transition:.15s}
+.daybar .seg:hover{filter:brightness(1.15)}
+.daybar .seg span{z-index:2;position:relative}
+.daybar .seg::after{content:"";position:absolute;inset:0;opacity:.85}
+.daybar .seg.empty{background:transparent;color:var(--dim)}
+.daybar .seg.empty::after{display:none}
+.daybar .nowline{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--red);z-index:5;box-shadow:0 0 6px var(--red)}
+
+/* مركز التنبيهات */
+.notifbtn{position:relative;background:none;border:none;color:var(--ink);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:8px}
+.notifbtn:hover{background:var(--card2)}
+.notifbtn .badge{position:absolute;top:0;right:0;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:0 5px;border-radius:999px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center}
+.notifdrop{display:none;position:absolute;top:44px;left:12px;z-index:100;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:8px;width:340px;max-height:420px;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.notifdrop.on{display:block;animation:fade .2s ease}
+.notifdrop .nitem{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border-bottom:1px solid var(--line);font-size:12.5px;cursor:pointer;border-radius:8px;transition:.1s}
+.notifdrop .nitem:hover{background:var(--card2)}
+.notifdrop .nitem:last-child{border-bottom:none}
+.notifdrop .nicon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+.notifdrop .nicon.red{background:rgba(224,75,89,.15);color:var(--red)}
+.notifdrop .nicon.amber{background:rgba(208,154,28,.15);color:var(--amber)}
+.notifdrop .nicon.green{background:rgba(31,174,104,.15);color:var(--green)}
+.notifdrop .nicon.blue{background:rgba(43,135,227,.15);color:var(--blue)}
+.notifdrop .ntitle{font-weight:800;margin-bottom:1px}
+.notifdrop .ntime{font-size:10.5px;color:var(--dim);margin-top:2px}
+.notifdrop .nempty{text-align:center;padding:20px;color:var(--dim);font-size:13px}
+
+/* البحث الذكي */
+.searchwrap{position:relative;display:flex;align-items:center}
+.searchinp{background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:5px 10px 5px 32px;color:var(--ink);font:700 13px 'Tajawal';width:180px;transition:.2s}
+.searchinp:focus{outline:none;border-color:var(--teal);width:260px;background:var(--card)}
+.searchwrap svg{position:absolute;right:10px;color:var(--dim);width:16px;height:16px}
+.searchdrop{display:none;position:absolute;top:38px;right:0;z-index:100;background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:6px;width:320px;max-height:360px;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.searchdrop.on{display:block;animation:fade .2s ease}
+.searchdrop .sitem{padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px;font-size:12.5px;transition:.1s}
+.searchdrop .sitem:hover{background:var(--card2)}
+.searchdrop .sitem .st{font-weight:800;color:var(--teal)}
+.searchdrop .sitem .sd{color:var(--dim);font-size:11px;margin-top:2px}
+.searchdrop .sitem:last-child{border-bottom:none}
+.searchdrop .sempty{text-align:center;padding:20px;color:var(--dim)}
+
+/* Quick Actions */
+.qabtn{position:fixed;bottom:24px;left:24px;z-index:90;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-d));color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;transition:.2s}
+.qabtn:hover{transform:scale(1.08);box-shadow:0 6px 22px rgba(0,0,0,.5)}
+.qamenu{display:none;position:fixed;bottom:90px;left:24px;z-index:90;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:8px;box-shadow:0 8px 28px rgba(0,0,0,.4);min-width:180px}
+.qamenu.on{display:block;animation:fade .2s ease}
+.qamenu button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--ink);font:700 13px 'Tajawal';padding:9px 12px;border-radius:8px;cursor:pointer;text-align:start}
+.qamenu button:hover{background:var(--card2)}
+.qamenu button .emoji{font-size:18px}
+
+/* Heatmap */
+.hmwrap{display:grid;grid-template-columns:60px repeat(13,1fr);gap:2px;margin:10px 0}
+.hmwrap .hmlbl{font-size:10px;color:var(--dim);display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-weight:700}
+.hmwrap .hmlbl.top{font-size:10px;justify-content:center;padding:4px 0;color:var(--dim)}
+.hmwrap .hmcell{aspect-ratio:1;border-radius:4px;position:relative;cursor:pointer;transition:.15s}
+.hmwrap .hmcell:hover{transform:scale(1.15);z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.hmwrap .hmcell .hmtip{position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:10px;padding:3px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:.15s;z-index:10}
+.hmwrap .hmcell:hover .hmtip{opacity:1}
+
+/* لوحة الشرف */
+.hallgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:10px}
+.hallcard{background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:12px;text-align:center;position:relative;overflow:hidden;transition:.2s}
+.hallcard:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.hallcard .rank{position:absolute;top:6px;right:8px;font-size:20px;font-weight:900;opacity:.15}
+.hallcard .rank.gold{color:#ffd700;opacity:.25}
+.hallcard .rank.silver{color:#c0c0c0;opacity:.25}
+.hallcard .rank.bronze{color:#cd7f32;opacity:.25}
+.hallcard .avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--purple));margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff}
+.hallcard .hname{font-weight:800;font-size:13px;margin-bottom:2px}
+.hallcard .hstat{font-size:11px;color:var(--dim)}
+.hallcard .hbadge{display:inline-block;font-size:9px;font-weight:900;padding:2px 8px;border-radius:999px;margin-top:6px}
+.hallcard .hbadge.vip{background:linear-gradient(135deg,#ffd700,#ffaa00);color:#3a2500}
+.hallcard .hbadge.regular{background:var(--card2);color:var(--dim);border:1px solid var(--line2)}
+
+/* مقارنة الفترات */
+.comparegrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0}
+.comparecol{background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:14px}
+.comparecol h4{font-size:13px;color:var(--teal);margin-bottom:10px;font-weight:800}
+.comparecol .crow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--line2);font-size:12.5px}
+.comparecol .crow:last-child{border-bottom:none}
+.comparecol .crow b{font-variant-numeric:tabular-nums}
+.comparecol .cgood{color:var(--green);font-weight:800}
+.comparecol .cbad{color:var(--red);font-weight:800}
+.comparearrow{text-align:center;font-size:24px;color:var(--teal);display:flex;align-items:center;justify-content:center}
+
+/* Timeline مرئي للحجز */
+.vtimeline{display:flex;align-items:center;gap:4px;margin:10px 0;overflow-x:auto;padding:6px 0}
+.vtimeline .vtstep{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:70px;text-align:center}
+.vtimeline .vtdot{width:14px;height:14px;border-radius:50%;border:3px solid var(--line2);background:var(--card);position:relative;z-index:2}
+.vtimeline .vtdot.on{border-color:var(--teal);background:var(--teal)}
+.vtimeline .vtdot.late{border-color:var(--red);background:var(--red)}
+.vtimeline .vtdot.wait{border-color:var(--amber);background:var(--amber)}
+.vtimeline .vtline{flex:1;height:3px;background:var(--line2);min-width:20px;margin-top:-14px;position:relative;z-index:1}
+.vtimeline .vtline.on{background:linear-gradient(90deg,var(--teal),var(--teal-d))}
+.vtimeline .vtline.late{background:var(--red)}
+.vtimeline .vtlbl{font-size:10px;color:var(--dim);font-weight:700;white-space:nowrap}
+.vtimeline .vttime{font-size:9px;color:var(--dim);opacity:.8}
+
+/* إنجازات الموظفين */
+.badgegrid{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.badgeitem{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--line2);border-radius:999px;padding:4px 12px;font-size:11px;font-weight:700}
+.badgeitem .bemoji{font-size:14px}
+
+@media(max-width:640px){
+  .dashgrid{grid-template-columns:1fr 1fr}
+  .dashcard .num{font-size:24px}
+  .searchinp{width:120px}
+  .searchinp:focus{width:180px}
+  .notifdrop{width:calc(100vw - 32px);left:8px}
+  .qabtn{bottom:16px;left:16px;width:48px;height:48px;font-size:24px}
+  .qamenu{bottom:76px;left:16px}
+  .comparegrid{grid-template-columns:1fr}
+  .hallgrid{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
@@ -602,6 +736,15 @@ tr.cancelled td{opacity:.5}
   <div class="hrow">
     <span class="brand">EM · نظام مراسي <small>v5.5 · بناء 11-08 14:40</small></span>
     <div class="datenav">
+      <div class="searchwrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input class="searchinp" id="globalSearch" placeholder="بحث..." oninput="doSearch(this.value)" onfocus="searchFocus()" onblur="searchBlur()">
+        <div class="searchdrop" id="searchDrop"></div>
+      </div>
+      <button class="notifbtn" onclick="toggleNotif()" title="التنبيهات">
+        🔔<span class="badge" id="notifBadge" style="display:none"></span>
+      </button>
+      <div class="notifdrop" id="notifDrop"></div>
       <button id="langBtn" onclick="toggleLang()" style="font-weight:800">EN</button>
       <span class="daypick">
         <button onclick="shiftDay(-1)" title="اليوم السابق">‹</button>
@@ -619,7 +762,8 @@ tr.cancelled td{opacity:.5}
   <nav id="tabs"></nav>
 </header>
 <main>
-  <section id="tab-rcp"   class="tab on"></section>
+  <section id="tab-dash"  class="tab on"></section>
+  <section id="tab-rcp"   class="tab"></section>
   <section id="tab-ana"   class="tab"></section>
   <section id="tab-sales" class="tab"></section>
   <section id="tab-cafe"  class="tab"></section>
@@ -2343,7 +2487,18 @@ function renderRep(){
       <div class="dim sm" style="margin-top:8px">أُجيب عن ${asked} من ${act.length} حجز${miss.length?` · لم يُسأل: ${miss.map(s=>fmtT(s._t)).join('، ')}`:' ✓'}</div>`;
   })()}</div>
 
-  <h2>ملخّص اليوم</h2>
+  <h2>🔥 Heatmap الأوقات المزدحمة</h2>
+<div class="card">
+<div class="hmwrap" id="hmWrap"></div>
+<div class="dim sm" style="margin-top:6px;text-align:center">الألوان: <span style="color:var(--green)">■</span> خفيف · <span style="color:var(--amber)">■</span> متوسط · <span style="color:var(--red)">■</span> مزدحم</div>
+</div>
+
+
+<h2>📊 مقارنة مع الأسبوع الماضي</h2>
+<div class="comparegrid" id="compareGrid"></div>
+
+
+<h2>ملخّص اليوم</h2>
   <div class="tblwrap"><table>
     <tr><th>البند</th><th>العدد</th><th>تفصيل</th></tr>
     <tr><td>حجوزات لُعبت</td><td>${played.length}</td><td class="dim sm">${played.map(s=>fmtT(s._t)).join('، ')||'—'}</td></tr>
@@ -2358,6 +2513,8 @@ function renderRep(){
     <tr><td>الألعاب</td><td>${byGame.size}</td><td class="dim sm">${[...byGame].map(([g,e])=>`${g}: ${e.n} حجز / ${e.p}👤`).join(' · ')}</td></tr>
     <tr><td>طاقم اليوم</td><td>${S.gms.length}</td><td class="dim sm">${gmLine}</td></tr>
   </table></div>`;
+  try{renderHeatmapRep()}catch(e){}
+  try{renderCompare()}catch(e){}
   sweep(el);
 }
 
@@ -3886,16 +4043,354 @@ function renderPeriod(){
 }
 
 /* ═════════ التبويبات ═════════ */
-const TABS=[['rcp','الاستقبال'],['ana','التشغيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون'],['res','النتائج'],['top','🏆 توب بلاير'],['night','⭐ إيفا نايت'],['per','📊 المبيعات الكليّة']];
+const TABS=[['dash','🏠 الرئيسية'],['rcp','الاستقبال'],['ana','التشغيل'],['sales','المبيعات'],['cafe','الكافيه'],['rec','التسجيلات'],['rep','التقرير'],['gm','الموظفون'],['res','النتائج'],['top','🏆 توب بلاير'],['night','⭐ إيفا نايت'],['per','📊 المبيعات الكليّة']];
+
+/* ═════════ Dashboard رئيسي ═════════ */
+function renderDash(){
+  const el=document.getElementById('tab-dash'); if(!el)return;
+  const act=S.slots.filter(s=>!s._cancelled);
+  const played=act.filter(s=>s._rounds);
+  const now=Date.now();
+
+  // الأرقام الرئيسية
+  const gross=sessionTotals().gross;
+  const cafeNet=cafeTotals().net;
+  const totalNet=gross+cafeNet;
+  const totPlayers=played.reduce((a,s)=>a+(s.actual_players??s._actual??0),0);
+  const totBooked=act.reduce((a,s)=>a+(s.booked_players||0),0);
+  const rounds=played.reduce((a,s)=>a+s._rounds,0);
+  const pendingRec=played.filter(s=>hasRecording(s)&&!s.sent_at&&s.rec_status!=='declined').length;
+  const unsent=act.filter(s=>!s.pay_method&&s._rounds).length;
+  const next=act.find(s=>s._t>now);
+  const cur=act.find(s=>s._t<=now&&now<s._endT);
+
+  // شريط اليوم المرئي
+  const hours=[];
+  for(let h=10;h<=26;h++){hours.push(h%24)}
+  const dayBar=(()=>{
+    let h='<div class="daybar">';
+    const nowMin=(loc(now).getUTCHours()*60+loc(now).getUTCMinutes());
+    for(const hr of hours){
+      const t0=Date.parse(DAY+'T'+String(hr).padStart(2,'0')+':00:00Z')-SHIFT;
+      const t1=t0+3600e3;
+      const slotsIn=S.slots.filter(s=>!s._cancelled&&s._t>=t0&&s._t<t1);
+      const walkinsIn=S.walkins.filter(w=>w.start>=t0&&w.start<t1);
+      const totalPlayers=slotsIn.reduce((a,s)=>a+(s.booked_players||0),0)+walkinsIn.reduce((a,w)=>a+w.players,0);
+      const col=totalPlayers>=8?'var(--red)':totalPlayers>=4?'var(--amber)':totalPlayers>0?'var(--green)':'transparent';
+      const lbl=hr===12?'١٢م':hr===0?'١٢ص':hr<12?hr+'ص':(hr%12||12)+'م';
+      const isNow=now>=t0&&now<t1;
+      h+='<div class="seg '+(totalPlayers?'':'empty')+'" style="--gc:'+col+'" title="'+lbl+': '+totalPlayers+' لاعب">'
+        +'<span style="z-index:2">'+lbl+'</span>'
+        +(totalPlayers?'<span style="position:absolute;bottom:2px;font-size:9px;z-index:2">'+totalPlayers+'</span>':'')
+        +'<div style="position:absolute;inset:0;background:'+col+';opacity:'+(totalPlayers?Math.min(.85,.15+totalPlayers*.08):0)+'"></div>'
+        +'</div>';
+    }
+    const pct=Math.max(0,Math.min(100,(nowMin-600)/1200*100));
+    h+='<div class="nowline" style="left:'+pct+'%"></div></div>';
+    return h;
+  })();
+
+  // Quick stats
+  let h='<div class="dashgrid">';
+  h+='<div class="dashcard hl"><div class="icn">💰</div><div class="lbl">صافي المبيعات اليوم</div><div class="num" style="color:var(--green)">'+totalNet.toFixed(2)+'</div><div class="sub">BD · جلسات '+gross.toFixed(2)+' + كافيه '+cafeNet.toFixed(2)+'</div></div>';
+  h+='<div class="dashcard blue"><div class="icn">🎮</div><div class="lbl">الحجوزات</div><div class="num">'+act.length+'</div><div class="sub">'+played.length+' لُعبت · '+S.walkins.length+' بدون حجز</div></div>';
+  h+='<div class="dashcard purple"><div class="icn">👥</div><div class="lbl">اللاعبون</div><div class="num">'+totPlayers+'</div><div class="sub">من '+totBooked+' محجوز</div></div>';
+  h+='<div class="dashcard pink"><div class="icn">🏆</div><div class="lbl">الجولات</div><div class="num">'+rounds+'</div><div class="sub">'+Math.round(played.reduce((a,s)=>a+s._netSec,0)/60)+' دقيقة لعب</div></div>';
+  h+='<div class="dashcard '+(pendingRec?'warn':'good')+'"><div class="icn">📼</div><div class="lbl">التسجيلات</div><div class="num">'+(pendingRec||'✓')+'</div><div class="sub">'+(pendingRec?'لم تُرسَل · اضغط للذهاب':'كلها أُرسلت')+'</div></div>';
+  h+='<div class="dashcard '+(unsent?'warn':'good')+'"><div class="icn">💳</div><div class="lbl">بلا دفع</div><div class="num">'+(unsent||'✓')+'</div><div class="sub">'+(unsent?'حجوزات لم تُحدد طريقة الدفع':'كلها محصّلة')+'</div></div>';
+  h+='</div>';
+
+  // شريط اليوم
+  h+='<h2>⏱ توزيع اليوم</h2>'+dayBar;
+
+  // الحالة الحالية
+  h+='<h2>🎯 الحالة الآن</h2>';
+  if(cur){
+    const fs=fieldStatus();
+    h+='<div class="dashcard '+(fs.cls||'')+'"><div class="row"><span class="t" style="font-size:18px">'+fmtT(cur._t)+'</span><span style="color:'+gameColor(cur.game)+';font-weight:800">'+shortGame(cur.game)+'</span><span class="grow"></span>'+(cur._rounds?'<span class="chip ok">جارٍ · '+cur._rounds+' جولة</span>':'<span class="chip warn">لم يبدأ</span>')+'</div>';
+    h+='<div class="row sm" style="margin-top:8px"><span>🧑 '+partiesLabel(cur)+' · '+(cur.actual_players??cur._actual??cur.booked_players)+'/'+cur.booked_players+' لاعب</span></div>';
+    if(cur._rounds)h+='<div class="vtimeline">'+vtimeline(cur)+'</div>';
+    h+='</div>';
+  }else if(next){
+    h+='<div class="dashcard"><div class="row"><span class="t" style="font-size:18px">'+fmtT(next._t)+'</span><span style="color:'+gameColor(next.game)+';font-weight:800">'+shortGame(next.game)+'</span><span class="grow"></span><span class="chip info">القادم · بعد '+mins(next._t-now)+'د</span></div>';
+    h+='<div class="row sm" style="margin-top:8px"><span>🧑 '+partiesLabel(next)+' · '+next.booked_players+' لاعب</span></div></div>';
+  }else{
+    h+='<div class="empty">لا حجوزات قادمة اليوم</div>';
+  }
+
+  // تنبيهات سريعة
+  const alerts=[];
+  for(const s of act){
+    if(s._deficit>=5)alerts.push({k:'bad',txt:fmtT(s._t)+' — نقص '+s._deficit+'د',id:s.id,tab:'ana'});
+    if(s._setup>5)alerts.push({k:'warn',txt:fmtT(s._t)+' — تأخير تجهيز '+s._setup+'د',id:s.id,tab:'ana'});
+    if(s._delaysNext)alerts.push({k:'bad',txt:fmtT(s._t)+' — تجاوز وأخّر التالي',id:s.id,tab:'ana'});
+  }
+  if(alerts.length){
+    h+='<h2>⚠️ يحتاج انتباهك</h2><div class="alerts">'+alerts.slice(0,5).map(a=>'<div class="alert '+a.k+'" style="cursor:pointer" onclick="switchTab(&quot;'+a.tab+'&quot;);goAna(&quot;'+a.id+'&quot;)">'+a.txt+'</div>').join('')+'</div>';
+  }
+
+  // لوحة الشرف السريعة (أفضل ٤ لاعبين اليوم)
+  const todayPlayers=new Map();
+  for(const r of S.dayRounds)for(const p of r.players){
+    const k=p.id!=null?'u'+p.id:'n'+p.name;
+    const e=todayPlayers.get(k)||{name:p.name,score:0,k:0};
+    e.score+=p.score;e.k+=p.kills;todayPlayers.set(k,e);
+  }
+  const topPlayers=[...todayPlayers.values()].sort((a,b)=>b.score-a.score).slice(0,4);
+  if(topPlayers.length){
+    h+='<h2>🏆 نجوم اليوم</h2><div class="hallgrid">';
+    topPlayers.forEach((p,i)=>{
+      const ranks=['gold','silver','bronze',''];
+      h+='<div class="hallcard"><div class="rank '+(ranks[i]||'')+'">#'+(i+1)+'</div><div class="avatar">'+(p.name?p.name[0]:'?')+'</div><div class="hname">'+p.name+'</div><div class="hstat">'+p.k+' قتل · '+p.score+' نقطة</div></div>';
+    });
+    h+='</div>';
+  }
+
+  el.innerHTML=h;
+  sweep(el);
+}
+
+/* Timeline مرئي للحجز */
+function vtimeline(s){
+  const steps=[];
+  steps.push({lbl:'الحجز',t:s._t,cls:'on'});
+  if(s.arrived_at)steps.push({lbl:'الوصول',t:+new Date(s.arrived_at),cls:'on'});
+  else steps.push({lbl:'الوصول',t:null,cls:''});
+  if(s.briefed_at)steps.push({lbl:'البريفنق',t:+new Date(s.briefed_at),cls:'on'});
+  else if(s.entered_at)steps.push({lbl:'الملعب',t:+new Date(s.entered_at),cls:'on'});
+  else steps.push({lbl:'الملعب',t:null,cls:''});
+  if(s._firstStart)steps.push({lbl:'اللعب',t:s._firstStart,cls:'on'});
+  else steps.push({lbl:'اللعب',t:null,cls:''});
+  if(s._lastEnd)steps.push({lbl:'النهاية',t:s._lastEnd,cls:'on'});
+
+  let h='';
+  for(let i=0;i<steps.length;i++){
+    const st=steps[i];
+    h+='<div class="vtstep"><div class="vtdot '+(st.cls||'')+'"></div><div class="vtlbl">'+st.lbl+'</div>'+(st.t?'<div class="vttime">'+fmtT(st.t)+'</div>':'')+'</div>';
+    if(i<steps.length-1)h+='<div class="vtline '+(st.cls||'')+'"></div>';
+  }
+  return h;
+}
+
+/* ═════════ البحث الذكي ═════════ */
+let SEARCH_TIMER=null;
+function doSearch(q){
+  const drop=document.getElementById('searchDrop');
+  if(!q||q.length<2){drop.classList.remove('on');return}
+  clearTimeout(SEARCH_TIMER);
+  SEARCH_TIMER=setTimeout(()=>runSearch(q),300);
+}
+function runSearch(q){
+  const drop=document.getElementById('searchDrop');
+  const term=q.toLowerCase().trim();
+  const results=[];
+  // البحث في الحجوزات
+  for(const s of S.slots){
+    const name=(s.account_name||'').toLowerCase();
+    const email=(s.email||'').toLowerCase();
+    const order=String(s.order_no||'');
+    if(name.includes(term)||email.includes(term)||order.includes(term)){
+      results.push({type:'حجز',title:s.account_name||'—',sub:fmtT(s._t)+' · '+shortGame(s.game)+' · '+s.booked_players+' لاعب',day:DAY,id:s.id,tab:'ana'});
+    }
+  }
+  // البحث في اللاعبين (من الجولات)
+  const seen=new Set();
+  for(const r of S.dayRounds)for(const p of r.players){
+    if(p.name.toLowerCase().includes(term)&&!seen.has(p.name)){seen.add(p.name);
+      results.push({type:'لاعب',title:p.name,sub:'شوهد اليوم · '+p.score+' نقطة',day:DAY,id:null,tab:'res'});
+    }
+  }
+  // البحث في الموظفين
+  for(const p of S.staff){
+    if(p.name.toLowerCase().includes(term)){
+      results.push({type:'موظف',title:p.name,sub:(ROLES[p.role]||'بلا وظيفة'),day:null,id:null,tab:'gm'});
+    }
+  }
+  if(!results.length){drop.innerHTML='<div class="sempty">لا نتائج</div>';drop.classList.add('on');return}
+  drop.innerHTML=results.slice(0,8).map(r=>'<div class="sitem" onclick="searchGo(&quot;'+r.tab+'&quot;,&quot;'+(r.day||'')+'&quot;,&quot;'+(r.id||'')+'&quot;)">'
+    +'<div><span class="st">'+r.title+'</span><div class="sd">'+r.type+' · '+r.sub+'</div></div></div>').join('');
+  drop.classList.add('on');
+}
+function searchGo(tab,day,id){
+  document.getElementById('searchDrop').classList.remove('on');
+  document.getElementById('globalSearch').value='';
+  if(day&&day!==DAY)setDay(day);
+  switchTab(tab);
+  if(id&&tab==='ana'){ANA_OPEN.add(id);renderAna();setTimeout(()=>{const c=document.getElementById('ana-'+id);if(c)c.scrollIntoView({behavior:'smooth',block:'center'})},100)}
+}
+function searchFocus(){}
+function searchBlur(){setTimeout(()=>document.getElementById('searchDrop').classList.remove('on'),200)}
+
+/* ═════════ مركز التنبيهات ═════════ */
+function toggleNotif(){
+  const d=document.getElementById('notifDrop');
+  d.classList.toggle('on');
+  if(d.classList.contains('on'))renderNotif();
+}
+function renderNotif(){
+  const d=document.getElementById('notifDrop');
+  const now=Date.now();
+  const items=[];
+  const act=S.slots.filter(s=>!s._cancelled);
+  // تنبيهات
+  for(const s of act){
+    if(s._deficit>=5)items.push({icon:'🔴',cls:'red',title:'نقص '+s._deficit+'د',sub:fmtT(s._t)+' · '+shortGame(s.game),time:fmtT(s._t)});
+    if(s._setup>5)items.push({icon:'⏳',cls:'amber',title:'تأخير تجهيز '+s._setup+'د',sub:fmtT(s._t)+' · '+(s._fault==='staff'?'تشغيلي':'العميل'),time:fmtT(s._t)});
+    if(s._delaysNext)items.push({icon:'⚠️',cls:'red',title:'تجاوز وأخّر التالي',sub:fmtT(s._t)+' · '+s._over+'د',time:fmtT(s._t)});
+    if(s._t>now&&s._t-now<=15*60000&&!s.arrived_at)items.push({icon:'🔔',cls:'blue',title:'الحجز القادم',sub:fmtT(s._t)+' · '+shortGame(s.game)+' · لم يصل بعد',time:fmtT(s._t)});
+  }
+  const pendingRec=act.filter(s=>s._rounds&&hasRecording(s)&&!s.sent_at&&s.rec_status!=='declined');
+  if(pendingRec.length)items.push({icon:'📼',cls:'amber',title:pendingRec.length+' تسجيل لم يُرسَل',sub:'اضغط للذهاب لتبويب التسجيلات',time:fmtT(now)});
+  const lowStock=(S.stock||[]).filter(r=>+r.qty<=5);
+  if(lowStock.length)items.push({icon:'📦',cls:'red',title:'مخزون منخفض',sub:lowStock.map(r=>r.item+' ('+r.qty+')').join(' · '),time:fmtT(now)});
+  const nextBrief=act.find(s=>s._t>now&&s._t-now<=30*60000&&!s.briefed_at&&!s._second);
+  if(nextBrief)items.push({icon:'🎙',cls:'blue',title:'بريفنق مقترح',sub:fmtT(nextBrief._t)+' · '+shortGame(nextBrief.game),time:fmtT(nextBrief._briefTarget)});
+
+  const badge=document.getElementById('notifBadge');
+  if(badge){badge.style.display=items.length?'':'none';badge.textContent=Math.min(items.length,99)}
+
+  if(!items.length){d.innerHTML='<div class="nempty">لا تنبيهات حالياً ✓</div>';return}
+  d.innerHTML=items.slice(0,10).map(it=>'<div class="nitem">'
+    +'<div class="nicon '+it.cls+'">'+it.icon+'</div>'
+    +'<div><div class="ntitle">'+it.title+'</div><div class="ntime">'+it.sub+'</div></div>'
+    +'</div>').join('');
+}
+
+/* ═════════ Quick Actions ═════════ */
+function toggleQA(){
+  document.getElementById('qaMenu').classList.toggle('on');
+}
+function qaWalkin(){
+  toggleQA();
+  const name=prompt('اسم اللاعب/المجموعة:');if(!name)return;
+  const game=prompt('اللعبة:\n1-Battle Arena\n2-Zombies\n3-Mars\n4-Arcade\n5-Moon of Dead\n6-Darts\n7-Zombies Initiation\n8-Moon Survival\n9-Karting\n10-Rabbids','1');
+  const gmap={'1':'gameId 1','2':'gameId 2','3':'gameId 3','4':'gameId 4','5':'gameId 5','6':'gameId 6','7':'gameId 7','8':'gameId 8','9':'gameId 9','10':'gameId 10'};
+  const gid=gmap[game]||'gameId 1';
+  const players=parseInt(prompt('عدد اللاعبين:',4)||4);
+  const time=prompt('الوقت (HH:MM):',fmtT(Date.now()).slice(0,5));if(!time)return;
+  const ts=hmToTs(time);if(!ts){alert('وقت غير صحيح');return}
+  const end=ts+BLOCK*60000;
+  // نضيف walkin مؤقت (يظهر فقط محلياً حتى يُدخل في النظام)
+  alert('Walk-in: '+name+' · '+players+' لاعب · '+fmtT(ts)+'\n\nملاحظة: Walk-ins تُرصد تلقائياً من إيفا. هذا للتسجيل اليدوي فقط.');
+}
+function qaCafe(){
+  toggleQA();switchTab('cafe');
+}
+function qaExpense(){
+  toggleQA();switchTab('rep');
+  setTimeout(()=>{const el=document.getElementById('exLabel');if(el)el.focus()},200);
+}
+function qaPlayer(){
+  toggleQA();switchTab('dash');
+  alert('اللاعب الجديد يُسجّل تلقائياً عند أول جولة يلعبها في إيفا.\nللتسجيل اليدوي: اذهب لتبويب الاستقبال → حجز جديد.');
+}
+
+/* ═════════ Heatmap في التقرير ═════════ */
+function renderHeatmap(){
+  const el=document.getElementById('tab-rep');
+  if(!el)return;
+  // نبحث عن مكان الإدراج - بعد "ملخّص اليوم"
+  // بدلاً من ذلك، سأضيفه كقسم في renderRep مباشرة
+}
+
+
+/* ═════════ Heatmap في التقرير ═════════ */
+function renderHeatmapRep(){
+  const wrap=document.getElementById('hmWrap');if(!wrap)return;
+  const days=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const hours=[];
+  for(let h=10;h<=24;h++)hours.push(h);
+
+  // نجمع بيانات ٧ أيام (اليوم + ٦ سابق)
+  const data={};
+  for(let d=0;d<7;d++){
+    const dayStr=new Date(Date.parse(DAY+'T00:00:00Z')-d*86400e3).toISOString().slice(0,10);
+    data[dayStr]={};
+    for(const h of hours)data[dayStr][h]=0;
+  }
+  // نملأ من S.slots (البيانات المحلية فقط - للعرض)
+  for(const s of S.slots){
+    if(s._cancelled)continue;
+    const d=loc(s._t);
+    const h=d.getUTCHours();
+    if(h>=10&&data[DAY]&&data[DAY][h]!=null)data[DAY][h]+=(s.booked_players||0);
+  }
+
+  let h='<div class="hmlbl top"></div>';
+  for(const hr of hours)h+='<div class="hmlbl top">'+hr+'</div>';
+
+  for(let d=6;d>=0;d--){
+    const dayStr=new Date(Date.parse(DAY+'T00:00:00Z')-d*86400e3).toISOString().slice(0,10);
+    const dayIdx=new Date(Date.parse(dayStr+'T12:00:00Z')).getUTCDay();
+    h+='<div class="hmlbl">'+(d===0?'اليوم':days[dayIdx])+'</div>';
+    for(const hr of hours){
+      const val=(data[dayStr]&&data[dayStr][hr])||0;
+      const col=val>=8?'#e04b59':val>=4?'#d29a1c':val>0?'#1fae68':'#1b242f';
+      const op=val>0?Math.min(.9,.1+val*.08):1;
+      h+='<div class="hmcell" style="background:'+col+';opacity:'+op+'" title="'+days[dayIdx]+' '+hr+':00 — '+val+' لاعب">'
+        +'<div class="hmtip">'+val+' 👤</div></div>';
+    }
+  }
+  wrap.innerHTML=h;
+}
+
+/* ═════════ مقارنة الفترات ═════════ */
+function renderCompare(){
+  const grid=document.getElementById('compareGrid');if(!grid)return;
+  // نحسب هذا الأسبوع (آخر ٧ أيام) vs الأسبوع الماضي
+  const now=Date.parse(DAY+'T00:00:00Z');
+  const thisWeek=[], lastWeek=[];
+  for(let i=0;i<7;i++){
+    thisWeek.push(new Date(now-i*86400e3).toISOString().slice(0,10));
+    lastWeek.push(new Date(now-(7+i)*86400e3).toISOString().slice(0,10));
+  }
+
+  // نستخدم البيانات المحلية فقط (S.slots)
+  const calc=(days)=>{
+    let books=0,players=0,gross=0;
+    for(const s of S.slots){
+      if(!days.includes(s.slot_date))continue;
+      if(s._cancelled||(s.booked_players||0)<=0)continue;
+      books++;players+=(s.actual_players??s._actual??s.booked_players??0);
+      const old=DAY;DAY=s.slot_date;try{gross+=saleCalc(s).net}catch(e){}finally{DAY=old}
+    }
+    return{books,players,gross};
+  };
+
+  const t=calc(thisWeek), l=calc(lastWeek);
+  const pct=(n,d)=>d?Math.round((n-d)/d*100):0;
+  const arrow=(n)=>n>0?'📈 +':n<0?'📉 ':'➡️ ';
+  const cls=(n)=>n>0?'cgood':n<0?'cbad':'';
+
+  const row=(label,tv,lv)=>{
+    const p=pct(tv,lv);
+    return '<div class="crow"><span>'+label+'</span><b>'+tv+'</b></div>'
+      +'<div class="crow"><span class="'+cls(p)+'">'+arrow(p)+Math.abs(p)+'%</span><span class="dim">vs '+lv+'</span></div>';
+  };
+
+  grid.innerHTML='<div class="comparecol"><h4>📅 هذا الأسبوع</h4>'
+    +row('الحجوزات',t.books,l.books)
+    +row('اللاعبون',t.players,l.players)
+    +row('الصافي (BD)',t.gross.toFixed(2),l.gross.toFixed(2))
+    +'</div>'
+    +'<div class="comparearrow">VS</div>'
+    +'<div class="comparecol"><h4>📅 الأسبوع الماضي</h4>'
+    +'<div class="crow"><span>الحجوزات</span><b>'+l.books+'</b></div>'
+    +'<div class="crow"><span>اللاعبون</span><b>'+l.players+'</b></div>'
+    +'<div class="crow"><span>الصافي</span><b>'+l.gross.toFixed(2)+' BD</b></div>'
+    +'</div>';
+}
+
+/* ═════════ تحديث الدوال الموجودة ═════════ */
 function buildTabs(){
   document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>
     `<button id="tb-${k}" class="${k===TAB?'on':''}" onclick="switchTab('${k}')">${n}${k==='rec'?' <span class="badge" id="recBadge" style="display:none"></span>':''}</button>`).join('');
 }
 function switchTab(k){TAB=k;
   for(const [t] of TABS){document.getElementById('tb-'+t).classList.toggle('on',t===k);document.getElementById('tab-'+t).classList.toggle('on',t===k)}
-  document.body.classList.toggle('wide',k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res'||k==='top'||k==='night'||k==='per');   // الجداول تأخذ عرض الشاشة
+  document.body.classList.toggle('wide',k==='dash'||k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res'||k==='top'||k==='night'||k==='per');
 }
-function renderAll(){paintDayName();renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();renderTop();renderNight();renderPeriod();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
+function renderAll(){paintDayName();renderDash();renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();renderTop();renderNight();renderPeriod();renderNotif();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
 const DAY_AR=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
 const DAY_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 function dayNameOf(d){const i=new Date(Date.parse(d+'T12:00:00Z')).getUTCDay();return (LANG==='en'?DAY_EN:DAY_AR)[i]}
@@ -3926,5 +4421,12 @@ setInterval(()=>{
 /* تسجيل خدمة العامل (PWA) — يتجاهل الأخطاء بصمت */
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 </script>
+<button class="qabtn" id="qaBtn" onclick="toggleQA()" title="إجراء سريع">+</button>
+<div class="qamenu" id="qaMenu">
+  <button onclick="qaWalkin()"><span class="emoji">🎮</span> حجز سريع (Walk-in)</button>
+  <button onclick="qaCafe()"><span class="emoji">☕</span> طلب كافيه</button>
+  <button onclick="qaExpense()"><span class="emoji">💰</span> مصروف/إضافة</button>
+  <button onclick="qaPlayer()"><span class="emoji">👤</span> لاعب جديد</button>
+</div>
 </body>
 </html>
