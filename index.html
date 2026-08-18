@@ -1667,7 +1667,18 @@ function saleCalc(s){
     }
   }else{
     if(restN>0||!splits.length)parts.push(lineOf(restN,s.pay_method||'',discCode(s),s.discount,pt.length===1?pt[0].name:''));
-    for(const x of splits)parts.push(lineOf(+x.n,x.pay,x.code,x.amount,x.name));
+    /* خصم الحجز كان يُهمَل متى وُجدت صفوف تقسيم ولو صفّاً واحداً بلا خصم خاصّ.
+       الآن: الصفّ بلا كود يرث كود الحجز، والمبلغ اليدوي يُوزَّع على تلك الصفوف بنسبة مبلغها. */
+    const scode=discCode(s), spct=slotPct(scode), sman=+s.discount||0;
+    const open=splits.filter(x=>!x.code);
+    const openAmt=open.reduce((a,x)=>a+(+x.n||0)*rate,0);
+    for(const x of splits){
+      const code=x.code||scode;
+      let man=x.amount;
+      if(!x.code&&spct==null&&sman>0)
+        man=openAmt?+(sman*((+x.n||0)*rate)/openAmt).toFixed(3):0;
+      parts.push(lineOf(+x.n,x.pay,code,man,x.name));
+    }
   }
   return {rate,total,restN,splits,parts,multi:parts.length>1,
     amt:+parts.reduce((a,p)=>a+p.amt,0).toFixed(2),
