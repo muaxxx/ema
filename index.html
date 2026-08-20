@@ -3112,6 +3112,8 @@ function printWeek(){
   const css='<style>'
     +'.wk-title{text-align:center;margin-bottom:6px}.wk-title .t{font-size:26px;font-weight:900;color:#1a7a3c;letter-spacing:.5px}'
     +'.wk-title .s{color:#b8860b;letter-spacing:5px;font-weight:800;font-size:13px}'
+    +'.wk-day{margin:14px 0 2px;page-break-inside:avoid;break-inside:avoid}'
+    +'.wk-day.pgb{page-break-after:always;break-after:page}'
     +'.wk-day{margin:14px 0 2px}.wk-day h3{display:inline-block;background:#1a7a3c;color:#fff;font-size:14px;font-weight:800;padding:6px 18px;border-radius:6px;margin:0}'
     +'.wk-cards{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px}'
     +'.wk-card{flex:1 1 150px;max-width:210px;border:1px solid #e2e8e3;border-top:3px solid #1a7a3c;border-radius:8px;padding:9px 12px;background:#fafcfa}'
@@ -3123,7 +3125,7 @@ function printWeek(){
     +'.wk-note{text-align:center;color:#8a978e;font-size:10px;margin-top:16px;border-top:1px solid #eee;padding-top:8px}'
     +'</style>';
   const title='<div class="wk-title"><div class="t">Weekly Schedule</div><div class="s">EVA MARASSI</div></div>';
-  let daysHtml='';
+  let daysHtml='', di=0;      /* عدّاد الأيام المطبوعة — نقطع صفحة بعد كل ثلاثة */
   for(const dow of order){
     const working=[];
     for(const p of staff){const sh=shiftByLabel(staffWeek(p)[dow]); if(sh){const ov=staffBreaks(p)[dow];working.push({name:p.name,s:sh.s,e:sh.e,fixed:ov?hm2min(ov):null})}}
@@ -3140,7 +3142,9 @@ function printWeek(){
       }
     }
     if(!cards)continue;
-    daysHtml+='<div class="wk-day"><h3>'+EN_DAY[dow]+'</h3><div class="wk-cards">'+cards+'</div></div>';
+    di++;
+    const brk=(di%3===0)?' pgb':'';   /* ثلاثة أيام لكل صفحة */
+    daysHtml+='<div class="wk-day'+brk+'"><h3>'+EN_DAY[dow]+'</h3><div class="wk-cards">'+cards+'</div></div>';
   }
   if(!daysHtml)daysHtml='<div class="wk-note">لا مواعيد مُدخَلة بعد — اختر ورديات الموظفين في الجدول أدناه</div>';
   const note='<div class="wk-note">Break is placed at the mid-point of each shift · overlapping breaks are pushed back by one hour</div>';
