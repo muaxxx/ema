@@ -850,7 +850,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v5.7 · بناء 24-08 16:10</small></span>
+    <span class="brand">EM · نظام مراسي <small>v5.8 · بناء 24-08 16:45</small></span>
     <div class="datenav">
       <div class="searchwrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -1209,9 +1209,18 @@ function compute(){
     if(anchor&&anchor._t>sess.start){anchor._early=true;anchor._earlyBy=Math.max(anchor._earlyBy||0,mins(anchor._t-sess.start))}
     if(!anchor){S.orphanSessions.push(sess);continue}
     const sameKey=act.filter(s=>s._key===anchor._key&&s._t>=anchor._t).sort((a,b)=>a._t-b._t);
+    /* لاعبو بداية الجلسة (المجموعة الأصلية) — بهم نفرّق بين «تجاوز نفس المجموعة»
+       و«حجز آخر بدأ فعلاً». درس ٢٤ أغسطس: حجزان متتاليان كانا يُدمجان في حجز واحد. */
+    const baseIds=new Set(sess.games[0]._ids||[]);
     for(const g of sess.games){
       let tgt=anchor;
-      for(const s of sameKey)if(s._t<=g.start)tgt=s;   // بلوك العميل الذي يحتوي بداية الجولة
+      for(const s of sameKey)if(s._t<=g.start)tgt=s;          // بلوك العميل نفسه
+      const owner=act.find(s=>s._t<=g.start&&g.start<s._endT); // الحجز الذي يحتوي بداية الجولة
+      if(owner&&owner!==tgt&&owner._key!==anchor._key){
+        const gi=g._ids||[];
+        const sameGroup=gi.length&&baseIds.size&&gi.some(id=>baseIds.has(id));
+        if(!sameGroup)tgt=owner;   // مجموعة مختلفة داخل بلوكها ⇒ حجزٌ مستقلّ لا تجاوز
+      }
       tgt._games.push(g);g._slot=tgt;
     }
     // القائمة معروفة ولا أحد من طاقم الجلسة فيها → تنبيه (لا يغيّر الإسناد)
@@ -1542,27 +1551,44 @@ const isGM=()=>!!ACL[USER];
 function renderGmBookings(el,act){
   const now=Date.now();
   const fs2=fieldStatus();
-  const rows=act.map(s=>{
+  const cards=act.map(s=>{
     const col=gameColor(s.game);
     const cur=s._t<=now&&now<s._endT, past=now>=s._endT;
     const cnt=s.actual_players??s._actual??s.booked_players;
-    return '<div class="card" style="border-inline-start-color:'+col+';background:'+(cur?'color-mix(in srgb, '+col+' 16%, #10161d)':'var(--card)')+'">'
-      +'<div class="row">'
-      +'<span class="t" style="font-size:18px">'+fmtT(s._t)+'–'+fmtT(s._endT)+'</span>'
-      +'<span style="color:'+col+';font-weight:800">'+shortGame(s.game)+'</span>'
-      +'<span class="dim">🧑 '+partiesLabel(s)+'</span>'
-      +'<span class="chip">'+cnt+' / '+s.booked_players+'👤</span>'
-      +'<span class="grow"></span>'
-      +(s._second?'<span class="chip ok">✋ لا يحتاج بريفنق — حجز ثانٍ متّصل</span>'
-         :(s._briefKnown&&s._newPlayers===0?'<span class="chip ok">✋ لا يحتاج بريفنق</span>'
-           :'<span class="chip info">🎙 يحتاج بريفنق'+(s._newPlayers?' · '+s._newPlayers+' جديد':'')+'</span>'))
-      +(cur?'<span class="chip info">جارٍ</span>':past?'<span class="chip">انتهى</span>':'<span class="chip">بعد '+mins(s._t-now)+'د</span>')
+    const maps=(s._games||[]).map(g=>g.map).filter(Boolean);
+    const uniqMaps=[...new Set(maps)];
+    const brief=s._second?'<span class="wchip solid" style="color:var(--green)">✋ بلا بريفنق — دبل</span>'
+      :(s._briefKnown&&s._newPlayers===0?'<span class="wchip solid" style="color:var(--green)">✋ بلا بريفنق</span>'
+        :'<span class="wchip">🎙 بريفنق'+(s._newPlayers?' · '+s._newPlayers+' جديد':'')+'</span>');
+    const state=cur?'<span class="wchip solid" style="color:var(--teal-d)">جارٍ الآن</span>'
+      :past?(s._rounds?'<span class="wchip">انتهى</span>':'<span class="wchip alarm">لم يُرصد لعب</span>')
+      :'<span class="wchip">بعد '+mins(s._t-now)+'د</span>';
+    return '<div class="dwrap open" style="--gc:'+col+'">'
+      +'<div class="dstrip" style="--gc:'+col+'">'
+        +'<span class="t">'+fmtT(s._t)+'–'+fmtT(s._endT)+'</span>'
+        +'<span style="font-weight:800;letter-spacing:.3px">'+gameName(s.game)+'</span>'
+        +'<span class="grow"></span>'+state
+      +'</div>'
+      +'<div class="dbody">'
+        +'<div class="row" style="gap:8px">'
+          +'<span class="dim">🧑</span><b style="font-size:14px">'+partiesLabel(s)+'</b>'
+          +'<span class="grow"></span>'
+          +'<span class="chip'+(cnt<s.booked_players?' warn':'')+'">'+cnt+' / '+s.booked_players+' 👤</span>'
+        +'</div>'
+        +'<div class="row sm" style="margin-top:8px">'+brief.replace(/wchip solid|wchip alarm|wchip/g,m=>m==='wchip'?'chip info':(m.indexOf('solid')>0?'chip ok':'chip bad'))+'</div>'
+        +(s._rounds?'<div class="row sm" style="margin-top:8px">'
+            +'<span class="chip">▶ '+s._rounds+' جولة</span>'
+            +'<span class="chip">'+mmss(s._netSec)+' لعب</span>'
+            +(s._firstStart?'<span class="chip">بدأ '+fmtT(s._firstStart)+'</span>':'')
+            +(uniqMaps.length?'<span class="chip">🗺 '+uniqMaps.join('، ')+'</span>':'')
+          +'</div>':'')
       +'</div></div>';
   }).join('');
   el.innerHTML='<div class="hero">'
     +'<div class="big" style="color:'+(fs2.cls==='ok'?'var(--green)':fs2.cls==='warn'?'var(--amber)':'var(--ink)')+'">'+fs2.txt+'</div>'
     +(DAY===opDay()?gmNowLine():'')+'</div>'
-    +'<h2>حجوزات اليوم ('+act.length+')</h2>'+rows;
+    +'<h2>حجوزات اليوم ('+act.length+')</h2>'
+    +'<div class="anagrid">'+cards+'</div>';
 }
 function renderRcp(){
   const el=document.getElementById('tab-rcp');
@@ -4629,7 +4655,7 @@ function switchTab(k){
     if(b)b.classList.toggle('on',t===k);
     if(s)s.classList.toggle('on',t===k);
   }
-  document.body.classList.toggle('wide',k==='dash'||k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res'||k==='top'||k==='night'||k==='per');
+  document.body.classList.toggle('wide',(k==='rcp'&&isGM())||k==='dash'||k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res'||k==='top'||k==='night'||k==='per');
 }
 function renderAll(){paintDayName();renderDash();renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();renderTop();renderNight();renderPeriod();renderNotif();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
 const DAY_AR=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
