@@ -850,7 +850,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v5.5 · بناء 11-08 14:40</small></span>
+    <span class="brand">EM · نظام مراسي <small>v5.7 · بناء 24-08 16:10</small></span>
     <div class="datenav">
       <div class="searchwrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -1046,7 +1046,11 @@ function rateFor(startAt,day){
 
 /* ═════════ الدخول — أربعة حسابات فقط ═════════
    لتغيير رمز أي حساب: بدّل الرقم في PINS ثم أعد النشر. */
-const PINS={'Mariy':'1111','Anwar':'2222','Mah':'3333','Mohaned':'4444'};
+const PINS={'Mariy':'1111','Anwar':'2222','Mah':'3333','Mohaned':'4444','قيم ماستر':'0000'};
+/* صلاحيات: من ليس هنا يرى كل التبويبات */
+const ACL={'قيم ماستر':['rcp','rec']};
+const allowedTabs=()=>ACL[USER]||null;
+const canSee=k=>{const a=allowedTabs();return !a||a.indexOf(k)>-1};
 const USERS=Object.keys(PINS);
 let USER=localStorage.getItem('em_user')||'', PICK='';
 function buildGate(){
@@ -1066,6 +1070,9 @@ function openApp(){
   document.getElementById('gate').style.display='none';
   document.body.classList.remove('locked');
   const w=document.getElementById('who');if(w)w.textContent='👤 '+USER;
+  buildTabs();
+  const a=allowedTabs();
+  if(a&&a.indexOf(TAB)<0)switchTab(a[0]); else switchTab(TAB);
   if(!loadedOnce)load(true);
 }
 function logout(){localStorage.removeItem('em_user');location.reload()}
@@ -1531,10 +1538,37 @@ function rcpFold(s){
     +(cur?'<span class="chip info">جارٍ</span>':past?'<span class="chip">انتهى</span>':'<span class="chip">بعد '+mins(s._t-now)+'د</span>')
     +'</div></div>';
 }
+const isGM=()=>!!ACL[USER];
+function renderGmBookings(el,act){
+  const now=Date.now();
+  const fs2=fieldStatus();
+  const rows=act.map(s=>{
+    const col=gameColor(s.game);
+    const cur=s._t<=now&&now<s._endT, past=now>=s._endT;
+    const cnt=s.actual_players??s._actual??s.booked_players;
+    return '<div class="card" style="border-inline-start-color:'+col+';background:'+(cur?'color-mix(in srgb, '+col+' 16%, #10161d)':'var(--card)')+'">'
+      +'<div class="row">'
+      +'<span class="t" style="font-size:18px">'+fmtT(s._t)+'–'+fmtT(s._endT)+'</span>'
+      +'<span style="color:'+col+';font-weight:800">'+shortGame(s.game)+'</span>'
+      +'<span class="dim">🧑 '+partiesLabel(s)+'</span>'
+      +'<span class="chip">'+cnt+' / '+s.booked_players+'👤</span>'
+      +'<span class="grow"></span>'
+      +(s._second?'<span class="chip ok">✋ لا يحتاج بريفنق — حجز ثانٍ متّصل</span>'
+         :(s._briefKnown&&s._newPlayers===0?'<span class="chip ok">✋ لا يحتاج بريفنق</span>'
+           :'<span class="chip info">🎙 يحتاج بريفنق'+(s._newPlayers?' · '+s._newPlayers+' جديد':'')+'</span>'))
+      +(cur?'<span class="chip info">جارٍ</span>':past?'<span class="chip">انتهى</span>':'<span class="chip">بعد '+mins(s._t-now)+'د</span>')
+      +'</div></div>';
+  }).join('');
+  el.innerHTML='<div class="hero">'
+    +'<div class="big" style="color:'+(fs2.cls==='ok'?'var(--green)':fs2.cls==='warn'?'var(--amber)':'var(--ink)')+'">'+fs2.txt+'</div>'
+    +(DAY===opDay()?gmNowLine():'')+'</div>'
+    +'<h2>حجوزات اليوم ('+act.length+')</h2>'+rows;
+}
 function renderRcp(){
   const el=document.getElementById('tab-rcp');
   const act=S.slots.filter(s=>!s._cancelled);
   if(!act.length){el.innerHTML='<div class="empty">لا حجوزات في هذا اليوم</div>';return}
+  if(isGM())return renderGmBookings(el,act);
   const now=Date.now();
   const fs2=fieldStatus();
   /* الحجز المعروض في الأعلى: الجاري إن كان بلا أختام، وإلا القادم */
@@ -4583,11 +4617,18 @@ function renderCompare(){
 
 /* ═════════ تحديث الدوال الموجودة ═════════ */
 function buildTabs(){
-  document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>
-    `<button id="tb-${k}" class="${k===TAB?'on':''}" onclick="switchTab('${k}')">${n}${k==='rec'?' <span class="badge" id="recBadge" style="display:none"></span>':''}</button>`).join('');
+  document.getElementById('tabs').innerHTML=TABS.filter(([k])=>canSee(k)).map(([k,n0])=>{
+    const n=(isGM()&&k==='rcp')?'الحجوزات':n0;
+    return `<button id="tb-${k}" class="${k===TAB?'on':''}" onclick="switchTab('${k}')">${n}${k==='rec'?' <span class="badge" id="recBadge" style="display:none"></span>':''}</button>`;}).join('');
 }
-function switchTab(k){TAB=k;
-  for(const [t] of TABS){document.getElementById('tb-'+t).classList.toggle('on',t===k);document.getElementById('tab-'+t).classList.toggle('on',t===k)}
+function switchTab(k){
+  if(!canSee(k))return;
+  TAB=k;
+  for(const [t] of TABS){
+    const b=document.getElementById('tb-'+t), s=document.getElementById('tab-'+t);
+    if(b)b.classList.toggle('on',t===k);
+    if(s)s.classList.toggle('on',t===k);
+  }
   document.body.classList.toggle('wide',k==='dash'||k==='sales'||k==='rep'||k==='ana'||k==='rec'||k==='cafe'||k==='res'||k==='top'||k==='night'||k==='per');
 }
 function renderAll(){paintDayName();renderDash();renderRcp();renderAna();renderSales();renderCafe();renderRec();renderRep();renderGm();renderResults();renderTop();renderNight();renderPeriod();renderNotif();sweep(document.querySelector('main'));sweep(document.getElementById('tabs'))}
