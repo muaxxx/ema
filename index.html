@@ -853,7 +853,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v5.9 · بناء 24-08 18:10</small></span>
+    <span class="brand">EM · نظام مراسي <small>v5.10 · بناء 24-08 18:35</small></span>
     <div class="datenav">
       <div class="searchwrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -1553,9 +1553,6 @@ function renderGmBookings(el,act){
     const cnt=s.actual_players??s._actual??s.booked_players;
     const maps=(s._games||[]).map(g=>g.map).filter(Boolean);
     const uniqMaps=[...new Set(maps)];
-    const brief=s._second?'<span class="wchip solid" style="color:var(--green)">✋ بلا بريفنق — دبل</span>'
-      :(s._briefKnown&&s._newPlayers===0?'<span class="wchip solid" style="color:var(--green)">✋ بلا بريفنق</span>'
-        :'<span class="wchip">🎙 بريفنق'+(s._newPlayers?' · '+s._newPlayers+' جديد':'')+'</span>');
     const state=cur?'<span class="wchip solid" style="color:var(--teal-d)">جارٍ الآن</span>'
       :past?(s._rounds?'<span class="wchip">انتهى</span>':'<span class="wchip alarm">لم يُرصد لعب</span>')
       :'<span class="wchip">بعد '+mins(s._t-now)+'د</span>';
@@ -1571,7 +1568,6 @@ function renderGmBookings(el,act){
           +'<span class="grow"></span>'
           +'<span class="chip'+(cnt<s.booked_players?' warn':'')+'">'+cnt+' / '+s.booked_players+' 👤</span>'
         +'</div>'
-        +'<div class="row sm" style="margin-top:8px">'+brief.replace(/wchip solid|wchip alarm|wchip/g,m=>m==='wchip'?'chip info':(m.indexOf('solid')>0?'chip ok':'chip bad'))+'</div>'
         +(s._rounds?'<div class="row sm" style="margin-top:8px">'
             +'<span class="chip">▶ '+s._rounds+' جولة</span>'
             +'<span class="chip">'+mmss(s._netSec)+' لعب</span>'
