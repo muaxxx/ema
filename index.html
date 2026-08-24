@@ -181,6 +181,9 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--teal)}
 .dstrip:hover{filter:brightness(1.09)}
 .chev{transition:transform .18s;font-size:15px;opacity:.85}
 .dwrap.open .chev{transform:rotate(180deg)}
+.dwrap.done{opacity:.6;filter:saturate(.55)}
+.dwrap.done:hover{opacity:1;filter:none}
+.dwrap.done .dstrip{background:linear-gradient(90deg,#2b3a46,#222d38)}
 .anagrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
 @media(max-width:1100px){.anagrid{grid-template-columns:1fr}}
 .anagrid .dwrap{margin-bottom:0}
@@ -850,7 +853,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v5.8 · بناء 24-08 16:45</small></span>
+    <span class="brand">EM · نظام مراسي <small>v5.9 · بناء 24-08 18:10</small></span>
     <div class="datenav">
       <div class="searchwrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -1048,7 +1051,7 @@ function rateFor(startAt,day){
    لتغيير رمز أي حساب: بدّل الرقم في PINS ثم أعد النشر. */
 const PINS={'Mariy':'1111','Anwar':'2222','Mah':'3333','Mohaned':'4444','قيم ماستر':'0000'};
 /* صلاحيات: من ليس هنا يرى كل التبويبات */
-const ACL={'قيم ماستر':['rcp','rec']};
+const ACL={'قيم ماستر':['rcp','ana','rec']};
 const allowedTabs=()=>ACL[USER]||null;
 const canSee=k=>{const a=allowedTabs();return !a||a.indexOf(k)>-1};
 const USERS=Object.keys(PINS);
@@ -1200,49 +1203,42 @@ function compute(){
     return null;
   }
   S.orphanSessions=[];
+  /* مرحلة ١: مرساة كل جلسة = الحجز الذي يحتوي بدايتها */
+  const anchorOf=new Map(), anchored=new Set();
   for(const sess of sessions){
-    /* صاحب الجلسة = الحجز الذي **يحتوي** وقت بدايتها؛ ولا نستعمل نافذة البدء المبكر
-       إلا إن لم يحتوِها أيّ حجز (درس: جولة 21:33 داخل حجز 21:00 كانت تُنسب لـ21:40). */
-    let anchor=act.find(s=>s._t<=sess.start&&sess.start<s._endT)
+    const anchor=act.find(s=>s._t<=sess.start&&sess.start<s._endT)
             || act.find(s=>sess.start<s._t&&s._t-sess.start<=EARLY*60000)
-            || earlyOwner(act,sess);        /* دخل مبكّراً وهو صاحب حجز قادم */
-    if(anchor&&anchor._t>sess.start){anchor._early=true;anchor._earlyBy=Math.max(anchor._earlyBy||0,mins(anchor._t-sess.start))}
+            || earlyOwner(act,sess);
+    if(anchor){anchorOf.set(sess,anchor);anchored.add(anchor);}
+  }
+  /* مرحلة ٢: التوزيع.
+     الجولة تبقى مع مجموعتها (المرساة). لا تنتقل للحجز التالي إلا إذا كان
+     ذلك الحجز **بلا مجموعة خاصة به** و**بنفس الحساب** ⇒ فهو بلوكهم الثاني (دبل).
+     أما إن كان للحجز التالي مجموعته الخاصة فالجولة تجاوزٌ من السابق ولا تُنسب إليه.
+     (درس ٢٤ أغسطس: حجوزات حساب الموظف المتتالية عملاء مختلفون — الأسماء هي الفيصل) */
+  for(const sess of sessions){
+    const anchor=anchorOf.get(sess);
     if(!anchor){S.orphanSessions.push(sess);continue}
-    const sameKey=act.filter(s=>s._key===anchor._key&&s._t>=anchor._t).sort((a,b)=>a._t-b._t);
-    /* لاعبو بداية الجلسة (المجموعة الأصلية) — بهم نفرّق بين «تجاوز نفس المجموعة»
-       و«حجز آخر بدأ فعلاً». درس ٢٤ أغسطس: حجزان متتاليان كانا يُدمجان في حجز واحد. */
-    const baseIds=new Set(sess.games[0]._ids||[]);
+    if(anchor._t>sess.start){anchor._early=true;anchor._earlyBy=Math.max(anchor._earlyBy||0,mins(anchor._t-sess.start))}
     for(const g of sess.games){
       let tgt=anchor;
-      for(const s of sameKey)if(s._t<=g.start)tgt=s;          // بلوك العميل نفسه
-      const owner=act.find(s=>s._t<=g.start&&g.start<s._endT); // الحجز الذي يحتوي بداية الجولة
-      if(owner&&owner!==tgt&&owner._key!==anchor._key){
-        const gi=g._ids||[];
-        const sameGroup=gi.length&&baseIds.size&&gi.some(id=>baseIds.has(id));
-        if(!sameGroup)tgt=owner;   // مجموعة مختلفة داخل بلوكها ⇒ حجزٌ مستقلّ لا تجاوز
+      const owner=act.find(s=>s._t<=g.start&&g.start<s._endT);
+      if(owner&&owner!==anchor&&owner._t>anchor._t&&!anchored.has(owner)&&owner._key===anchor._key){
+        tgt=owner;                       // نفس المجموعة واصلت في بلوكها التالي = دبل
+        tgt._fromPrev=true;
       }
       tgt._games.push(g);g._slot=tgt;
     }
-    // القائمة معروفة ولا أحد من طاقم الجلسة فيها → تنبيه (لا يغيّر الإسناد)
     if(anchor._rIds.size&&sess.ids.size&&![...sess.ids].some(id=>anchor._rIds.has(id)))
       for(const g of sess.games)if(g._slot)g._slot._mismatch=true;
   }
 
-  /* «حجز ثانٍ متّصل» (دبل) = نفس المجموعة واصلت في البلوك التالي.
-     يُحدَّد بتطابق اللاعبين فعلياً؛ فحسابُ موظفٍ يحجز لعملاء مختلفين متتاليين
-     ليس دبل (درس حجزَي صلاح ١٧:٤٠ و١٨:٢٠ — عميلان مختلفان). */
+  /* «حجز ثانٍ متّصل» (دبل) = بلوكٌ استقبل جولات مجموعةٍ بدأت في البلوك السابق.
+     لا يُخمَّن من تشابه اسم الحساب (حساب الموظف يحجز لعملاء مختلفين)، ولا يُحدَّد
+     قبل أن يبدأ اللعب. */
   for(const s of act){
-    const prev=act.find(p=>p._endT===s._t);
-    let second=false;
-    if(prev){
-      const a=new Set(s._games.flatMap(g=>g._ids||[])), b=new Set(prev._games.flatMap(g=>g._ids||[]));
-      if(a.size&&b.size){
-        let hit=0; for(const id of a)if(b.has(id))hit++;
-        second=hit>=Math.max(1,Math.min(a.size,b.size)*0.5);      // نصف اللاعبين فأكثر
-      } else second=(prev._key===s._key)&&!staffBooked(s);        // بلا بيانات لعب: الحساب، ما لم يكن موظفاً
-    }
-    s._second=second;
-    s._entitled=second?BLOCK:BLOCK-SETUP;
+    s._second=!!s._fromPrev;
+    s._entitled=s._second?BLOCK:BLOCK-SETUP;
   }
   for(const s of S.slots)if(s._cancelled){s._second=false;s._entitled=BLOCK-SETUP}
 
@@ -1563,7 +1559,7 @@ function renderGmBookings(el,act){
     const state=cur?'<span class="wchip solid" style="color:var(--teal-d)">جارٍ الآن</span>'
       :past?(s._rounds?'<span class="wchip">انتهى</span>':'<span class="wchip alarm">لم يُرصد لعب</span>')
       :'<span class="wchip">بعد '+mins(s._t-now)+'د</span>';
-    return '<div class="dwrap open" style="--gc:'+col+'">'
+    return '<div class="dwrap open'+(past&&!cur?' done':'')+'" style="--gc:'+col+'">'
       +'<div class="dstrip" style="--gc:'+col+'">'
         +'<span class="t">'+fmtT(s._t)+'–'+fmtT(s._endT)+'</span>'
         +'<span style="font-weight:800;letter-spacing:.3px">'+gameName(s.game)+'</span>'
