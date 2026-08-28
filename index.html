@@ -218,6 +218,18 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--teal)}
 .rolechip.r-tech{color:#a06bff;border-color:#3a2a5a}
 .rolechip.r-super{color:#ff6b78;border-color:#5a2a2e}
 .rolechip.r-cafe{color:#ff8a3d;border-color:#5a3a1e}
+.nhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;padding:14px 18px;border-radius:16px;
+  background:linear-gradient(120deg,#101a2e,#16233c 55%,#1d2b48);border:1px solid #2b3d5e;box-shadow:0 8px 26px rgba(0,0,0,.4)}
+.nhead .nttl{font-size:23px;font-weight:800;letter-spacing:2px;color:#ffd76a;text-shadow:0 2px 10px rgba(255,200,80,.25)}
+.nhead .nsub{font-size:12.5px;color:#9db4d6;margin-top:3px}
+.nhead>button{margin-inline-start:auto}
+.nbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.npill{display:inline-flex;align-items:center;background:var(--card2);border:1px solid var(--line2);border-radius:999px;overflow:hidden}
+.npill button{background:none;border:none;color:var(--dim);font:700 12.5px 'Tajawal';padding:6px 14px;cursor:pointer}
+.npill i{font-style:normal;color:#7d8ea3;cursor:pointer;padding:0 10px 0 4px;font-size:12px}
+.npill i:hover{color:var(--red)}
+.npill.on{border-color:#ffd76a;background:#2a2415}
+.npill.on button{color:#ffd76a}
 .catbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .catbtn{background:var(--card2);border:1px solid var(--line2);border-radius:999px;padding:6px 16px;cursor:pointer;color:var(--dim);font:700 13px 'Tajawal'}
 .catbtn.on{background:var(--teal-d);border-color:#0e6c7d;color:#fff}
@@ -853,7 +865,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v5.10 · بناء 24-08 18:35</small></span>
+    <span class="brand">EM · نظام مراسي <small>v6.0 · بناء 24-08 19:20</small></span>
     <div class="datenav">
       <div class="searchwrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -3999,17 +4011,45 @@ function nightRename(i){
   }catch(e){}
   renderNight();
 }
+/* بصمة إيفا نايت: بطولة فرق (٥ فرق · ٢٠ لاعباً) — لا مجرّد ليلة فيها لعب فرق.
+   الشرط: ٤ فرق فأكثر و١٦ لاعباً مميّزاً فأكثر. ويستطيع المؤسّس استبعاد ليلة أو إضافتها يدوياً. */
+const NIGHT_MIN_SQUADS=4, NIGHT_MIN_PLAYERS=16;
+function nightFlags(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []}}
+function nightFlagSet(k,arr){try{localStorage.setItem(k,JSON.stringify([...new Set(arr)]))}catch(e){}}
+function nightHide(d){
+  if(!confirm('إزالة ليلة '+d+' من إيفا نايت؟ (تبقى بياناتها في التشغيل والنتائج)'))return;
+  nightFlagSet('emn:hidden',[...nightFlags('emn:hidden'),d]);
+  nightFlagSet('emn:added',nightFlags('emn:added').filter(x=>x!==d));
+  NIGHT_DAY=''; renderNight();
+}
+function nightAdd(){
+  const d=prompt('تاريخ ليلة إيفا نايت (YYYY-MM-DD)',DAY);
+  if(!d||!/^d{4}-d{2}-d{2}$/.test(d))return;
+  nightFlagSet('emn:added',[...nightFlags('emn:added'),d]);
+  nightFlagSet('emn:hidden',nightFlags('emn:hidden').filter(x=>x!==d));
+  NIGHT_DAY=d; renderNight();
+}
+function nightQualifies(day){
+  const D=nightData(day);
+  if(D.sq.length<NIGHT_MIN_SQUADS)return false;
+  const ps=new Set();
+  for(const r of D.rounds)for(const p of rPlayers(r))ps.add(p.id!=null?'u'+p.id:'n'+String(p.name).toLowerCase());
+  return ps.size>=NIGHT_MIN_PLAYERS;
+}
 function nightList(){
-  const out=new Map();
+  const cand=new Set();
   for(const r of (S.rounds||[])){
-    const loc=+new Date(r.played_at)+SHIFT, h=new Date(loc).getUTCHours();
-    if(!(h>=NIGHT_FROM||h<NIGHT_TO))continue;
-    const day=new Date(loc-(h<NIGHT_TO?86400e3:0)).toISOString().slice(0,10);
-    if(new Date(Date.parse(day+'T12:00:00Z')).getUTCDay()!==5)continue;   /* ليلة الجمعة فقط */
+    const loc=+new Date(r.played_at)+SHIFT, hh=new Date(loc).getUTCHours();
+    if(!(hh>=NIGHT_FROM||hh<NIGHT_TO))continue;
+    const day=new Date(loc-(hh<NIGHT_TO?86400e3:0)).toISOString().slice(0,10);
     const m=roundMode(r); if(m!=='dom'&&m!=='tdm')continue;
-    out.set(day,(out.get(day)||0)+1);
+    cand.add(day);
   }
-  return [...out.keys()].sort((a,b)=>b.localeCompare(a));
+  const hidden=new Set(nightFlags('emn:hidden')), added=nightFlags('emn:added');
+  const out=new Set();
+  for(const d of cand)if(!hidden.has(d)&&nightQualifies(d))out.add(d);
+  for(const d of added)if(!hidden.has(d))out.add(d);
+  return [...out].sort((a,b)=>b.localeCompare(a));
 }
 function nightData(day){
   const W=nightWindow(day);
@@ -4082,8 +4122,10 @@ function renderNight(){
   const el=document.getElementById('tab-night'); if(!el)return;
   const nights=nightList();
   if(!nights.length){
-    el.innerHTML='<div class="row" style="margin-bottom:12px"><h2 style="margin:0">⭐ إيفا نايت</h2></div>'
-      +'<div class="empty">لا توجد بطولة إيفا نايت مسجّلة بعد — تظهر تلقائياً بعد أول ليلة جمعة فيها مباريات فرق</div>';
+    el.innerHTML='<div class="nhead"><div><div class="nttl">⭐ EVA NIGHT</div>'
+      +'<div class="nsub">بطولة الفرق — ٥ فرق · ٢٠ لاعباً</div></div>'
+      +'<button class="btn" onclick="nightAdd()">+ أضف ليلة يدوياً</button></div>'
+      +'<div class="empty">لا توجد بطولة مسجّلة — تظهر تلقائياً حين تُرصد ليلة فيها '+NIGHT_MIN_SQUADS+' فرق فأكثر و'+NIGHT_MIN_PLAYERS+' لاعباً فأكثر</div>';
     sweep(el); return;
   }
   if(nights.indexOf(NIGHT_DAY)<0)NIGHT_DAY=nights[0];
@@ -4092,11 +4134,16 @@ function renderNight(){
   const dd=new Date(Date.parse(ND+'T12:00:00Z'));
   const dow=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'][dd.getUTCDay()];
   const dstr=(dd.getUTCMonth()+1)+'/'+dd.getUTCDate()+'/'+String(dd.getUTCFullYear()).slice(2);
-  const bar='<div class="row" style="margin-bottom:8px;align-items:center">'
-    +'<h2 style="margin:0">⭐ إيفا نايت — البطولات</h2>'
-    +'<span class="dim sm">ليلة الجمعة · من ١٠ مساءً حتى ٤ فجراً</span><span class="grow"></span></div>'
-    +'<div class="catbar" style="margin-bottom:12px">'
-    +nights.map(d=>'<button class="catbtn '+(d===ND?'on':'')+'" onclick="nightPick(&quot;'+d+'&quot;)">'+d+'</button>').join('')
+  const nDow=d=>['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date(Date.parse(d+'T12:00:00Z')).getUTCDay()];
+  const bar='<div class="nhead">'
+    +'<div><div class="nttl">⭐ EVA NIGHT</div>'
+      +'<div class="nsub">'+nDow(ND)+' · '+ND+' — '+D.sq.length+' فرق · '+D.matches.length+' مباريات · من ١٠م حتى ٦ص</div></div>'
+    +'<button class="btn" onclick="nightAdd()">+ أضف ليلة</button>'
+    +'</div>'
+    +'<div class="nbar">'
+    +nights.map(d=>'<span class="npill '+(d===ND?'on':'')+'">'
+        +'<button onclick="nightPick(&quot;'+d+'&quot;)">'+nDow(d)+' · '+d.slice(5)+'</button>'
+        +'<i title="ليست إيفا نايت" onclick="nightHide(&quot;'+d+'&quot;)">✕</i></span>').join('')
     +'</div>';
   if(!D.matches.length){el.innerHTML=bar+'<div class="empty">لا مباريات فرق في هذه الليلة</div>';sweep(el);return}
   const cal='<svg viewBox="0 0 24 24" fill="none" stroke="#cfe0ff" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>';
