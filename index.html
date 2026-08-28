@@ -921,7 +921,7 @@ h2::before{content:"";position:absolute;inset-inline-start:0;top:3px;bottom:3px;
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v6.1 · بناء 28-08 20:45</small></span>
+    <span class="brand">EM · نظام مراسي <small>v6.2 · بناء 28-08 23:55</small></span>
     <div class="datenav">
       <div class="searchwrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -4048,9 +4048,25 @@ function renderTop(){
    إيفا لا تحفظ أسماء الفرق (ALLIANCE/REBELS فقط) — فتُستنبط الفرق من أطقم اللاعبين:
    طرفٌ يشترك في ٣ لاعبين فأكثر مع طقم سابق = نفس الفريق. */
 const NIGHT_FROM=22, NIGHT_TO=6;                 /* ١٠م → ٦ص بتوقيت البحرين (مباريات تمتدّ بعد الرابعة) */
+function nightStartOf(day){
+  try{const v=localStorage.getItem('emn:start:'+day);if(v&&/^\d{1,2}:\d{2}$/.test(v))return v}catch(e){}
+  return NIGHT_FROM+':00';
+}
+function nightSetStart(){
+  const cur=nightStartOf(NIGHT_DAY);
+  const v=prompt('متى بدأت بطولة هذه الليلة؟ (HH:MM بتوقيت البحرين) — كل لعب الفرق قبل هذا الوقت لا يُحسب في البطولة',cur);
+  if(v==null)return;
+  if(!/^\d{1,2}:\d{2}$/.test(v.trim())){status('صيغة الوقت: 23:00');return}
+  try{
+    if(v.trim()===NIGHT_FROM+':00')localStorage.removeItem('emn:start:'+NIGHT_DAY);
+    else localStorage.setItem('emn:start:'+NIGHT_DAY,v.trim());
+  }catch(e){}
+  renderNight();
+}
 function nightWindow(day){
   const base=Date.parse(day+'T00:00:00Z')-SHIFT;  /* منتصف الليل المحلي */
-  return {from:base+NIGHT_FROM*3600e3, to:base+(24+NIGHT_TO)*3600e3};
+  const st=nightStartOf(day).split(':');
+  return {from:base+(+st[0])*3600e3+(+st[1])*60000, to:base+(24+NIGHT_TO)*3600e3};
 }
 /* أرشيف: كل ليالي الجمعة التي فيها مباريات فرق — تتراكم بالتاريخ بلا حاجة لتغيير تاريخ الصفحة */
 let NIGHT_DAY='';
@@ -4193,7 +4209,8 @@ function renderNight(){
   const nDow=d=>['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date(Date.parse(d+'T12:00:00Z')).getUTCDay()];
   const bar='<div class="nhead">'
     +'<div><div class="nttl">⭐ EVA NIGHT</div>'
-      +'<div class="nsub">'+nDow(ND)+' · '+ND+' — '+D.sq.length+' فرق · '+D.matches.length+' مباريات · من ١٠م حتى ٦ص</div></div>'
+      +'<div class="nsub">'+nDow(ND)+' · '+ND+' — '+D.sq.length+' فرق · '+D.matches.length+' مباريات</div></div>'
+    +'<button class="btn" onclick="nightSetStart()" title="لعب الفرق قبل هذا الوقت لا يُحسب في البطولة">⏱ تبدأ '+nightStartOf(ND)+'</button>'
     +'<button class="btn" onclick="nightAdd()">+ أضف ليلة</button>'
     +'</div>'
     +'<div class="nbar">'
