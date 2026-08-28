@@ -1,7 +1,7 @@
 /* EM · Service Worker — يجعل الموقع قابلاً للتثبيت كتطبيق ويعمل ملء الشاشة.
    يخزّن «قشرة» الصفحة فقط (network-first) للفتح دون إنترنت؛
    لا يعترض نداءات Supabase/الـAPI (تمرّ مباشرة دائماً للبيانات الحيّة). */
-const CACHE = 'em-shell-v8';
+const CACHE = 'em-shell-v9';
 const SHELL = ['./', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-180.png'];
 
 self.addEventListener('install', e => {

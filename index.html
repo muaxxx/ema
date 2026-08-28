@@ -848,6 +848,62 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);
   .empty{padding:20px 14px}
 }
 
+
+/* ═══ صقل الواجهة v6.1 — لمسات عامة + إيفا نايت ═══ */
+/* تبويبات بخط تدرّجي وتوهّج */
+nav button{position:relative;transition:color .15s}
+nav button:hover{color:var(--ink)}
+nav button.on{color:#fff;border-color:transparent}
+nav button.on::after{content:"";position:absolute;inset-inline:12px;bottom:0;height:3px;border-radius:3px;
+  background:linear-gradient(90deg,var(--teal),#7c5cff);box-shadow:0 0 12px rgba(96,165,250,.55)}
+header{border-bottom:1px solid #1d2a3c;box-shadow:0 1px 0 rgba(96,165,250,.10)}
+/* عناوين الأقسام بشريط تدرّجي */
+h2{position:relative;padding-inline-start:12px}
+h2::before{content:"";position:absolute;inset-inline-start:0;top:3px;bottom:3px;width:4px;border-radius:4px;
+  background:linear-gradient(180deg,var(--teal),#7c5cff)}
+/* أزرار أحيَى */
+.btn.primary{background:linear-gradient(135deg,var(--teal),#2f7fe0);border:none;box-shadow:0 3px 12px rgba(42,166,188,.35)}
+.btn.primary:hover{box-shadow:0 5px 18px rgba(42,166,188,.5);transform:translateY(-1px)}
+/* البطاقات العامة: حدّ يتوهّج عند المرور */
+.hero{position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset-inline:0;top:0;height:3px;
+  background:linear-gradient(90deg,var(--teal),#7c5cff,transparent 85%)}
+.card{transition:border-color .15s}
+.card:hover{border-color:#33506e}
+.dwrap{transition:transform .15s,box-shadow .15s}
+.dwrap:hover{transform:translateY(-2px)}
+
+/* ═══ إيفا نايت — بانر بطولة ليلي ═══ */
+.nhead{position:relative;overflow:hidden;padding:20px 24px;border-radius:18px;border:1px solid #3b3564;
+  background:
+    radial-gradient(2px 2px at 12% 30%,rgba(255,255,255,.55),transparent 55%),
+    radial-gradient(1.6px 1.6px at 30% 70%,rgba(255,255,255,.4),transparent 55%),
+    radial-gradient(2px 2px at 52% 22%,rgba(255,255,255,.5),transparent 55%),
+    radial-gradient(1.5px 1.5px at 70% 60%,rgba(255,255,255,.38),transparent 55%),
+    radial-gradient(2px 2px at 88% 34%,rgba(255,255,255,.5),transparent 55%),
+    radial-gradient(900px 320px at 14% -30%,rgba(124,58,237,.55),transparent 62%),
+    radial-gradient(760px 300px at 90% -20%,rgba(47,127,224,.45),transparent 60%),
+    linear-gradient(140deg,#0d1226,#141b38 55%,#1a1440)}
+.nhead::after{content:"🏆";position:absolute;inset-inline-end:120px;top:50%;transform:translateY(-50%);
+  font-size:56px;opacity:.16;filter:blur(.4px);pointer-events:none}
+.nhead .nttl{font-size:27px;letter-spacing:3px;
+  background:linear-gradient(180deg,#ffe9a8,#f4b942 65%,#c98a1a);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 14px rgba(255,196,70,.35))}
+.nhead .nsub{color:#b9c6e6;font-size:13px;margin-top:5px}
+.nhead>button{background:rgba(255,215,106,.12);border:1px solid rgba(255,215,106,.45);color:#ffd76a}
+.nhead>button:hover{background:rgba(255,215,106,.22);border-color:#ffd76a;transform:translateY(-1px)}
+/* شريط الليالي */
+.nbar{margin-top:-4px}
+.npill{background:#131a2c;border-color:#283452;transition:.15s}
+.npill button{color:#93a5c8}
+.npill:hover{border-color:#4b5b83;transform:translateY(-1px)}
+.npill.on{background:linear-gradient(135deg,#2a2412,#1d1a10);border-color:#e2b64e;
+  box-shadow:0 0 14px rgba(255,196,70,.22)}
+.npill.on button{color:#ffd76a}
+/* ملصقات البطولة: رفع خفيف عند المرور (لا يمسّ تصدير الصورة) */
+.rcard{transition:transform .18s,box-shadow .18s}
+.rcard:hover{transform:translateY(-3px);box-shadow:0 30px 70px rgba(0,0,0,.7)}
 </style>
 </head>
 <body>
@@ -865,7 +921,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);
 </div>
 <header>
   <div class="hrow">
-    <span class="brand">EM · نظام مراسي <small>v6.0 · بناء 24-08 19:20</small></span>
+    <span class="brand">EM · نظام مراسي <small>v6.1 · بناء 28-08 20:45</small></span>
     <div class="datenav">
       <div class="searchwrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
